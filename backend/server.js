@@ -6,6 +6,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const { protect } = require("./middleware/authMiddleware");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 
@@ -26,7 +27,8 @@ app.get("/api/test", protect, (req, res) => {
 app.use("/api/patient", require("./routes/patientRoutes"));
 app.use("/api/doctor", require("./routes/doctorRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
-app.use("/api/payment", require("./routes/paymentRoutes"));
+
+app.use("/api/payments", paymentRoutes);
 
 app.get("/", (req, res) => {
   res.send("API running...");
