@@ -25,6 +25,16 @@ const userSchema = new mongoose.Schema({
   },
   otp: String,
   otpExpiry: Date,
+  isApproved: {
+    type: Boolean,
+    default: false,
+  },
+  approvalStatus: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
+  },
+  rejectionReason: String,
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);
