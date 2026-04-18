@@ -16,4 +16,10 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Import the doctor module routes
+const doctorModuleRoutes = require("../modules/doctor/doctor.routes");
+
+// Mount the doctor module routes
+router.use("/doctors", doctorModuleRoutes);
+
 module.exports = router;
