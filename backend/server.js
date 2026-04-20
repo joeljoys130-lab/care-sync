@@ -11,14 +11,12 @@ const fs = require('fs');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
-// Core routes
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-
-// Patient module routes
+// Route imports
+const authRoutes = require('./routes/authRoutes');
 const patientRoutes = require('./routes/patients');
 const recordRoutes = require('./routes/records');
-const appointmentRoutes = require('./routes/appointments'); // Since patients book appointments
+const doctorRoutes = require('./routes/doctorRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Initialize app
 const app = express();
@@ -71,10 +69,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/records', recordRoutes);
-app.use('/api/appointments', appointmentRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
