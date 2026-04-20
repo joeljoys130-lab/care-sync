@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema({
     default: "pending",
   },
   rejectionReason: String,
+  accountStatus: {
+    type: String,
+    enum: ["active", "blocked"],
+    default: "active",
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);
