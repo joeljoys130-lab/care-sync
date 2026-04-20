@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Complaint = require("../models/Complaint");
 
 // GET all users (with pagination and filtering)
 exports.getAllUsers = async (req, res) => {
@@ -103,5 +104,110 @@ exports.getAnalytics = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// GET all appointments (admin monitoring)
+exports.getAllAppointments = async (req, res) => {
+  try {
+    const Appointment = require("../models/Appointment");
+    const { status, page = 1, limit = 10 } = req.query;
+
+    const filter = {};
+    if (status) filter.status = status;
+
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const appointments = await Appointment.find(filter)
+      .populate("patientId", "name email")
+      .populate("doctorId", "name email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum);
+
+    const total = await Appointment.countDocuments(filter);
+
+    return res.status(200).json({
+      message: "Appointments fetched successfully",
+      total,
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum),
+      appointments,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// GET all complaints (admin)
+exports.getAllComplaints = async (req, res) => {
+  try {
+    const { status, priority, page = 1, limit = 10 } = req.query;
+
+    const filter = {};
+    if (status) filter.status = status;
+    if (priority) filter.priority = priority;
+
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const complaints = await Complaint.find(filter)
+      .populate("userId", "name email role")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum);
+
+    const total = await Complaint.countDocuments(filter);
+
+    return res.status(200).json({
+      message: "Complaints fetched successfully",
+      total,
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum),
+      complaints,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// PATCH complaint status (admin)
+exports.updateComplaintStatus = async (req, res) => {
+  try {
+    const { complaintId } = req.params;
+    const { status } = req.body;
+
+    if (!status || !["open", "in_progress", "resolved"].includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status. Use 'open', 'in_progress', or 'resolved'",
+      });
+    }
+
+    const complaint = await Complaint.findById(complaintId);
+    if (!complaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    complaint.status = status;
+    await complaint.save();
+
+    return res.status(200).json({
+      message: "Complaint status updated successfully",
+      complaint,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };

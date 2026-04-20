@@ -5,6 +5,9 @@ const {
   getAllUsers,
   approveDoctorAccount,
   getAnalytics,
+  getAllAppointments,
+  getAllComplaints,
+  updateComplaintStatus,
 } = require("../controllers/adminController");
 
 // All admin routes require authentication and admin role
@@ -18,5 +21,14 @@ router.patch("/doctors/:doctorId/approval", approveDoctorAccount);
 
 // Get analytics
 router.get("/analytics", getAnalytics);
+
+// get all appointments (admin monitoring)
+router.get("/appointments", getAllAppointments);
+
+// get all complaints (admin)
+router.get("/complaints", getAllComplaints);
+
+// update complaint status (admin)
+router.patch("/complaints/:complaintId/status", updateComplaintStatus);
 
 module.exports = router;
