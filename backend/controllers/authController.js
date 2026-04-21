@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Patient = require("../models/Patient"); // ✅ ADD THIS
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -19,19 +20,28 @@ exports.registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      isActive: true,
     });
 
+    // ✅ CREATE PATIENT PROFILE AUTOMATICALLY
+    if (user.role === "patient") {
+      await Patient.create({
+        userId: user._id,
+      });
+    }
+
     res.status(201).json({
-    message: "User registered",
-    user: {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-  },
-});
+      message: "User registered",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
 
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -60,11 +70,16 @@ exports.loginUser = async (req, res) => {
     res.json({
       message: "Login successful",
       token,
-      user,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
 
   } catch (error) {
-  console.log(error); 
-  res.status(500).json({ message: "Server error", error });
-}
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };

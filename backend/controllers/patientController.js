@@ -2,13 +2,22 @@ const Patient = require('../models/Patient');
 const Appointment = require('../models/Appointment');
 const Doctor = require('../models/Doctor');
 
-// ─── Get Patient Profile ──────────────────────────────────────────────────────
 exports.getPatientProfile = async (req, res) => {
-  const patient = await Patient.findOne({ userId: req.user.id }).populate('favorites');
-  if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
-  res.json({ success: true, data: { patient } });
+  try {
+    res.json({
+      success: true,
+      message: "Patient profile fetched",
+      data: {
+        user: req.user
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
 };
-
 // ─── Update Patient Profile ───────────────────────────────────────────────────
 exports.updatePatientProfile = async (req, res) => {
   const { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address } = req.body;
