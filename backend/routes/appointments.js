@@ -15,7 +15,7 @@ router.post("/", protect, async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const patient = await Patient.findOne({ userId: req.user.id });
+    const patient = await Patient.findOne({ userId: req.user._id });
 
     if (!patient) {
       return res.status(404).json({ message: "Patient profile not found" });
@@ -53,7 +53,7 @@ router.post("/", protect, async (req, res) => {
 // ✅ Get My Appointments
 router.get("/", protect, async (req, res) => {
   try {
-    const patient = await Patient.findOne({ userId: req.user.id });
+    const patient = await Patient.findOne({ userId: req.user._id });
 
     if (!patient) {
       return res.status(404).json({ message: "Patient profile not found" });
