@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     default: "pending",
   },
   rejectionReason: String,
+  // Admin moderation flag:
+  // active  -> user can continue normal access
+  // blocked -> account is retained in DB but can be restricted by auth checks
+  // This approach preserves user history instead of hard-deleting records.
   accountStatus: {
     type: String,
     enum: ["active", "blocked"],

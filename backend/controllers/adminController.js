@@ -2,17 +2,25 @@ const User = require("../models/User");
 const Complaint = require("../models/Complaint");
 const Appointment = require("../models/Appointment");
 
-// GET all users (with pagination and filtering)
+// Admin controller
+// This file contains all admin-only business logic so role-protected routes can remain
+// thin and only delegate request handling here.
+
+// GET /api/admin/users
+// Purpose: return user list for admin panel with optional role filtering.
+// Why pagination: avoids sending large datasets in one response and keeps API fast.
 exports.getAllUsers = async (req, res) => {
   try {
     const { role, page = 1, limit = 10 } = req.query;
 
-    // Build filter query
+    // Build filter dynamically so the same endpoint supports both
+    // "all users" and "users by role" use cases.
     let filter = {};
     if (role) {
       filter.role = role;
     }
 
+    // Pagination formula: skip records from previous pages.
     const skip = (page - 1) * limit;
 
     const users = await User.find(filter)
@@ -34,13 +42,15 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// PATCH approve/reject doctor
+// PATCH /api/admin/doctors/:doctorId/approval
+// Purpose: admin approves or rejects doctor onboarding requests.
+// Rule: rejection must include a reason so decision is auditable.
 exports.approveDoctorAccount = async (req, res) => {
   try {
     const { doctorId } = req.params;
     const { status, rejectionReason } = req.body;
 
-    // Validate input
+    // Validate requested decision before any database write.
     if (!status || !["approved", "rejected"].includes(status)) {
       return res.status(400).json({ message: "Invalid status. Use 'approved' or 'rejected'" });
     }
@@ -49,13 +59,15 @@ exports.approveDoctorAccount = async (req, res) => {
       return res.status(400).json({ message: "Rejection reason required when rejecting" });
     }
 
-    // Find doctor
+    // Verify target exists and is a doctor account.
+    // This prevents applying doctor workflow to patient/admin users.
     const doctor = await User.findById(doctorId);
     if (!doctor || doctor.role !== "doctor") {
       return res.status(404).json({ message: "Doctor not found" });
     }
 
-    // Update doctor approval status
+    // Keep boolean and enum status synchronized.
+    // isApproved is convenient for quick checks, approvalStatus is clearer in UI/reports.
     doctor.isApproved = status === "approved" ? true : false;
     doctor.approvalStatus = status;
     if (status === "rejected") {
@@ -78,9 +90,12 @@ exports.approveDoctorAccount = async (req, res) => {
   }
 };
 
-// GET analytics
+// GET /api/admin/analytics
+// Purpose: returns dashboard counters and revenue summary in one call.
+// Benefit: frontend can load dashboard cards from a single API response.
 exports.getAnalytics = async (req, res) => {
   try {
+    // Core population and approval metrics.
     const totalUsers = await User.countDocuments();
     const totalDoctors = await User.countDocuments({ role: "doctor" });
     const totalPatients = await User.countDocuments({ role: "patient" });
@@ -97,6 +112,9 @@ exports.getAnalytics = async (req, res) => {
     const cancelledAppointments = await Appointment.countDocuments({ status: "cancelled" });
     const totalComplaints = await Complaint.countDocuments();
     const openComplaints = await Complaint.countDocuments({ status: "open" });
+
+    // Revenue uses only paid appointments so pending/failed payments are ignored.
+    // Aggregate is used because revenue is a SUM operation across multiple documents.
     const revenueResult = await Appointment.aggregate([
       { $match: { paymentStatus: "paid" } },
       {
@@ -129,11 +147,13 @@ exports.getAnalytics = async (req, res) => {
   }
 };
 
-// GET all appointments (admin monitoring)
+// GET /api/admin/appointments
+// Purpose: admin monitoring endpoint for appointment list, filters, and pagination.
 exports.getAllAppointments = async (req, res) => {
   try {
     const { status, page = 1, limit = 10 } = req.query;
 
+    // Optional status filter allows focused views like only cancelled appointments.
     const filter = {};
     if (status) filter.status = status;
 
@@ -141,6 +161,8 @@ exports.getAllAppointments = async (req, res) => {
     const limitNum = parseInt(limit, 10);
     const skip = (pageNum - 1) * limitNum;
 
+    // populate() replaces ObjectIds with selected user fields so admin UI can
+    // display names/emails without making extra user lookup requests.
     const appointments = await Appointment.find(filter)
       .populate("patientId", "name email")
       .populate("doctorId", "name email")
@@ -165,7 +187,8 @@ exports.getAllAppointments = async (req, res) => {
   }
 };
 
-// PATCH user account status (admin)
+// PATCH /api/admin/users/:userId/status
+// Purpose: moderation control to block/unblock non-admin user accounts.
 exports.updateUserStatus = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -182,6 +205,7 @@ exports.updateUserStatus = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Safety guard to avoid accidental lockout of platform administrators.
     if (user.role === "admin") {
       return res.status(400).json({ message: "Admin accounts cannot be blocked" });
     }
@@ -207,7 +231,8 @@ exports.updateUserStatus = async (req, res) => {
   }
 };
 
-// PATCH appointment status (admin)
+// PATCH /api/admin/appointments/:appointmentId/status
+// Purpose: generic status transition endpoint for operational admin actions.
 exports.updateAppointmentStatus = async (req, res) => {
   try {
     const { appointmentId } = req.params;
@@ -224,6 +249,7 @@ exports.updateAppointmentStatus = async (req, res) => {
       return res.status(404).json({ message: "Appointment not found" });
     }
 
+    // This endpoint only changes lifecycle state, not date/time fields.
     appointment.status = status;
     await appointment.save();
 
@@ -239,7 +265,8 @@ exports.updateAppointmentStatus = async (req, res) => {
   }
 };
 
-// PATCH reschedule appointment (admin)
+// PATCH /api/admin/appointments/:appointmentId/reschedule
+// Purpose: move appointment to a new date/time and mark it as rescheduled.
 exports.rescheduleAppointment = async (req, res) => {
   try {
     const { appointmentId } = req.params;
@@ -256,6 +283,7 @@ exports.rescheduleAppointment = async (req, res) => {
       return res.status(404).json({ message: "Appointment not found" });
     }
 
+    // Both fields are updated together so schedule stays consistent.
     appointment.appointmentDate = appointmentDate;
     appointment.timeSlot = timeSlot;
     appointment.status = "rescheduled";
@@ -273,11 +301,14 @@ exports.rescheduleAppointment = async (req, res) => {
   }
 };
 
-// GET all complaints (admin)
+// GET /api/admin/complaints
+// Purpose: admin complaint queue endpoint with status/priority filtering.
 exports.getAllComplaints = async (req, res) => {
   try {
     const { status, priority, page = 1, limit = 10 } = req.query;
 
+    // Multiple optional filters support queue segmentation, for example:
+    // "open + high priority" complaints only.
     const filter = {};
     if (status) filter.status = status;
     if (priority) filter.priority = priority;
@@ -286,6 +317,7 @@ exports.getAllComplaints = async (req, res) => {
     const limitNum = parseInt(limit, 10);
     const skip = (pageNum - 1) * limitNum;
 
+    // Include reporter details directly to reduce frontend round-trips.
     const complaints = await Complaint.find(filter)
       .populate("userId", "name email role")
       .sort({ createdAt: -1 })
@@ -309,7 +341,8 @@ exports.getAllComplaints = async (req, res) => {
   }
 };
 
-// PATCH complaint status (admin)
+// PATCH /api/admin/complaints/:complaintId/status
+// Purpose: update complaint workflow state after admin action.
 exports.updateComplaintStatus = async (req, res) => {
   try {
     const { complaintId } = req.params;
@@ -326,6 +359,7 @@ exports.updateComplaintStatus = async (req, res) => {
       return res.status(404).json({ message: "Complaint not found" });
     }
 
+    // Allowed states enforce a predictable support lifecycle.
     complaint.status = status;
     await complaint.save();
 

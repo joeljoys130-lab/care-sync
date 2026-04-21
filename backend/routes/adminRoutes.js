@@ -13,34 +13,42 @@ const {
   rescheduleAppointment,
 } = require("../controllers/adminController");
 
-// All admin routes require authentication and admin role
+// Admin API router
+// All endpoints in this file are for admin dashboard operations only.
+
+// Route-level guard:
+// 1) protect verifies JWT and attaches user
+// 2) isAdmin blocks non-admin roles from accessing any route below
 router.use(protect, isAdmin);
 
-// Get all users with filtering and pagination
+// User management endpoints
+// - List users for admin table
+// - Block/unblock users for moderation
 router.get("/users", getAllUsers);
 
-// Update user account status (active/blocked)
 router.patch("/users/:userId/status", updateUserStatus);
 
-// Approve or reject doctor account
+// Doctor onboarding decision endpoint
 router.patch("/doctors/:doctorId/approval", approveDoctorAccount);
 
-// Get analytics
+// Dashboard metrics endpoint
 router.get("/analytics", getAnalytics);
 
-// get all appointments (admin monitoring)
+// Appointment management endpoints
+// - View all appointments
+// - Update status
+// - Reschedule date and slot
 router.get("/appointments", getAllAppointments);
 
-// update appointment status (admin)
 router.patch("/appointments/:appointmentId/status", updateAppointmentStatus);
 
-// reschedule appointment (admin)
 router.patch("/appointments/:appointmentId/reschedule", rescheduleAppointment);
 
-// get all complaints (admin)
+// Complaint handling endpoints
+// - View complaints queue
+// - Move complaint across support workflow states
 router.get("/complaints", getAllComplaints);
 
-// update complaint status (admin)
 router.patch("/complaints/:complaintId/status", updateComplaintStatus);
 
 module.exports = router;
