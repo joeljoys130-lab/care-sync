@@ -53,7 +53,7 @@ const AppointmentCard = ({ appointment, role = 'patient', onCancel }) => {
   const canCancel   = onCancel && !['cancelled', 'completed'].includes(appointment.status);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+    <div className="bg-[#131d30]/60 rounded-2xl border border-white/5 shadow-card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
       {/* Icon */}
       <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
         <FiUser className="text-primary-600 text-xl" />
@@ -61,10 +61,10 @@ const AppointmentCard = ({ appointment, role = 'patient', onCancel }) => {
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-slate-800 truncate">{displayName}</p>
+        <p className="font-semibold text-white truncate">{displayName}</p>
         <p className="text-sm text-slate-400 truncate">{subLabel}</p>
 
-        <div className="flex flex-wrap gap-3 mt-2 text-xs text-slate-500">
+        <div className="flex flex-wrap gap-3 mt-2 text-xs text-slate-400">
           <span className="flex items-center gap-1">
             <FiCalendar className="text-primary-400" />
             {formatDate(appointment.appointmentDate)}

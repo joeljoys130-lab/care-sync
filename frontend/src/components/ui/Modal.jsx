@@ -26,10 +26,10 @@ const Modal = ({ isOpen, onClose, title, children }) => {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-slide-up">
+      <div className="bg-[#131d30]/60 rounded-2xl shadow-xl w-full max-w-md animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100">
-          <h2 className="font-semibold text-slate-800">{title}</h2>
+        <div className="flex items-center justify-between p-5 border-b border-white/5">
+          <h2 className="font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition"

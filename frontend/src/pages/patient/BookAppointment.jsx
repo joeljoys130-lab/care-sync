@@ -65,7 +65,7 @@ const BookAppointment = () => {
   };
 
   if (docLoading) return <LoadingSpinner className="h-96" />;
-  if (!doc) return <div className="page-wrapper text-center py-20 text-slate-500">Doctor not found.</div>;
+  if (!doc) return <div className="page-wrapper text-center py-20 text-slate-400">Doctor not found.</div>;
 
   return (
     <div className="page-wrapper max-w-3xl relative">
@@ -84,8 +84,8 @@ const BookAppointment = () => {
           )}
         </div>
         <div className="flex-1">
-          <p className="font-semibold text-slate-800">Dr. {userInfo?.name}</p>
-          <p className="text-sm text-slate-500">{doc.specialization}</p>
+          <p className="font-semibold text-white">Dr. {userInfo?.name}</p>
+          <p className="text-sm text-slate-400">{doc.specialization}</p>
         </div>
         <div className="text-right">
           <p className="text-lg font-bold text-primary-600">₹{doc.fees}</p>
@@ -114,13 +114,13 @@ const BookAppointment = () => {
           <div>
             <label className="label">Available Time Slots</label>
             {!selectedDate ? (
-              <div className="text-slate-400 text-sm text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
+              <div className="text-slate-400 text-sm text-center py-8 border-2 border-dashed border-white/5 rounded-xl">
                 Select a date to see available slots
               </div>
             ) : slotLoading ? (
               <LoadingSpinner />
             ) : slots.length === 0 ? (
-              <div className="text-slate-400 text-sm text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
+              <div className="text-slate-400 text-sm text-center py-8 border-2 border-dashed border-white/5 rounded-xl">
                 No slots available on this day
               </div>
             ) : (
@@ -129,9 +129,9 @@ const BookAppointment = () => {
                   <button key={i} onClick={() => !slot.isBooked && setSelectedSlot(slot)}
                     disabled={slot.isBooked}
                     className={`py-2 px-3 rounded-xl text-sm font-medium border-2 transition ${
-                      slot.isBooked ? 'border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed'
+                      slot.isBooked ? 'border-white/5 bg-[#1c283d]/50 text-slate-300 cursor-not-allowed'
                       : selectedSlot?.startTime === slot.startTime ? 'border-primary-500 bg-primary-50 text-primary-700'
-                      : 'border-slate-200 hover:border-primary-300 hover:bg-primary-50 text-slate-600'
+                      : 'border-white/5 hover:border-primary-300 hover:bg-primary-50 text-slate-400'
                     }`}
                   >
                     <FiClock className="inline mr-1 text-xs" />
@@ -167,7 +167,7 @@ const BookAppointment = () => {
             <div className="flex gap-3">
               {['in-person', 'video', 'phone'].map((t) => (
                 <label key={t} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer transition text-sm ${
-                  type === t ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-200 text-slate-500'
+                  type === t ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-white/5 text-slate-400'
                 }`}>
                   <input type="radio" value={t} checked={type === t} onChange={() => setType(t)} className="sr-only" />
                   <span className="capitalize">{t === 'in-person' ? '🏥 In-Person' : t === 'video' ? '📹 Video' : '📞 Phone'}</span>
@@ -183,11 +183,11 @@ const BookAppointment = () => {
         <div className="card border-2 border-primary-100 animate-slide-up">
           <h2 className="section-title">Booking Summary</h2>
           <div className="space-y-2 text-sm mb-4">
-            <div className="flex justify-between"><span className="text-slate-500">Doctor</span><span className="font-medium">Dr. {userInfo?.name}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Date</span><span className="font-medium">{format(selectedDate, 'MMMM d, yyyy')}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Time</span><span className="font-medium">{selectedSlot.startTime} – {selectedSlot.endTime}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Type</span><span className="font-medium capitalize">{type}</span></div>
-            <div className="flex justify-between pt-2 border-t border-slate-100"><span className="font-semibold">Total</span><span className="text-primary-600 font-bold">₹{doc.fees}</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Doctor</span><span className="font-medium">Dr. {userInfo?.name}</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Date</span><span className="font-medium">{format(selectedDate, 'MMMM d, yyyy')}</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Time</span><span className="font-medium">{selectedSlot.startTime} – {selectedSlot.endTime}</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Type</span><span className="font-medium capitalize">{type}</span></div>
+            <div className="flex justify-between pt-2 border-t border-white/5"><span className="font-semibold">Total</span><span className="text-primary-600 font-bold">₹{doc.fees}</span></div>
           </div>
 
           <button onClick={handleStartBooking} disabled={paymentLoading || !reason.trim()} className="btn-primary w-full btn-lg relative overflow-hidden group">
@@ -200,7 +200,7 @@ const BookAppointment = () => {
                  </>
                )}
             </div>
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+            <div className="absolute inset-0 bg-[#131d30]/60/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
           </button>
         </div>
       )}

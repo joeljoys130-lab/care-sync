@@ -72,7 +72,7 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
         </div>
         <button
           onClick={onClose}
-          className="lg:hidden p-1.5 rounded-lg hover:bg-surface-100 text-slate-400"
+          className="lg:hidden p-1.5 rounded-lg hover:bg-[#1c283d] text-slate-400"
         >
           <FiX />
         </button>
@@ -81,7 +81,7 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
       {/* User Info */}
       <div className="px-4 py-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-surface-100 border border-white/5 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#1c283d] border border-white/5 flex items-center justify-center flex-shrink-0">
             {user?.avatar ? (
               <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full object-cover" />
             ) : (

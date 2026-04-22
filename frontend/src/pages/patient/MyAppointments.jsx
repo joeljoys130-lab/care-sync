@@ -45,13 +45,13 @@ const MyAppointments = () => {
       </div>
 
       {/* Status tabs */}
-      <div className="flex gap-1 bg-white rounded-2xl p-1 shadow-card mb-6 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-1 bg-[#131d30]/60 rounded-2xl p-1 shadow-card mb-6 overflow-x-auto scrollbar-hide">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => { setActiveTab(tab); setPage(1); }}
             className={`flex-1 min-w-max py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
-              activeTab === tab ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+              activeTab === tab ? 'bg-primary-600 text-white shadow-2xl' : 'text-slate-400 hover:bg-[#1c283d]/50'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -65,7 +65,7 @@ const MyAppointments = () => {
       ) : appointments.length === 0 ? (
         <div className="card text-center py-20">
           <FiCalendar className="mx-auto text-5xl text-slate-200 mb-4" />
-          <h3 className="text-slate-600 font-semibold mb-2">No {activeTab !== 'all' ? activeTab : ''} appointments</h3>
+          <h3 className="text-slate-400 font-semibold mb-2">No {activeTab !== 'all' ? activeTab : ''} appointments</h3>
           <p className="text-sm text-slate-400 mb-6">Your appointments will appear here</p>
           <Link to="/patient/doctors" className="btn-primary btn-sm">Book an Appointment</Link>
         </div>
@@ -87,7 +87,7 @@ const MyAppointments = () => {
 
       {/* Cancel Modal */}
       <Modal isOpen={cancelModal.open} onClose={() => setCancelModal({ open: false, appointment: null })} title="Cancel Appointment">
-        <p className="text-slate-500 text-sm mb-4">
+        <p className="text-slate-400 text-sm mb-4">
           Are you sure you want to cancel this appointment? This action cannot be undone.
         </p>
         <div>

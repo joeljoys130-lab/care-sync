@@ -43,7 +43,7 @@ const StarRating = ({ rating = 0, max = 5, size = 'md', showValue = true, count 
       })}
 
       {showValue && (
-        <span className="text-slate-600 font-medium ml-1 tabular-nums">
+        <span className="text-slate-400 font-medium ml-1 tabular-nums">
           {clamped.toFixed(1)}
         </span>
       )}
