@@ -20,17 +20,17 @@ exports.getPatientProfile = async (req, res) => {
 };
 // ─── Update Patient Profile ───────────────────────────────────────────────────
 exports.updatePatientProfile = async (req, res) => {
-  const { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address } = req.body;
+  const { name, phone, dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address } = req.body;
 
   const patient = await User.findByIdAndUpdate(
     req.user.id,
-    { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address },
+    { name, phone, dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address },
     { new: true, runValidators: true }
   );
 
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  res.json({ success: true, message: 'Profile updated.', data: { patient } });
+  res.json({ success: true, message: 'Profile updated.', data: { patient, user: patient } });
 };
 
 // ─── Get Patient Appointments ──────────────────────────────────────────────────
