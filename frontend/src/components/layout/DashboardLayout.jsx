@@ -22,11 +22,11 @@ const DashboardLayout = ({ role = 'patient' }) => {
   const { user } = useAuth();
 
   return (
-    <div className="flex h-screen overflow-hidden relative z-0">
+    <div className="flex h-screen overflow-hidden relative z-0 bg-surface">
       {/* ── Abstract Glassmorphism Background Orbs ── */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-300/40 rounded-full mix-blend-multiply filter blur-[100px] -z-10 animate-pulse"></div>
-      <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-emerald-300/30 rounded-full mix-blend-multiply filter blur-[120px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute bottom-[-20%] left-[30%] w-[800px] h-[800px] bg-teal-200/30 rounded-full mix-blend-multiply filter blur-[150px] -z-10"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full filter blur-[120px] -z-10 animate-pulse"></div>
+      <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-blue-600/10 rounded-full filter blur-[150px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute bottom-[-20%] left-[30%] w-[800px] h-[800px] bg-indigo-500/10 rounded-full filter blur-[180px] -z-10"></div>
       {/* ── Sidebar ── */}
       <Sidebar role={role} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -41,11 +41,11 @@ const DashboardLayout = ({ role = 'patient' }) => {
       {/* ── Main area ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top header */}
-        <header className="flex items-center justify-between h-16 px-4 sm:px-6 bg-white/40 backdrop-blur-xl border-b border-white/60 flex-shrink-0 shadow-[0_4px_24px_rgba(31,38,135,0.05)] z-10">
+        <header className="flex items-center justify-between h-16 px-4 sm:px-6 bg-[#0a0f1a]/80 backdrop-blur-xl border-b border-white/5 flex-shrink-0 z-10">
           {/* Hamburger (mobile only) */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition"
+            className="lg:hidden p-2 rounded-xl hover:bg-surface-100 text-slate-400 transition"
             aria-label="Open menu"
           >
             <FiMenu className="text-xl" />
@@ -58,7 +58,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
           <div className="flex items-center gap-3 ml-auto">
             {/* Notification bell */}
             <button
-              className="relative p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition"
+              className="relative p-2 rounded-xl hover:bg-surface-100 text-slate-400 transition"
               aria-label="Notifications"
             >
               <FiBell className="text-xl" />
@@ -66,7 +66,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
 
             {/* User avatar */}
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-primary-100 flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-surface-100 flex items-center justify-center flex-shrink-0 border border-white/5">
                 {user?.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-xl" />
                 ) : (
@@ -76,7 +76,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
                 )}
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-slate-800 leading-none">{user?.name || 'User'}</p>
+                <p className="text-sm font-semibold text-white leading-none">{user?.name || 'User'}</p>
                 <p className="text-xs text-slate-400 capitalize mt-0.5">{user?.role || role}</p>
               </div>
             </div>
