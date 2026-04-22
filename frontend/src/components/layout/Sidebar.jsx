@@ -33,34 +33,34 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
     <aside
       className={`
         fixed lg:static inset-y-0 left-0 z-30
-        flex flex-col w-64 bg-[#0a0f1a]/80 backdrop-blur-2xl border-r border-white/5
+        flex flex-col w-64 bg-sky-50 dark:bg-[#0a0f1a]/80 backdrop-blur-2xl border-r border-slate-200 dark:border-white/5
         transition-transform duration-300
         ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
       `}
     >
       {/* Logo */}
-      <div className="flex items-center justify-between p-5 border-b border-white/5">
+      <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-white/5">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]">
             <MdLocalHospital className="text-[#0a0f1a] text-xl" />
           </div>
           <div>
-            <span className="font-bold text-white text-lg leading-none">CareSync</span>
+            <span className="font-bold text-slate-800 dark:text-white text-lg leading-none">CareSync</span>
             <span className="block text-xs text-primary-400 capitalize font-medium">Patient Portal</span>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="lg:hidden p-1.5 rounded-lg hover:bg-[#1c283d] text-slate-400"
+          className="lg:hidden p-1.5 rounded-lg hover:bg-sky-100 dark:bg-[#1c283d] text-slate-500 dark:text-slate-400"
         >
           <FiX />
         </button>
       </div>
 
       {/* User Info */}
-      <div className="px-4 py-4 border-b border-white/5">
+      <div className="px-4 py-4 border-b border-slate-200 dark:border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#1c283d] border border-white/5 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-sky-100 dark:bg-[#1c283d] border border-slate-200 dark:border-white/5 flex items-center justify-center flex-shrink-0">
             {user?.avatar ? (
               <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full object-cover" />
             ) : (
@@ -70,8 +70,8 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-white truncate">{user?.name || 'Patient'}</p>
-            <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{user?.name || 'Patient'}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
       </nav>
 
       {/* Logout */}
-      <div className="p-3 border-t border-white/5">
+      <div className="p-3 border-t border-slate-200 dark:border-white/5">
         <button
           onClick={handleLogout}
           className="nav-item w-full text-red-400 hover:bg-red-500/10 hover:text-red-300"

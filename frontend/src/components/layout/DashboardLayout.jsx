@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { FiMenu, FiBell } from 'react-icons/fi';
+import { FiMenu, FiBell, FiSun, FiMoon } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 /**
  * DashboardLayout
@@ -20,9 +21,10 @@ import { useAuth } from '../../context/AuthContext';
 const DashboardLayout = ({ role = 'patient' }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
 
   return (
-    <div className="flex h-screen overflow-hidden relative z-0 bg-[#0a0f1a]">
+    <div className="flex h-screen overflow-hidden relative z-0 bg-sky-50 dark:bg-[#0a0f1a]">
       {/* ── Abstract Glassmorphism Background Orbs ── */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full filter blur-[120px] -z-10 animate-pulse"></div>
       <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-blue-600/10 rounded-full filter blur-[150px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
@@ -41,11 +43,11 @@ const DashboardLayout = ({ role = 'patient' }) => {
       {/* ── Main area ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top header */}
-        <header className="flex items-center justify-between h-16 px-4 sm:px-6 bg-[#0a0f1a]/80 backdrop-blur-xl border-b border-white/5 flex-shrink-0 z-10">
+        <header className="flex items-center justify-between h-16 px-4 sm:px-6 bg-sky-50 dark:bg-[#0a0f1a]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 flex-shrink-0 z-10">
           {/* Hamburger (mobile only) */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-xl hover:bg-[#1c283d] text-slate-400 transition"
+            className="lg:hidden p-2 rounded-xl hover:bg-sky-100 dark:bg-[#1c283d] text-slate-500 dark:text-slate-400 transition"
             aria-label="Open menu"
           >
             <FiMenu className="text-xl" />
@@ -56,9 +58,18 @@ const DashboardLayout = ({ role = 'patient' }) => {
 
           {/* Right side */}
           <div className="flex items-center gap-3 ml-auto">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="relative p-2 rounded-xl hover:bg-sky-100 dark:hover:bg-[#1c283d] text-slate-500 dark:text-slate-400 transition"
+              aria-label="Toggle theme"
+            >
+              {isDark ? <FiSun className="text-xl" /> : <FiMoon className="text-xl" />}
+            </button>
+
             {/* Notification bell */}
             <button
-              className="relative p-2 rounded-xl hover:bg-[#1c283d] text-slate-400 transition"
+              className="relative p-2 rounded-xl hover:bg-sky-100 dark:hover:bg-[#1c283d] text-slate-500 dark:text-slate-400 transition"
               aria-label="Notifications"
             >
               <FiBell className="text-xl" />
@@ -66,7 +77,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
 
             {/* User avatar */}
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#1c283d] flex items-center justify-center flex-shrink-0 border border-white/5">
+              <div className="w-9 h-9 rounded-xl bg-sky-100 dark:bg-[#1c283d] flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-white/5">
                 {user?.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-xl" />
                 ) : (
@@ -76,8 +87,8 @@ const DashboardLayout = ({ role = 'patient' }) => {
                 )}
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-white leading-none">{user?.name || 'User'}</p>
-                <p className="text-xs text-slate-400 capitalize mt-0.5">{user?.role || role}</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-white leading-none">{user?.name || 'User'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 capitalize mt-0.5">{user?.role || role}</p>
               </div>
             </div>
           </div>

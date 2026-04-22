@@ -62,7 +62,7 @@ const DoctorList = () => {
 
       {/* Search */}
       <div className="relative mb-4">
-        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
+        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 text-lg" />
         <input
           type="text"
           placeholder="Search doctors by name..."
@@ -71,7 +71,7 @@ const DoctorList = () => {
           className="input pl-12 text-base h-12"
         />
         {filters.search && (
-          <button onClick={() => handleFilterChange('search', '')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-400">
+          <button onClick={() => handleFilterChange('search', '')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-500 dark:text-slate-400">
             <FiX />
           </button>
         )}
@@ -105,7 +105,7 @@ const DoctorList = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200 dark:border-white/5">
             <div className="flex items-center gap-3">
               <label className="label mb-0">Sort by:</label>
               <div className="flex gap-2">
@@ -114,7 +114,7 @@ const DoctorList = () => {
                       handleFilterChange('sortBy', opt.value);
                       handleFilterChange('order', opt.order);
                     }}
-                    className={`btn-sm ${filters.sortBy === opt.value && filters.order === opt.order ? 'btn-primary' : 'btn-ghost border border-white/5'}`}>
+                    className={`btn-sm ${filters.sortBy === opt.value && filters.order === opt.order ? 'btn-primary' : 'btn-ghost border border-slate-200 dark:border-white/5'}`}>
                     {opt.label}
                   </button>
                 ))}
@@ -134,9 +134,9 @@ const DoctorList = () => {
         <LoadingSpinner className="h-64" />
       ) : doctors.length === 0 ? (
         <div className="card text-center py-16">
-          <FiSearch className="mx-auto text-5xl text-slate-200 mb-4" />
-          <h3 className="text-slate-400 font-semibold mb-2">No doctors found</h3>
-          <p className="text-sm text-slate-400">Try adjusting your search filters</p>
+          <FiSearch className="mx-auto text-5xl text-slate-700 dark:text-slate-200 mb-4" />
+          <h3 className="text-slate-500 dark:text-slate-400 font-semibold mb-2">No doctors found</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Try adjusting your search filters</p>
         </div>
       ) : (
         <>

@@ -28,7 +28,7 @@ const StarRating = ({ rating = 0, max = 5, size = 'md', showValue = true, count 
         return (
           <span key={i} className="relative inline-block">
             {/* Empty star base */}
-            <FiStar className="text-slate-200" />
+            <FiStar className="text-slate-700 dark:text-slate-200" />
             {/* Filled overlay */}
             {(filled || partial) && (
               <span
@@ -43,13 +43,13 @@ const StarRating = ({ rating = 0, max = 5, size = 'md', showValue = true, count 
       })}
 
       {showValue && (
-        <span className="text-slate-400 font-medium ml-1 tabular-nums">
+        <span className="text-slate-500 dark:text-slate-400 font-medium ml-1 tabular-nums">
           {clamped.toFixed(1)}
         </span>
       )}
 
       {count !== undefined && (
-        <span className="text-slate-400 text-sm">({count})</span>
+        <span className="text-slate-500 dark:text-slate-400 text-sm">({count})</span>
       )}
     </div>
   );
