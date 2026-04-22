@@ -1,9 +1,8 @@
 const User = require("../models/User");
-const Patient = require("../models/Patient"); // ✅ ADD THIS
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// REGISTER
+// ================= REGISTER =================
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -23,12 +22,7 @@ exports.registerUser = async (req, res) => {
       isActive: true,
     });
 
-    // ✅ CREATE PATIENT PROFILE AUTOMATICALLY
-    if (user.role === "patient") {
-      await Patient.create({
-        userId: user._id,
-      });
-    }
+    // Removed Patient creation dependency
 
     res.status(201).json({
       message: "User registered",
@@ -46,7 +40,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// LOGIN
+// ================= LOGIN =================
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -68,18 +62,83 @@ exports.loginUser = async (req, res) => {
     );
 
     res.json({
-      message: "Login successful",
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
-      },
+        role: user.role
+      }
     });
 
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ================= OTP =================
+const otps = {};
+
+exports.sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const otp = "123456"; // demo
+    otps[email] = otp;
+
+    console.log(`OTP for ${email}: ${otp}`);
+
+    res.json({ message: "OTP sent successfully" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (otps[email] !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const hashedPassword = await bcrypt.hash("Default@123", 10);
+
+      user = await User.create({
+        name: email.split("@")[0],
+        email,
+        password: hashedPassword,
+        role: "patient",
+        isActive: true,
+      });
+
+      // Removed Patient creation dependency
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    delete otps[email];
+
+    res.json({
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 };

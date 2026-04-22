@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const Doctor = require("../models/Doctor");
+const User = require("../models/User");
 
 // GET all doctors
 router.get("/", async (req, res) => {
   try {
-    const doctors = await Doctor.find().populate("userId", "name email");
+    const doctors = await User.find({ role: "doctor" }).select("-password");
 
     res.json({
       success: true,
