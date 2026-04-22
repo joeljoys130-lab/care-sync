@@ -58,6 +58,7 @@ export const userAPI = {
   uploadAvatar:  (form)  => api.post('/patients/me/avatar', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
+  changePassword: (data) => api.post('/auth/change-password', data),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -150,4 +151,11 @@ export const adminAPI = {
   rescheduleAppt:    (id, data)   => api.patch(`/admin/appointments/${id}/reschedule`, data),
   getComplaints:     (params)     => api.get('/admin/complaints', { params }),
   updateComplaint:   (id, data)   => api.patch(`/admin/complaints/${id}/status`, data),
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   REVIEW API
+═══════════════════════════════════════════════════════════════ */
+export const reviewAPI = {
+  getDoctorReviews: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params }),
 };

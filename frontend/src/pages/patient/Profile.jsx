@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { userAPI, patientAPI } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { FiUser, FiMail, FiPhone, FiSave, FiCamera } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiSave, FiCamera, FiLock } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useRef } from 'react';
 
@@ -17,12 +17,19 @@ const PatientProfile = () => {
     queryFn: userAPI.getProfile,
   });
 
+  const profile = profileData?.data?.data;
+
   const { register, handleSubmit } = useForm({
     values: {
       name: user?.name || '',
-      phone: user?.phone || '',
+      phone: user?.phone || profile?.user?.phone || '',
+      dateOfBirth: profile?.user?.dateOfBirth ? new Date(profile.user.dateOfBirth).toISOString().split('T')[0] : '',
+      bloodGroup: profile?.user?.bloodGroup || '',
+      allergies: profile?.user?.allergies?.join(', ') || '',
     },
   });
+
+  const { register: registerPassword, handleSubmit: handlePasswordSubmit, reset: resetPassword } = useForm();
 
   const updateMutation = useMutation({
     mutationFn: userAPI.updateProfile,
@@ -43,6 +50,17 @@ const PatientProfile = () => {
     onError: () => toast.error('Avatar upload failed.'),
   });
 
+  const passwordMutation = useMutation({
+    mutationFn: userAPI.changePassword,
+    onSuccess: () => {
+      toast.success('Password updated successfully!');
+      resetPassword();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update password.');
+    },
+  });
+
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -52,8 +70,6 @@ const PatientProfile = () => {
   };
 
   if (isLoading) return <LoadingSpinner className="h-64" />;
-
-  const profile = profileData?.data?.data;
 
   return (
     <div className="page-wrapper max-w-2xl">
@@ -87,15 +103,21 @@ const PatientProfile = () => {
         </div>
       </div>
 
-      {/* Account Info */}
+      {/* Profile Form */}
       <div className="card mb-6">
-        <h2 className="section-title">Account Information</h2>
-        <form onSubmit={handleSubmit((data) => updateMutation.mutate(data))} className="space-y-4">
+        <h2 className="section-title">Personal Information</h2>
+        <form onSubmit={handleSubmit((data) => {
+          const formattedData = {
+            ...data,
+            allergies: data.allergies ? data.allergies.split(',').map(a => a.trim()).filter(a => a) : []
+          };
+          updateMutation.mutate(formattedData);
+        })} className="space-y-4">
           <div>
             <label className="label">Full Name</label>
             <div className="relative">
               <FiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input {...register('name')} className="input pl-10" />
+              <input {...register('name')} className="input pl-10" required />
             </div>
           </div>
           <div>
@@ -112,30 +134,71 @@ const PatientProfile = () => {
               <input {...register('phone')} className="input pl-10" placeholder="+1 234 567 8900" />
             </div>
           </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label">Date of Birth</label>
+              <input type="date" {...register('dateOfBirth')} className="input" />
+            </div>
+            <div>
+              <label className="label">Blood Group</label>
+              <select {...register('bloodGroup')} className="input">
+                <option value="">Select Blood Group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="label">Allergies (comma separated)</label>
+            <input {...register('allergies')} className="input" placeholder="e.g. Peanuts, Penicillin" />
+          </div>
           <button type="submit" disabled={updateMutation.isPending} className="btn-primary">
             <FiSave /> {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
           </button>
         </form>
       </div>
 
-      {/* Health Info */}
-      <div className="card">
-        <h2 className="section-title">Health Information</h2>
-        <div className="grid sm:grid-cols-2 gap-4 text-sm">
-          <div><span className="text-slate-500">Blood Group: </span><strong>{profile?.patient?.bloodGroup || '—'}</strong></div>
-          <div><span className="text-slate-500">Gender: </span><strong className="capitalize">{profile?.patient?.gender || '—'}</strong></div>
-          <div className="sm:col-span-2">
-            <span className="text-slate-500">Allergies: </span>
-            {profile?.patient?.allergies?.length ? (
-              <div className="flex flex-wrap gap-1 mt-1">
-                {profile.patient.allergies.map((a, i) => <span key={i} className="badge-danger text-xs">{a}</span>)}
-              </div>
-            ) : <strong>None recorded</strong>}
+      {/* Security Settings */}
+      <div className="card mt-6">
+        <h2 className="section-title">Security Settings</h2>
+        <form onSubmit={handlePasswordSubmit((data) => {
+          if (data.newPassword !== data.confirmPassword) {
+            toast.error('Passwords do not match');
+            return;
+          }
+          passwordMutation.mutate({ currentPassword: data.currentPassword, newPassword: data.newPassword });
+        })} className="space-y-4">
+          <div>
+            <label className="label">Current Password</label>
+            <div className="relative">
+              <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input type="password" {...registerPassword('currentPassword')} className="input pl-10" required />
+            </div>
           </div>
-        </div>
-        <p className="text-xs text-slate-400 mt-4">
-          To update detailed health information, please contact your healthcare provider.
-        </p>
+          <div>
+            <label className="label">New Password</label>
+            <div className="relative">
+              <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input type="password" {...registerPassword('newPassword')} className="input pl-10" minLength={6} required />
+            </div>
+          </div>
+          <div>
+            <label className="label">Confirm New Password</label>
+            <div className="relative">
+              <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input type="password" {...registerPassword('confirmPassword')} className="input pl-10" minLength={6} required />
+            </div>
+          </div>
+          <button type="submit" disabled={passwordMutation.isPending} className="btn-primary">
+            <FiSave /> {passwordMutation.isPending ? 'Updating...' : 'Update Password'}
+          </button>
+        </form>
       </div>
     </div>
   );
