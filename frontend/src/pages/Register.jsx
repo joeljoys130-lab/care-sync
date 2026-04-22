@@ -1,33 +1,32 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../api/api';
+import { register } from '../api/api';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Register = () => {
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', role: 'patient' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (form.password !== form.confirm) {
+      return setError('Passwords do not match.');
+    }
+    if (form.password.length < 6) {
+      return setError('Password must be at least 6 characters.');
+    }
+
     setLoading(true);
     try {
-      const res = await login({ email, password });
-
-      // Persist token + role so ProtectedRoute and RoleRedirect work
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('role', res.user?.role || 'patient');
-      localStorage.setItem('user', JSON.stringify(res.user || {}));
-
-      // Route by role
-      const role = res.user?.role;
-      if (role === 'admin') navigate('/admin-dashboard');
-      else if (role === 'doctor') navigate('/doctor-dashboard');
-      else navigate('/doctors');
+      await register({ name: form.name, email: form.email, password: form.password, role: form.role });
+      navigate('/login');
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -40,18 +39,31 @@ const Login = () => {
           <span style={styles.logoIcon}>🏥</span>
           <span style={styles.logoText}>CareSync</span>
         </div>
-        <h2 style={styles.title}>Welcome back</h2>
-        <p style={styles.subtitle}>Sign in to your account</p>
+        <h2 style={styles.title}>Create your account</h2>
+        <p style={styles.subtitle}>Join CareSync and manage your health</p>
 
         {error && <div style={styles.errorBanner}>{error}</div>}
 
-        <form onSubmit={handleLogin} style={styles.form}>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>Full Name</label>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+              placeholder="John Doe"
+              style={styles.input}
+            />
+          </div>
+
           <div style={styles.fieldGroup}>
             <label style={styles.label}>Email address</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={form.email}
+              onChange={handleChange}
               required
               placeholder="you@example.com"
               style={styles.input}
@@ -59,13 +71,40 @@ const Login = () => {
           </div>
 
           <div style={styles.fieldGroup}>
+            <label style={styles.label}>I am a</label>
+            <select
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              style={styles.input}
+            >
+              <option value="patient">Patient</option>
+              <option value="doctor">Doctor</option>
+            </select>
+          </div>
+
+          <div style={styles.fieldGroup}>
             <label style={styles.label}>Password</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
               required
-              placeholder="••••••••"
+              placeholder="Minimum 6 characters"
+              style={styles.input}
+            />
+          </div>
+
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>Confirm Password</label>
+            <input
+              type="password"
+              name="confirm"
+              value={form.confirm}
+              onChange={handleChange}
+              required
+              placeholder="Re-enter password"
               style={styles.input}
             />
           </div>
@@ -75,13 +114,13 @@ const Login = () => {
             disabled={loading}
             style={{ ...styles.submitBtn, opacity: loading ? 0.7 : 1 }}
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Creating account…' : 'Create Account'}
           </button>
         </form>
 
         <p style={styles.footer}>
-          Don&apos;t have an account?{' '}
-          <Link to="/register" style={styles.link}>Register here</Link>
+          Already have an account?{' '}
+          <Link to="/login" style={styles.link}>Sign in</Link>
         </p>
       </div>
     </div>
@@ -103,7 +142,7 @@ const styles = {
     borderRadius: '20px',
     padding: '40px',
     width: '100%',
-    maxWidth: '420px',
+    maxWidth: '440px',
     boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
   },
   logo: {
@@ -138,7 +177,7 @@ const styles = {
     marginBottom: '20px',
     fontSize: '14px',
   },
-  form: { display: 'flex', flexDirection: 'column', gap: '16px' },
+  form: { display: 'flex', flexDirection: 'column', gap: '14px' },
   fieldGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
   label: { fontSize: '13px', fontWeight: '600', color: '#374151' },
   input: {
@@ -147,7 +186,7 @@ const styles = {
     border: '1.5px solid #e2e8f0',
     fontSize: '15px',
     outline: 'none',
-    transition: 'border-color 0.2s',
+    background: '#fff',
   },
   submitBtn: {
     padding: '13px',
@@ -164,4 +203,4 @@ const styles = {
   link: { color: '#0ea5e9', textDecoration: 'none', fontWeight: '600' },
 };
 
-export default Login;
+export default Register;

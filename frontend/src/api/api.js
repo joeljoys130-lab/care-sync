@@ -56,7 +56,8 @@ export const getAppointments = async () => {
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || 'Failed to fetch appointments');
-  return json.data;
+  // Backend returns { success, data: [] }
+  return json.data || [];
 };
 
 export const cancelAppointment = async (id) => {

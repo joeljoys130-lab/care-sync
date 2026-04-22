@@ -77,7 +77,7 @@ router.get("/", protect, async (req, res) => {
         .populate("patientId", "name email");
     }
 
-    res.json(Array.isArray(appointments) ? appointments : []); // safety
+    res.json({ success: true, data: Array.isArray(appointments) ? appointments : [] });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -13,7 +13,7 @@ const BookAppointment = () => {
   const handleBook = async (e) => {
     e.preventDefault();
     try {
-      await createAppointment({ doctorId, appointmentDate: date, timeSlot: time });
+      await createAppointment({ doctor: doctorId, appointmentDate: date, timeSlot: time });
       setSuccess('Appointment booked successfully!');
       setTimeout(() => navigate('/appointments'), 1500);
     } catch (err) {
