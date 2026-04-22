@@ -40,134 +40,72 @@ const Login = () => {
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <div style={styles.logo}>
-          <span style={styles.logoIcon}>🏥</span>
-          <span style={styles.logoText}>CareSync</span>
+    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden z-0 bg-surface-50">
+      {/* ── Abstract Glassmorphism Background Orbs ── */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-300/40 rounded-full mix-blend-multiply filter blur-[100px] -z-10 animate-pulse"></div>
+      <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-emerald-300/30 rounded-full mix-blend-multiply filter blur-[120px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute bottom-[-20%] left-[30%] w-[800px] h-[800px] bg-teal-200/30 rounded-full mix-blend-multiply filter blur-[150px] -z-10"></div>
+
+      <div className="card w-full max-w-md relative z-10 animate-slide-up">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(168,85,247,0.3)] border border-white/30">
+            <span className="text-white text-xl">🏥</span>
+          </div>
+          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-emerald-500 bg-clip-text text-transparent">CareSync</span>
         </div>
-        <h2 style={styles.title}>Welcome back</h2>
-        <p style={styles.subtitle}>Sign in to your account</p>
+        
+        <h2 className="text-2xl font-bold text-slate-800 mb-1">Welcome back</h2>
+        <p className="text-sm text-slate-500 mb-6">Sign in to your account</p>
 
-        {error && <div style={styles.errorBanner}>{error}</div>}
+        {error && (
+          <div className="bg-red-50/50 backdrop-blur-md border border-red-200 text-red-600 rounded-xl px-4 py-3 mb-6 text-sm">
+            {error}
+          </div>
+        )}
 
-        <form onSubmit={handleLogin} style={styles.form}>
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Email address</label>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="label">Email address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
-              style={styles.input}
+              className="input"
             />
           </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Password</label>
+          <div className="space-y-1.5">
+            <label className="label">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
-              style={styles.input}
+              className="input"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            style={{ ...styles.submitBtn, opacity: loading ? 0.7 : 1 }}
+            className="w-full mt-2 py-3 bg-gradient-to-r from-purple-500/90 to-emerald-400/90 hover:from-purple-500 hover:to-emerald-400 backdrop-blur-md text-white font-semibold rounded-2xl shadow-[0_8px_20px_rgba(168,85,247,0.3)] border border-white/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
-        <p style={styles.footer}>
+        <p className="text-center mt-6 text-sm text-slate-500">
           Don&apos;t have an account?{' '}
-          <Link to="/register" style={styles.link}>Register here</Link>
+          <Link to="/register" className="text-purple-600 font-semibold hover:text-purple-700 transition-colors">
+            Register here
+          </Link>
         </p>
       </div>
     </div>
   );
-};
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)',
-    fontFamily: "'Segoe UI', system-ui, sans-serif",
-    padding: '20px',
-  },
-  card: {
-    background: '#fff',
-    borderRadius: '20px',
-    padding: '40px',
-    width: '100%',
-    maxWidth: '420px',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
-  },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    marginBottom: '24px',
-  },
-  logoIcon: { fontSize: '28px' },
-  logoText: {
-    fontSize: '22px',
-    fontWeight: '700',
-    color: '#0ea5e9',
-  },
-  title: {
-    margin: '0 0 4px',
-    fontSize: '24px',
-    fontWeight: '700',
-    color: '#1e293b',
-  },
-  subtitle: {
-    margin: '0 0 24px',
-    fontSize: '14px',
-    color: '#64748b',
-  },
-  errorBanner: {
-    background: '#fef2f2',
-    border: '1px solid #fecaca',
-    color: '#dc2626',
-    borderRadius: '10px',
-    padding: '12px 16px',
-    marginBottom: '20px',
-    fontSize: '14px',
-  },
-  form: { display: 'flex', flexDirection: 'column', gap: '16px' },
-  fieldGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '13px', fontWeight: '600', color: '#374151' },
-  input: {
-    padding: '12px 14px',
-    borderRadius: '10px',
-    border: '1.5px solid #e2e8f0',
-    fontSize: '15px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-  submitBtn: {
-    padding: '13px',
-    borderRadius: '10px',
-    border: 'none',
-    background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-    color: '#fff',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    marginTop: '4px',
-  },
-  footer: { textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748b' },
-  link: { color: '#0ea5e9', textDecoration: 'none', fontWeight: '600' },
 };
 
 export default Login;

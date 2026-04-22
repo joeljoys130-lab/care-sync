@@ -74,11 +74,6 @@ const PatientProfile = () => {
   return (
     <div className="relative min-h-screen max-w-6xl mx-auto pb-12 animate-fade-in z-0">
       
-      {/* ── Abstract Glassmorphism Background Orbs (Lavender & Green) ── */}
-      <div className="absolute top-0 left-10 w-96 h-96 bg-purple-300/40 rounded-full mix-blend-multiply filter blur-[80px] -z-10 animate-pulse"></div>
-      <div className="absolute top-40 right-10 w-96 h-96 bg-emerald-300/30 rounded-full mix-blend-multiply filter blur-[80px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute -bottom-10 left-1/2 w-[500px] h-[500px] bg-teal-200/30 rounded-full mix-blend-multiply filter blur-[100px] -z-10"></div>
-
       {/* Sleek Gradient Cover Banner */}
       <div className="h-48 md:h-64 rounded-b-[40px] bg-gradient-to-br from-purple-400/80 via-emerald-300/80 to-teal-300/80 backdrop-blur-md shadow-lg relative overflow-hidden border border-white/20">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
