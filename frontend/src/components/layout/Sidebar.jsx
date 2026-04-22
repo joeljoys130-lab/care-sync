@@ -54,15 +54,15 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
     <aside
       className={`
         fixed lg:static inset-y-0 left-0 z-30
-        flex flex-col w-64 bg-white border-r border-slate-100 shadow-sm
+        flex flex-col w-64 bg-white/40 backdrop-blur-2xl border-r border-white/60 shadow-[4px_0_24px_0_rgba(31,38,135,0.05)]
         transition-transform duration-300
         ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
       `}
     >
       {/* Logo */}
-      <div className="flex items-center justify-between p-5 border-b border-slate-100">
+      <div className="flex items-center justify-between p-5 border-b border-white/40">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(168,85,247,0.3)] border border-white/30">
             <MdLocalHospital className="text-white text-xl" />
           </div>
           <div>
@@ -79,9 +79,9 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
       </div>
 
       {/* User Info */}
-      <div className="px-4 py-4 border-b border-slate-100">
+      <div className="px-4 py-4 border-b border-white/40">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-100 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/50 border border-white/60 shadow-sm flex items-center justify-center flex-shrink-0">
             {user?.avatar ? (
               <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full object-cover" />
             ) : (
@@ -115,10 +115,10 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
       </nav>
 
       {/* Logout */}
-      <div className="p-3 border-t border-slate-100">
+      <div className="p-3 border-t border-white/40">
         <button
           onClick={handleLogout}
-          className="nav-item w-full text-red-500 hover:bg-red-50 hover:text-red-600"
+          className="nav-item w-full text-rose-500 hover:bg-rose-500/10 hover:text-rose-600"
         >
           <FiLogOut className="text-lg" />
           <span>Sign Out</span>
