@@ -66,4 +66,16 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden. Not authorized to access this route.',
+      });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorize };
