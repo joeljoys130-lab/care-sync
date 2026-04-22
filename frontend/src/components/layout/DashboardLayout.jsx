@@ -22,7 +22,11 @@ const DashboardLayout = ({ role = 'patient' }) => {
   const { user } = useAuth();
 
   return (
-    <div className="flex h-screen bg-surface-50 overflow-hidden">
+    <div className="flex h-screen overflow-hidden relative z-0">
+      {/* ── Abstract Glassmorphism Background Orbs ── */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-300/40 rounded-full mix-blend-multiply filter blur-[100px] -z-10 animate-pulse"></div>
+      <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-emerald-300/30 rounded-full mix-blend-multiply filter blur-[120px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute bottom-[-20%] left-[30%] w-[800px] h-[800px] bg-teal-200/30 rounded-full mix-blend-multiply filter blur-[150px] -z-10"></div>
       {/* ── Sidebar ── */}
       <Sidebar role={role} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -37,7 +41,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
       {/* ── Main area ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top header */}
-        <header className="flex items-center justify-between h-16 px-4 sm:px-6 bg-white border-b border-slate-100 flex-shrink-0 shadow-sm">
+        <header className="flex items-center justify-between h-16 px-4 sm:px-6 bg-white/40 backdrop-blur-xl border-b border-white/60 flex-shrink-0 shadow-[0_4px_24px_rgba(31,38,135,0.05)] z-10">
           {/* Hamburger (mobile only) */}
           <button
             onClick={() => setSidebarOpen(true)}
