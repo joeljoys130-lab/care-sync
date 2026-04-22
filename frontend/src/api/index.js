@@ -122,6 +122,14 @@ export const notificationAPI = {
 };
 
 /* ═══════════════════════════════════════════════════════════════
+   REVIEW API
+═══════════════════════════════════════════════════════════════ */
+export const reviewAPI = {
+  getDoctorReviews: (id, params) => api.get(`/doctors/${id}/reviews`, { params })
+    .catch(() => ({ data: { data: { reviews: [] } } })),
+};
+
+/* ═══════════════════════════════════════════════════════════════
    ADMIN API  (used by Adithya's admin dashboard)
 ═══════════════════════════════════════════════════════════════ */
 export const adminAPI = {

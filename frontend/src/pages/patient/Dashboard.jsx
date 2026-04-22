@@ -125,7 +125,7 @@ const PatientDashboard = () => {
             <Link to="/patient/notifications" className="text-sm text-primary-600 hover:underline">View all</Link>
           </div>
           <div className="space-y-2">
-            {notifications.length === 0 ? (
+            {!Array.isArray(notifications) || notifications.length === 0 ? (
               <div className="card text-center py-8 text-slate-400 text-sm">No notifications</div>
             ) : notifications.map((n) => (
               <div key={n._id} className={`card py-3 px-4 ${!n.isRead ? 'border-l-4 border-primary-400' : ''}`}>
