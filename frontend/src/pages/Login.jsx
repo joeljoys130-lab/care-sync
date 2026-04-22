@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../api/api';
+import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,24 +9,24 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const res = await login({ email, password });
+      const res = await authAPI.login({ email, password });
+      const { token, user } = res.data;
 
-      // Persist token + role so ProtectedRoute and RoleRedirect work
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('role', res.user?.role || 'patient');
-      localStorage.setItem('user', JSON.stringify(res.user || {}));
+      // AuthContext is the single source of truth — stores to localStorage internally
+      login(user, token);
 
-      // Route by role
-      const role = res.user?.role;
-      if (role === 'admin') navigate('/admin-dashboard');
-      else if (role === 'doctor') navigate('/doctor-dashboard');
-      else navigate('/doctors');
+      // Route by role — matches App.jsx route structure
+      const role = user?.role;
+      if (role === 'admin')  navigate('/admin/dashboard');
+      else if (role === 'doctor') navigate('/doctor/dashboard');
+      else navigate('/patient/dashboard');
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {

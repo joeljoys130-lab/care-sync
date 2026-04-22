@@ -1,80 +1,108 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import LoadingSpinner from './components/ui/LoadingSpinner';
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import DoctorList from "./pages/DoctorList";
-import BookAppointment from "./pages/BookAppointment";
-import MyAppointments from "./pages/MyAppointments";
+/* ── Layout & Guards ── */
+import DashboardLayout from './components/layout/DashboardLayout';
+import ProtectedRoute  from './components/ProtectedRoute';
 
-// Placeholder dashboards rendered inline until proper dashboard pages are created
+/* ── Public pages ── */
+import Login    from './pages/Login';
+import Register from './pages/Register';
+
+/* ── Patient pages ── */
+import PatientDashboard from './pages/patient/Dashboard';
+import DoctorList       from './pages/patient/DoctorList';
+import DoctorDetail     from './pages/patient/DoctorDetail';
+import BookAppointment  from './pages/patient/BookAppointment';
+import MyAppointments   from './pages/patient/MyAppointments';
+import MedicalRecords   from './pages/patient/MedicalRecords';
+import Favorites        from './pages/patient/Favorites';
+import PatientProfile   from './pages/patient/Profile';
+import Notifications    from './pages/patient/Notifications';
+
+/* ── Placeholder dashboard pages (to be replaced when Adithya + Kavish finish) ── */
 const AdminDashboard = () => (
   <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
     <h1>⚙️ Admin Dashboard</h1>
-    <p>Admin panel coming soon. Backend routes are active at <code>/api/admin</code>.</p>
-    <button onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
-      style={{ marginTop: '20px', padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-      Logout
-    </button>
+    <p style={{ color: '#64748b' }}>Adithya is building this — backend APIs are ready at <code>/api/admin</code>.</p>
   </div>
 );
 
 const DoctorDashboard = () => (
   <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
     <h1>🩺 Doctor Dashboard</h1>
-    <p>Your appointments appear below once the doctor panel is built out.</p>
-    <button onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
-      style={{ marginTop: '20px', padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-      Logout
-    </button>
+    <p style={{ color: '#64748b' }}>Doctor portal coming soon.</p>
   </div>
 );
 
-/** Redirects to /login if no token present */
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  if (!token) return <Navigate to="/login" replace />;
-  return children;
-};
-
-/** After login, route to the correct dashboard based on stored role */
+/** Root redirect — send users to their correct home based on role */
 const RoleRedirect = () => {
-  const role = localStorage.getItem("role");
-  if (role === "admin") return <Navigate to="/admin-dashboard" replace />;
-  if (role === "doctor") return <Navigate to="/doctor-dashboard" replace />;
-  return <Navigate to="/doctors" replace />;
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'admin')   return <Navigate to="/admin/dashboard"   replace />;
+  if (user.role === 'doctor')  return <Navigate to="/doctor/dashboard"  replace />;
+  return <Navigate to="/patient/dashboard" replace />;
 };
 
 function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface-50">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
-    <Router>
-      <Routes>
-        {/* Public — Auth */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <Routes>
+      {/* ── Root redirect ─────────────────────────────── */}
+      <Route path="/" element={<RoleRedirect />} />
 
-        {/* Root: redirect based on role, or to login */}
-        <Route
-          path="/"
-          element={
-            localStorage.getItem("token")
-              ? <RoleRedirect />
-              : <Navigate to="/login" replace />
-          }
-        />
+      {/* ── Public ────────────────────────────────────── */}
+      <Route path="/login"    element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        {/* Patient routes — protected */}
-        <Route path="/doctors" element={<ProtectedRoute><DoctorList /></ProtectedRoute>} />
-        <Route path="/book/:doctorId" element={<ProtectedRoute><BookAppointment /></ProtectedRoute>} />
-        <Route path="/appointments" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
+      {/* ── Patient (protected) ───────────────────────── */}
+      <Route element={<ProtectedRoute allowedRoles={['patient']} />}>
+        <Route element={<DashboardLayout role="patient" />}>
+          <Route path="/patient/dashboard"    element={<PatientDashboard />} />
+          <Route path="/patient/doctors"      element={<DoctorList />} />
+          <Route path="/patient/doctors/:id"  element={<DoctorDetail />} />
+          <Route path="/patient/book/:doctorId" element={<BookAppointment />} />
+          <Route path="/patient/appointments" element={<MyAppointments />} />
+          <Route path="/patient/records"      element={<MedicalRecords />} />
+          <Route path="/patient/favorites"    element={<Favorites />} />
+          <Route path="/patient/profile"      element={<PatientProfile />} />
+          <Route path="/patient/notifications" element={<Notifications />} />
+        </Route>
+      </Route>
 
-        {/* Role dashboards — protected */}
-        <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/doctor-dashboard" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>} />
+      {/* ── Admin (protected) ─────────────────────────── */}
+      <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+        <Route element={<DashboardLayout role="admin" />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Route>
+      </Route>
 
-        {/* Catch-all */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+      {/* ── Doctor (protected) ────────────────────────── */}
+      <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
+        <Route element={<DashboardLayout role="doctor" />}>
+          <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+        </Route>
+      </Route>
+
+      {/* ── Legacy redirects (in case old links exist) ── */}
+      <Route path="/doctors"          element={<Navigate to="/patient/doctors"      replace />} />
+      <Route path="/appointments"     element={<Navigate to="/patient/appointments" replace />} />
+      <Route path="/admin-dashboard"  element={<Navigate to="/admin/dashboard"      replace />} />
+      <Route path="/doctor-dashboard" element={<Navigate to="/doctor/dashboard"     replace />} />
+
+      {/* ── 404 ───────────────────────────────────────── */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
