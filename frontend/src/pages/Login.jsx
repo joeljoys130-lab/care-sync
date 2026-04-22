@@ -41,10 +41,10 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden z-0 bg-sky-50 dark:bg-[#0a0f1a]">
-      {/* ── Abstract Glassmorphism Background Orbs ── */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full filter blur-[120px] -z-10 animate-pulse"></div>
-      <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-blue-600/10 rounded-full filter blur-[150px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute bottom-[-20%] left-[30%] w-[800px] h-[800px] bg-indigo-500/10 rounded-full filter blur-[180px] -z-10"></div>
+      {/* ── Abstract Background Orbs (Optimized for performance) ── */}
+      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/5 rounded-full filter blur-[100px] pointer-events-none -z-10"></div>
+      <div className="fixed top-[40%] right-[-5%] w-[600px] h-[600px] bg-blue-600/5 rounded-full filter blur-[120px] pointer-events-none -z-10"></div>
+      <div className="fixed bottom-[-20%] left-[30%] w-[800px] h-[800px] bg-indigo-500/5 rounded-full filter blur-[150px] pointer-events-none -z-10"></div>
 
       <div className="card w-full max-w-md relative z-10 animate-slide-up">
         <div className="flex items-center gap-3 mb-6">
