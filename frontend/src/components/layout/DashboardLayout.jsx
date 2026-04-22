@@ -22,7 +22,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
   const { user } = useAuth();
 
   return (
-    <div className="flex h-screen overflow-hidden relative z-0 bg-surface">
+    <div className="flex h-screen overflow-hidden relative z-0 bg-[#0a0f1a]">
       {/* ── Abstract Glassmorphism Background Orbs ── */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full filter blur-[120px] -z-10 animate-pulse"></div>
       <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-blue-600/10 rounded-full filter blur-[150px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
@@ -45,7 +45,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
           {/* Hamburger (mobile only) */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-xl hover:bg-surface-100 text-slate-400 transition"
+            className="lg:hidden p-2 rounded-xl hover:bg-[#1c283d] text-slate-400 transition"
             aria-label="Open menu"
           >
             <FiMenu className="text-xl" />
@@ -58,7 +58,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
           <div className="flex items-center gap-3 ml-auto">
             {/* Notification bell */}
             <button
-              className="relative p-2 rounded-xl hover:bg-surface-100 text-slate-400 transition"
+              className="relative p-2 rounded-xl hover:bg-[#1c283d] text-slate-400 transition"
               aria-label="Notifications"
             >
               <FiBell className="text-xl" />
@@ -66,7 +66,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
 
             {/* User avatar */}
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-surface-100 flex items-center justify-center flex-shrink-0 border border-white/5">
+              <div className="w-9 h-9 rounded-xl bg-[#1c283d] flex items-center justify-center flex-shrink-0 border border-white/5">
                 {user?.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-xl" />
                 ) : (

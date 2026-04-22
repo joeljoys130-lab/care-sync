@@ -37,7 +37,7 @@ const DoctorCard = ({ doctor, isFavorite = false }) => {
   });
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col gap-4">
+    <div className="bg-[#131d30]/60 rounded-2xl border border-white/5 shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col gap-4">
       {/* Avatar + Favorite */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -51,7 +51,7 @@ const DoctorCard = ({ doctor, isFavorite = false }) => {
             )}
           </div>
           <div>
-            <p className="font-semibold text-slate-800 text-sm leading-tight">Dr. {name}</p>
+            <p className="font-semibold text-white text-sm leading-tight">Dr. {name}</p>
             <p className="text-xs text-primary-600 mt-0.5">{specialization}</p>
           </div>
         </div>
@@ -72,19 +72,19 @@ const DoctorCard = ({ doctor, isFavorite = false }) => {
       </div>
 
       {/* Info chips */}
-      <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+      <div className="flex flex-wrap gap-2 text-xs text-slate-400">
         {rating !== null && (
           <span className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full font-medium">
             <FiStar className="fill-amber-400 stroke-amber-400" /> {rating.toFixed(1)}
           </span>
         )}
         {city && (
-          <span className="flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-full">
+          <span className="flex items-center gap-1 bg-[#1c283d]/50 px-2.5 py-1 rounded-full">
             <FiMapPin /> {city}
           </span>
         )}
         {experience !== null && (
-          <span className="flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-full">
+          <span className="flex items-center gap-1 bg-[#1c283d]/50 px-2.5 py-1 rounded-full">
             {experience} yrs exp
           </span>
         )}

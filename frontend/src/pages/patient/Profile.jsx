@@ -88,7 +88,7 @@ const PatientProfile = () => {
               {user?.avatar ? (
                 <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-cyan-400/80 font-black text-6xl shadow-sm">{user?.name?.charAt(0)}</span>
+                <span className="text-cyan-400/80 font-black text-6xl shadow-2xl">{user?.name?.charAt(0)}</span>
               )}
               {/* Glassmorphic Hover Overlay */}
               <div 
@@ -110,11 +110,11 @@ const PatientProfile = () => {
         </div>
         
         <div className="text-center md:text-left mb-2 md:mb-6">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-sm">{user?.name}</h1>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-2xl">{user?.name}</h1>
           <p className="text-slate-400 font-medium flex items-center justify-center md:justify-start gap-2 mt-1.5 text-sm md:text-base">
             <FiMail className="text-cyan-400" /> {user?.email}
           </p>
-          <span className="inline-block mt-3 px-4 py-1.5 bg-cyan-500/10 backdrop-blur-md border border-cyan-500/20 text-cyan-300 text-xs font-bold rounded-full shadow-sm uppercase tracking-wider">
+          <span className="inline-block mt-3 px-4 py-1.5 bg-cyan-500/10 backdrop-blur-md border border-cyan-500/20 text-cyan-300 text-xs font-bold rounded-full shadow-2xl uppercase tracking-wider">
             Patient Account
           </span>
         </div>
@@ -130,7 +130,7 @@ const PatientProfile = () => {
             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-t-[2rem]"></div>
 
             <div className="relative flex items-center gap-4 mb-8 pb-6 border-b border-white/5">
-              <div className="w-12 h-12 rounded-2xl bg-[#1c283d] border border-white/5 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/10 transition-colors duration-300 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-[#1c283d] border border-white/5 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/10 transition-colors duration-300 shadow-2xl">
                 <FiUser className="text-2xl" />
               </div>
               <div>
@@ -151,7 +151,7 @@ const PatientProfile = () => {
                 <div className="space-y-2">
                   <label className="label ml-1">Full Name</label>
                   <div className="relative group/input">
-                    <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-cyan-400 transition-colors" />
+                    <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-cyan-400 transition-colors" />
                     <input {...register('name')} className="input pl-11" required />
                   </div>
                 </div>
@@ -159,7 +159,7 @@ const PatientProfile = () => {
                 <div className="space-y-2">
                   <label className="label ml-1">Phone Number</label>
                   <div className="relative group/input">
-                    <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-cyan-400 transition-colors" />
+                    <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-cyan-400 transition-colors" />
                     <input {...register('phone')} className="input pl-11" placeholder="+1 234 567 8900" />
                   </div>
                 </div>
@@ -213,7 +213,7 @@ const PatientProfile = () => {
             <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-2xl rounded-bl-full -z-10 group-hover:scale-150 group-hover:bg-cyan-500/20 transition-all duration-700"></div>
             
             <div className="relative flex items-center gap-4 mb-8 pb-6 border-b border-white/5">
-              <div className="w-12 h-12 rounded-2xl bg-[#1c283d] border border-white/5 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/10 transition-colors duration-300 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-[#1c283d] border border-white/5 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/10 transition-colors duration-300 shadow-2xl">
                 <FiLock className="text-2xl" />
               </div>
               <div>
@@ -233,7 +233,7 @@ const PatientProfile = () => {
               <div className="space-y-2">
                 <label className="label ml-1">Current Password</label>
                 <div className="relative group/input">
-                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-cyan-400 transition-colors" />
+                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-cyan-400 transition-colors" />
                   <input type="password" {...registerPassword('currentPassword')} className="input pl-11" required />
                 </div>
               </div>
@@ -241,7 +241,7 @@ const PatientProfile = () => {
               <div className="space-y-2">
                 <label className="label ml-1">New Password</label>
                 <div className="relative group/input">
-                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-cyan-400 transition-colors" />
+                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-cyan-400 transition-colors" />
                   <input type="password" {...registerPassword('newPassword')} className="input pl-11" minLength={6} required />
                 </div>
               </div>
@@ -249,7 +249,7 @@ const PatientProfile = () => {
               <div className="space-y-2">
                 <label className="label ml-1">Confirm Password</label>
                 <div className="relative group/input">
-                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-cyan-400 transition-colors" />
+                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-cyan-400 transition-colors" />
                   <input type="password" {...registerPassword('confirmPassword')} className="input pl-11" minLength={6} required />
                 </div>
               </div>
