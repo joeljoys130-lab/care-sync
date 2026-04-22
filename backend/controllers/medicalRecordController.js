@@ -1,19 +1,17 @@
 const MedicalRecord = require('../models/MedicalRecord');
 const Appointment = require('../models/Appointment');
-const Doctor = require('../models/Doctor');
-const Patient = require('../models/Patient');
+const User = require('../models/User');
 const path = require('path');
 
 // ─── Create Medical Record (Doctor only) ──────────────────────────────────────
 exports.createRecord = async (req, res) => {
-  const doctor = await Doctor.findOne({ userId: req.user.id });
-  if (!doctor) return res.status(403).json({ success: false, message: 'Only doctors can create records.' });
+  if (req.user.role !== 'doctor') return res.status(403).json({ success: false, message: 'Only doctors can create records.' });
 
   const { appointmentId, patientId, diagnosis, symptoms, prescriptions, labTests, followUpDate, doctorNotes } =
     req.body;
 
   // Validate appointment belongs to this doctor
-  const appointment = await Appointment.findOne({ _id: appointmentId, doctorId: doctor._id });
+  const appointment = await Appointment.findOne({ _id: appointmentId, doctorId: req.user.id });
   if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found.' });
 
   // Handle uploaded files
@@ -29,7 +27,7 @@ exports.createRecord = async (req, res) => {
 
   const record = await MedicalRecord.create({
     patientId,
-    doctorId: doctor._id,
+    doctorId: req.user.id,
     appointmentId,
     diagnosis,
     symptoms: symptoms ? JSON.parse(symptoms) : [],
@@ -60,8 +58,7 @@ exports.getPatientRecords = async (req, res) => {
 
   // Authorization: patient can view own records, doctor can view their patient's records
   if (req.user.role === 'patient') {
-    const patient = await Patient.findOne({ userId: req.user.id });
-    if (!patient || patient._id.toString() !== patientId) {
+    if (req.user.id !== patientId) {
       return res.status(403).json({ success: false, message: 'Not authorized.' });
     }
   }
@@ -72,8 +69,8 @@ exports.getPatientRecords = async (req, res) => {
 
   const total = await MedicalRecord.countDocuments(query);
   const records = await MedicalRecord.find(query)
-    .populate({ path: 'doctorId', populate: { path: 'userId', select: 'name avatar' } })
-    .populate('appointmentId', 'appointmentDate slot')
+    .populate('doctorId', 'name email')
+    .populate('appointmentId', 'appointmentDate timeSlot')
     .sort({ visitDate: -1 })
     .skip(skip)
     .limit(Number(limit));
@@ -90,8 +87,8 @@ exports.getPatientRecords = async (req, res) => {
 // ─── Get Single Record ────────────────────────────────────────────────────────
 exports.getRecordById = async (req, res) => {
   const record = await MedicalRecord.findById(req.params.id)
-    .populate({ path: 'doctorId', populate: { path: 'userId', select: 'name avatar' } })
-    .populate({ path: 'patientId', populate: { path: 'userId', select: 'name avatar' } })
+    .populate('doctorId', 'name email')
+    .populate('patientId', 'name email')
     .populate('appointmentId');
 
   if (!record) return res.status(404).json({ success: false, message: 'Record not found.' });
@@ -100,8 +97,7 @@ exports.getRecordById = async (req, res) => {
 
 // ─── Update Medical Record ────────────────────────────────────────────────────
 exports.updateRecord = async (req, res) => {
-  const doctor = await Doctor.findOne({ userId: req.user.id });
-  const record = await MedicalRecord.findOne({ _id: req.params.id, doctorId: doctor._id });
+  const record = await MedicalRecord.findOne({ _id: req.params.id, doctorId: req.user.id });
   if (!record) return res.status(404).json({ success: false, message: 'Record not found.' });
 
   const updates = req.body;

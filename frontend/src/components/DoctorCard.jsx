@@ -1,111 +1,109 @@
 import { useNavigate } from 'react-router-dom';
-import { FiHeart, FiStar, FiMapPin, FiBriefcase, FiDollarSign } from 'react-icons/fi';
-import StarRating from './ui/StarRating';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientAPI } from '../api';
-import { useAuth } from '../context/AuthContext';
+import { FiHeart, FiStar, FiMapPin, FiDollarSign } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
-const SPECIALIZATION_COLORS = {
-  Cardiology: 'bg-red-50 text-red-600',
-  Dermatology: 'bg-pink-50 text-pink-600',
-  Neurology: 'bg-purple-50 text-purple-600',
-  Orthopedics: 'bg-orange-50 text-orange-600',
-  Pediatrics: 'bg-green-50 text-green-600',
-  General: 'bg-blue-50 text-blue-600',
-  default: 'bg-primary-50 text-primary-600',
-};
-
-const DoctorCard = ({ doctor, isFavorite = false, onFavoriteToggle }) => {
+/**
+ * DoctorCard
+ *
+ * Props:
+ *   doctor     — doctor object from GET /api/doctors
+ *   isFavorite — boolean, whether this doctor is in the patient's favorites
+ *
+ * Handles:
+ *   • Book Appointment → navigate to /patient/book/:id
+ *   • Toggle Favorite  → calls patientAPI.toggleFavorite
+ */
+const DoctorCard = ({ doctor, isFavorite = false }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
 
-  const { userId: userInfo, _id, specialization, experience, fees, city, rating, totalReviews } = doctor;
+  // name lives directly on the User/doctor doc
+  const name         = doctor?.name || doctor?.userId?.name || 'Doctor';
+  const specialization = doctor?.specialization || 'General Practice';
+  const fees         = doctor?.fees ?? doctor?.consultationFee ?? '—';
+  const rating       = doctor?.rating ?? null;
+  const city         = doctor?.address?.city || doctor?.city || null;
+  const experience   = doctor?.experience ?? null;
 
   const favMutation = useMutation({
-    mutationFn: () => patientAPI.toggleFavorite(_id),
+    mutationFn: () => patientAPI.toggleFavorite(doctor._id),
     onSuccess: () => {
-      queryClient.invalidateQueries(['patient-favorites']);
-      queryClient.invalidateQueries(['doctors']);
-      onFavoriteToggle?.();
+      qc.invalidateQueries(['patient-favorites']);
+      qc.invalidateQueries(['doctors']);
     },
-    onError: () => toast.error('Failed to update favorites.'),
+    onError: () => toast.error('Could not update favorites'),
   });
 
-  const colorClass = SPECIALIZATION_COLORS[specialization] || SPECIALIZATION_COLORS.default;
-
   return (
-    <div className="card-hover flex flex-col gap-4 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-start gap-4">
-        {/* Avatar */}
-        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-primary-50 flex items-center justify-center flex-shrink-0">
-          {userInfo?.avatar ? (
-            <img src={userInfo.avatar} alt={userInfo.name} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-primary-600 font-bold text-xl">
-              {userInfo?.name?.charAt(0)}
-            </span>
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h3 className="font-semibold text-slate-800 truncate">Dr. {userInfo?.name}</h3>
-              <span className={`badge text-xs mt-1 ${colorClass}`}>{specialization}</span>
-            </div>
-            {user?.role === 'patient' && (
-              <button
-                onClick={(e) => { e.stopPropagation(); favMutation.mutate(); }}
-                className={`p-1.5 rounded-lg transition ${isFavorite ? 'text-red-500 bg-red-50' : 'text-slate-300 hover:text-red-400'}`}
-              >
-                <FiHeart className={isFavorite ? 'fill-red-500' : ''} />
-              </button>
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col gap-4">
+      {/* Avatar + Favorite */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center flex-shrink-0">
+            {doctor?.avatar ? (
+              <img src={doctor.avatar} alt={name} className="w-full h-full object-cover rounded-xl" />
+            ) : (
+              <span className="text-primary-700 font-bold text-lg">
+                {name.charAt(0).toUpperCase()}
+              </span>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Info */}
-      <div className="grid grid-cols-2 gap-2 text-sm text-slate-500">
-        <div className="flex items-center gap-1.5">
-          <FiBriefcase className="text-primary-400 flex-shrink-0" />
-          <span>{experience} yr{experience !== 1 ? 's' : ''} exp.</span>
-        </div>
-        {city && (
-          <div className="flex items-center gap-1.5">
-            <FiMapPin className="text-primary-400 flex-shrink-0" />
-            <span className="truncate">{city}</span>
+          <div>
+            <p className="font-semibold text-slate-800 text-sm leading-tight">Dr. {name}</p>
+            <p className="text-xs text-primary-600 mt-0.5">{specialization}</p>
           </div>
-        )}
-        <div className="flex items-center gap-1.5">
-          <FiDollarSign className="text-primary-400 flex-shrink-0" />
-          <span>₹{fees} / visit</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <StarRating rating={rating} size="sm" />
-          <span className="text-xs text-slate-400">({totalReviews})</span>
-        </div>
+
+        {/* Favorite button */}
+        <button
+          onClick={() => favMutation.mutate()}
+          disabled={favMutation.isPending}
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          className={`p-2 rounded-xl transition ${
+            isFavorite
+              ? 'bg-red-50 text-red-500'
+              : 'hover:bg-slate-100 text-slate-300'
+          }`}
+        >
+          <FiHeart className={isFavorite ? 'fill-current' : ''} />
+        </button>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-2 pt-1">
-        <button
-          onClick={() => navigate(`/patient/doctors/${_id}`)}
-          className="btn-outline flex-1 btn-sm"
-        >
-          View Profile
-        </button>
-        {user?.role === 'patient' && (
-          <button
-            onClick={() => navigate(`/patient/book/${_id}`)}
-            className="btn-primary flex-1 btn-sm"
-          >
-            Book Now
-          </button>
+      {/* Info chips */}
+      <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+        {rating !== null && (
+          <span className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full font-medium">
+            <FiStar className="fill-amber-400 stroke-amber-400" /> {rating.toFixed(1)}
+          </span>
         )}
+        {city && (
+          <span className="flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-full">
+            <FiMapPin /> {city}
+          </span>
+        )}
+        {experience !== null && (
+          <span className="flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-full">
+            {experience} yrs exp
+          </span>
+        )}
+      </div>
+
+      {/* Fee + Book */}
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
+        <div>
+          <p className="text-xs text-slate-400">Consultation</p>
+          <p className="text-lg font-bold text-primary-600 leading-tight">
+            <span className="text-sm font-normal">₹</span>{fees}
+          </p>
+        </div>
+        <button
+          onClick={() => navigate(`/patient/book/${doctor._id}`)}
+          className="bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition"
+        >
+          Book Now
+        </button>
       </div>
     </div>
   );

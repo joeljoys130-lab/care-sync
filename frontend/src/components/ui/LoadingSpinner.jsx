@@ -1,9 +1,29 @@
+/**
+ * LoadingSpinner
+ *
+ * Usage:
+ *   <LoadingSpinner />            — default medium size
+ *   <LoadingSpinner size="lg" />  — large
+ *   <LoadingSpinner size="sm" />  — small
+ *   <LoadingSpinner className="h-64" /> — full-height centred in parent
+ */
+const sizeMap = {
+  sm: 'w-5 h-5 border-2',
+  md: 'w-8 h-8 border-[3px]',
+  lg: 'w-12 h-12 border-4',
+};
+
 const LoadingSpinner = ({ size = 'md', className = '' }) => {
-  const sizes = { sm: 'w-4 h-4', md: 'w-8 h-8', lg: 'w-12 h-12' };
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center w-full ${className}`}>
       <div
-        className={`${sizes[size]} border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin`}
+        className={`
+          ${sizeMap[size] || sizeMap.md}
+          rounded-full
+          border-primary-200
+          border-t-primary-600
+          animate-spin
+        `}
       />
     </div>
   );

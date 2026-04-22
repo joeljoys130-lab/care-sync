@@ -1,82 +1,69 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authAPI } from '../api';
-import { toast } from 'react-toastify';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser]       = useState(null);
+  const [token, setToken]     = useState(null);
+  const [loading, setLoading] = useState(true); // true while we read localStorage
 
-  // Load user from localStorage on app start
+  /* ── Bootstrap from localStorage on app start ── */
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const accessToken = localStorage.getItem('accessToken');
-    if (storedUser && accessToken) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
-
-  const login = useCallback(async (credentials) => {
-    const { data } = await authAPI.login(credentials);
-    const { accessToken, refreshToken, user: userData } = data.data;
-
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-
-    toast.success(`Welcome back, ${userData.name}! 👋`);
-    return userData;
-  }, []);
-
-  const register = useCallback(async (formData) => {
-    const { data } = await authAPI.register(formData);
-    return data;
-  }, []);
-
-  const verifyOTP = useCallback(async (payload) => {
-    const { data } = await authAPI.verifyOTP(payload);
-    const { accessToken, refreshToken, user: userData } = data.data;
-
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-
-    toast.success('Email verified! Welcome to CareSync 🎉');
-    return userData;
-  }, []);
-
-  const logout = useCallback(async () => {
     try {
-      await authAPI.logout();
+      const storedToken = localStorage.getItem('token');
+      const storedUser  = localStorage.getItem('user');
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      }
     } catch {
-      // Ignore server errors on logout
+      // corrupted storage — clear it
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('role');
+    } finally {
+      setLoading(false);
     }
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    setUser(null);
-    toast.info('Logged out successfully.');
   }, []);
 
-  const updateUser = useCallback((updatedData) => {
-    const newUser = { ...user, ...updatedData };
-    setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
-  }, [user]);
+  /* ── login: called by Login page after successful API response ── */
+  const login = useCallback((userData, authToken) => {
+    setUser(userData);
+    setToken(authToken);
+    localStorage.setItem('token', authToken);
+    localStorage.setItem('user',  JSON.stringify(userData));
+    localStorage.setItem('role',  userData?.role || 'patient');
+  }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, loading, login, register, verifyOTP, logout, updateUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  /* ── logout: clears everything ── */
+  const logout = useCallback(() => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('role');
+  }, []);
+
+  /* ── updateUser: patch user fields without a full re-login ── */
+  const updateUser = useCallback((patch) => {
+    setUser((prev) => {
+      const next = { ...prev, ...patch };
+      localStorage.setItem('user', JSON.stringify(next));
+      localStorage.setItem('role', next?.role || 'patient');
+      return next;
+    });
+  }, []);
+
+  const value = { user, token, loading, login, logout, updateUser };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+/* ── useAuth hook ── */
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
   return ctx;
 };
+
+export default AuthContext;

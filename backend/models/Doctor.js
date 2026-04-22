@@ -6,9 +6,9 @@ const availabilitySlotSchema = new mongoose.Schema({
     enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
     required: true,
   },
-  startTime: { type: String, required: true }, // e.g. "09:00"
-  endTime: { type: String, required: true },   // e.g. "17:00"
-  slotDuration: { type: Number, default: 30 }, // minutes per slot
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },   
+  slotDuration: { type: Number, default: 30 }, 
   isAvailable: { type: Boolean, default: true },
 });
 
