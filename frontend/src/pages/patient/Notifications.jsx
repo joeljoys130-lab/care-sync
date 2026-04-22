@@ -11,7 +11,7 @@ const TYPE_COLORS = {
   appointment_cancelled: 'bg-red-50 text-red-600',
   payment_success: 'bg-emerald-50 text-emerald-600',
   doctor_approved: 'bg-purple-50 text-purple-600',
-  system: 'bg-[#1c283d]/50 text-slate-400',
+  system: 'bg-white dark:bg-sky-100 dark:bg-[#1c283d]/50 text-slate-500 dark:text-slate-400',
 };
 
 const Notifications = () => {
@@ -58,8 +58,8 @@ const Notifications = () => {
         <LoadingSpinner className="h-64" />
       ) : notifications.length === 0 ? (
         <div className="card text-center py-20">
-          <FiBell className="mx-auto text-5xl text-slate-200 mb-4" />
-          <h3 className="text-slate-400 font-semibold">No notifications</h3>
+          <FiBell className="mx-auto text-5xl text-slate-700 dark:text-slate-200 mb-4" />
+          <h3 className="text-slate-500 dark:text-slate-400 font-semibold">No notifications</h3>
         </div>
       ) : (
         <div className="space-y-2">
@@ -68,12 +68,12 @@ const Notifications = () => {
               key={n._id}
               className={`card py-4 px-5 flex items-start gap-4 transition ${!n.isRead ? 'border-l-4 border-primary-400 bg-primary-50/30' : ''}`}
             >
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-sm ${TYPE_COLORS[n.type] || 'bg-[#1c283d]/50 text-slate-400'}`}>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-sm ${TYPE_COLORS[n.type] || 'bg-white dark:bg-sky-100 dark:bg-[#1c283d]/50 text-slate-500 dark:text-slate-400'}`}>
                 <FiBell />
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold ${!n.isRead ? 'text-white' : 'text-slate-400'}`}>{n.title}</p>
-                <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{n.message}</p>
+                <p className={`text-sm font-semibold ${!n.isRead ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>{n.title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{n.message}</p>
                 <p className="text-xs text-slate-300 mt-1">{format(new Date(n.createdAt), 'MMM d, h:mm a')}</p>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">

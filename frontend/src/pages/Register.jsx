@@ -33,7 +33,7 @@ const Register = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden z-0 bg-[#0a0f1a]">
+    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden z-0 bg-sky-50 dark:bg-[#0a0f1a]">
       {/* ── Abstract Glassmorphism Background Orbs ── */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full filter blur-[120px] -z-10 animate-pulse"></div>
       <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-blue-600/10 rounded-full filter blur-[150px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
@@ -47,8 +47,8 @@ const Register = () => {
           <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">CareSync</span>
         </div>
         
-        <h2 className="text-2xl font-bold text-white mb-1">Create your account</h2>
-        <p className="text-sm text-slate-400 mb-6">Join CareSync and manage your health</p>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">Create your account</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Join CareSync and manage your health</p>
 
         {error && (
           <div className="bg-red-500/10 backdrop-blur-md border border-red-500/30 text-red-400 rounded-xl px-4 py-3 mb-6 text-sm">
@@ -124,13 +124,13 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 backdrop-blur-md text-white font-semibold rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] border border-white/10 transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full mt-2 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 backdrop-blur-md text-white font-semibold rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] border border-slate-300 dark:border-white/10 transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating account…' : 'Create Account'}
           </button>
         </form>
 
-        <p className="text-center mt-6 text-sm text-slate-400">
+        <p className="text-center mt-6 text-sm text-slate-500 dark:text-slate-400">
           Already have an account?{' '}
           <Link to="/login" className="text-cyan-400 font-semibold hover:text-cyan-300 transition-colors">
             Sign in

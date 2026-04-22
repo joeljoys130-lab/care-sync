@@ -38,9 +38,9 @@ const MedicalRecords = () => {
         <LoadingSpinner className="h-64" />
       ) : records.length === 0 ? (
         <div className="card text-center py-20">
-          <FiFileText className="mx-auto text-5xl text-slate-200 mb-4" />
-          <h3 className="text-slate-400 font-semibold">No medical records yet</h3>
-          <p className="text-sm text-slate-400 mt-2">Records will appear here after completed appointments</p>
+          <FiFileText className="mx-auto text-5xl text-slate-700 dark:text-slate-200 mb-4" />
+          <h3 className="text-slate-500 dark:text-slate-400 font-semibold">No medical records yet</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Records will appear here after completed appointments</p>
         </div>
       ) : (
         <>
@@ -53,11 +53,11 @@ const MedicalRecords = () => {
                       <FiFileText className="text-blue-600 text-xl" />
                     </div>
                     <div>
-                      <p className="font-semibold text-white">{record.diagnosis}</p>
+                      <p className="font-semibold text-slate-800 dark:text-white">{record.diagnosis}</p>
                       <p className="text-sm text-primary-600 mt-0.5">
                         Dr. {record.doctorId?.userId?.name}
                       </p>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-1">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-1">
                         <FiCalendar className="flex-shrink-0" />
                         {format(new Date(record.visitDate), 'MMMM d, yyyy')}
                       </div>
@@ -70,8 +70,8 @@ const MedicalRecords = () => {
 
                 {/* Symptoms */}
                 {record.symptoms?.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-white/5">
-                    <p className="text-xs text-slate-400 font-medium mb-2">Symptoms</p>
+                  <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">Symptoms</p>
                     <div className="flex flex-wrap gap-1">
                       {record.symptoms.map((s, i) => <span key={i} className="badge-gray text-xs">{s}</span>)}
                     </div>
@@ -80,8 +80,8 @@ const MedicalRecords = () => {
 
                 {/* Prescriptions */}
                 {record.prescriptions?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-white/5">
-                    <p className="text-xs text-slate-400 font-medium mb-2">Prescriptions</p>
+                  <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">Prescriptions</p>
                     <div className="space-y-2">
                       {record.prescriptions.map((p, i) => (
                         <div key={i} className="bg-green-50 rounded-xl p-3 text-xs">
@@ -96,12 +96,12 @@ const MedicalRecords = () => {
 
                 {/* Files */}
                 {record.files?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-white/5">
-                    <p className="text-xs text-slate-400 font-medium mb-2">Attachments</p>
+                  <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">Attachments</p>
                     <div className="flex flex-wrap gap-2">
                       {record.files.map((f, i) => (
                         <a key={i} href={f.path} target="_blank" rel="noreferrer"
-                          className="flex items-center gap-1.5 bg-[#1c283d]/50 border border-white/5 rounded-xl px-3 py-1.5 text-xs text-slate-400 hover:bg-primary-50 hover:text-primary-600 transition">
+                          className="flex items-center gap-1.5 bg-white dark:bg-sky-100 dark:bg-[#1c283d]/50 border border-slate-200 dark:border-white/5 rounded-xl px-3 py-1.5 text-xs text-slate-500 dark:text-slate-400 hover:bg-primary-50 hover:text-primary-600 transition">
                           <FiDownload className="text-xs" />{f.originalName}
                         </a>
                       ))}

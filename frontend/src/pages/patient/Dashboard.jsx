@@ -15,10 +15,10 @@ const StatCard = ({ icon: Icon, label, value, color, to }) => (
       <Icon className="text-xl" />
     </div>
     <div>
-      <p className="text-2xl font-bold text-white">{value ?? '—'}</p>
-      <p className="text-sm text-slate-400">{label}</p>
+      <p className="text-2xl font-bold text-slate-800 dark:text-white">{value ?? '—'}</p>
+      <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
     </div>
-    <FiArrowRight className="ml-auto text-slate-400 group-hover:text-primary-400 transition" />
+    <FiArrowRight className="ml-auto text-slate-500 dark:text-slate-400 group-hover:text-primary-400 transition" />
   </Link>
 );
 
@@ -100,8 +100,8 @@ const PatientDashboard = () => {
             <LoadingSpinner className="h-32 text-primary-400" />
           ) : appointments.length === 0 ? (
             <div className="card text-center py-12">
-              <FiCalendar className="mx-auto text-4xl text-slate-400 mb-3" />
-              <p className="text-slate-400 mb-4">No upcoming appointments</p>
+              <FiCalendar className="mx-auto text-4xl text-slate-500 dark:text-slate-400 mb-3" />
+              <p className="text-slate-500 dark:text-slate-400 mb-4">No upcoming appointments</p>
               <Link to="/patient/doctors" className="btn-primary btn-sm">Find a Doctor</Link>
             </div>
           ) : (
@@ -129,9 +129,9 @@ const PatientDashboard = () => {
               <div className="card text-center py-8 text-slate-400 text-sm">No notifications</div>
             ) : notifications.map((n) => (
               <div key={n._id} className={`card py-3 px-4 ${!n.isRead ? 'border-l-4 border-primary-500' : ''}`}>
-                <p className="text-sm font-medium text-slate-200">{n.title}</p>
-                <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
-                <p className="text-xs text-slate-400 mt-1">{format(new Date(n.createdAt), 'MMM d, h:mm a')}</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{n.title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{format(new Date(n.createdAt), 'MMM d, h:mm a')}</p>
               </div>
             ))}
           </div>
