@@ -15,10 +15,10 @@ const StatCard = ({ icon: Icon, label, value, color, to }) => (
       <Icon className="text-xl" />
     </div>
     <div>
-      <p className="text-2xl font-bold text-slate-800">{value ?? '—'}</p>
-      <p className="text-sm text-slate-500">{label}</p>
+      <p className="text-2xl font-bold text-white">{value ?? '—'}</p>
+      <p className="text-sm text-slate-400">{label}</p>
     </div>
-    <FiArrowRight className="ml-auto text-slate-300 group-hover:text-primary-500 transition" />
+    <FiArrowRight className="ml-auto text-slate-500 group-hover:text-primary-400 transition" />
   </Link>
 );
 
@@ -79,13 +79,13 @@ const PatientDashboard = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard icon={FiCalendar} label="Upcoming" value={apptData?.data?.data?.pagination?.total ?? 0}
-          color="bg-blue-50 text-blue-600" to="/patient/appointments" />
+          color="bg-blue-500/20 text-blue-400 border border-blue-500/20" to="/patient/appointments" />
         <StatCard icon={FiHeart} label="Favorites" value={profile?.favorites?.length ?? 0}
-          color="bg-red-50 text-red-500" to="/patient/favorites" />
+          color="bg-red-500/20 text-red-400 border border-red-500/20" to="/patient/favorites" />
         <StatCard icon={FiFileText} label="Records" value={profile?.totalAppointments ?? 0}
-          color="bg-green-50 text-green-600" to="/patient/records" />
+          color="bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" to="/patient/records" />
         <StatCard icon={FiBell} label="Notifications" value={notifData?.data?.data?.unreadCount ?? 0}
-          color="bg-amber-50 text-amber-600" to="/patient/notifications" />
+          color="bg-amber-500/20 text-amber-400 border border-amber-500/20" to="/patient/notifications" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -97,11 +97,11 @@ const PatientDashboard = () => {
           </div>
 
           {apptLoading ? (
-            <LoadingSpinner className="h-32" />
+            <LoadingSpinner className="h-32 text-primary-400" />
           ) : appointments.length === 0 ? (
             <div className="card text-center py-12">
-              <FiCalendar className="mx-auto text-4xl text-slate-200 mb-3" />
-              <p className="text-slate-500 mb-4">No upcoming appointments</p>
+              <FiCalendar className="mx-auto text-4xl text-slate-600 mb-3" />
+              <p className="text-slate-400 mb-4">No upcoming appointments</p>
               <Link to="/patient/doctors" className="btn-primary btn-sm">Find a Doctor</Link>
             </div>
           ) : (
@@ -128,10 +128,10 @@ const PatientDashboard = () => {
             {!Array.isArray(notifications) || notifications.length === 0 ? (
               <div className="card text-center py-8 text-slate-400 text-sm">No notifications</div>
             ) : notifications.map((n) => (
-              <div key={n._id} className={`card py-3 px-4 ${!n.isRead ? 'border-l-4 border-primary-400' : ''}`}>
-                <p className="text-sm font-medium text-slate-700">{n.title}</p>
+              <div key={n._id} className={`card py-3 px-4 ${!n.isRead ? 'border-l-4 border-primary-500' : ''}`}>
+                <p className="text-sm font-medium text-slate-200">{n.title}</p>
                 <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
-                <p className="text-xs text-slate-300 mt-1">{format(new Date(n.createdAt), 'MMM d, h:mm a')}</p>
+                <p className="text-xs text-slate-500 mt-1">{format(new Date(n.createdAt), 'MMM d, h:mm a')}</p>
               </div>
             ))}
           </div>
