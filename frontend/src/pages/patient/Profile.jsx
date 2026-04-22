@@ -74,13 +74,13 @@ const PatientProfile = () => {
   return (
     <div className="relative min-h-screen max-w-6xl mx-auto pb-12 animate-fade-in z-0">
       
-      {/* ── Abstract Glassmorphism Background Orbs ── */}
-      <div className="absolute top-0 left-10 w-96 h-96 bg-primary-400/20 rounded-full mix-blend-multiply filter blur-[80px] -z-10 animate-pulse"></div>
-      <div className="absolute top-40 right-10 w-96 h-96 bg-teal-400/20 rounded-full mix-blend-multiply filter blur-[80px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute -bottom-10 left-1/2 w-[500px] h-[500px] bg-rose-300/10 rounded-full mix-blend-multiply filter blur-[100px] -z-10"></div>
+      {/* ── Abstract Glassmorphism Background Orbs (Lavender & Green) ── */}
+      <div className="absolute top-0 left-10 w-96 h-96 bg-purple-300/40 rounded-full mix-blend-multiply filter blur-[80px] -z-10 animate-pulse"></div>
+      <div className="absolute top-40 right-10 w-96 h-96 bg-emerald-300/30 rounded-full mix-blend-multiply filter blur-[80px] -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute -bottom-10 left-1/2 w-[500px] h-[500px] bg-teal-200/30 rounded-full mix-blend-multiply filter blur-[100px] -z-10"></div>
 
       {/* Sleek Gradient Cover Banner */}
-      <div className="h-48 md:h-64 rounded-b-[40px] bg-gradient-to-br from-primary-600/90 via-primary-500/80 to-teal-400/80 backdrop-blur-md shadow-lg relative overflow-hidden border border-white/20">
+      <div className="h-48 md:h-64 rounded-b-[40px] bg-gradient-to-br from-purple-400/80 via-emerald-300/80 to-teal-300/80 backdrop-blur-md shadow-lg relative overflow-hidden border border-white/20">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]"></div>
       </div>
@@ -93,7 +93,7 @@ const PatientProfile = () => {
               {user?.avatar ? (
                 <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-primary-600/80 font-black text-6xl shadow-sm">{user?.name?.charAt(0)}</span>
+                <span className="text-purple-600/80 font-black text-6xl shadow-sm">{user?.name?.charAt(0)}</span>
               )}
               {/* Glassmorphic Hover Overlay */}
               <div 
@@ -107,7 +107,7 @@ const PatientProfile = () => {
           </div>
           <button
             onClick={() => fileRef.current?.click()}
-            className="absolute bottom-2 right-2 w-11 h-11 bg-white/20 backdrop-blur-md text-primary-700 rounded-full flex items-center justify-center shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] border border-white/40 hover:bg-white/40 transition-all hover:scale-110 md:hidden z-20"
+            className="absolute bottom-2 right-2 w-11 h-11 bg-white/20 backdrop-blur-md text-purple-700 rounded-full flex items-center justify-center shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] border border-white/40 hover:bg-white/40 transition-all hover:scale-110 md:hidden z-20"
           >
             <FiCamera className="text-xl" />
           </button>
@@ -117,9 +117,9 @@ const PatientProfile = () => {
         <div className="text-center md:text-left mb-2 md:mb-6">
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight drop-shadow-sm">{user?.name}</h1>
           <p className="text-slate-600 font-medium flex items-center justify-center md:justify-start gap-2 mt-1.5 text-sm md:text-base">
-            <FiMail className="text-primary-500" /> {user?.email}
+            <FiMail className="text-purple-500" /> {user?.email}
           </p>
-          <span className="inline-block mt-3 px-4 py-1.5 bg-white/40 backdrop-blur-md border border-white/50 text-teal-700 text-xs font-bold rounded-full shadow-sm uppercase tracking-wider">
+          <span className="inline-block mt-3 px-4 py-1.5 bg-white/40 backdrop-blur-md border border-white/50 text-emerald-700 text-xs font-bold rounded-full shadow-sm uppercase tracking-wider">
             Patient Account
           </span>
         </div>
@@ -135,7 +135,7 @@ const PatientProfile = () => {
             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/40 to-transparent pointer-events-none rounded-t-[2rem]"></div>
 
             <div className="relative flex items-center gap-4 mb-8 pb-6 border-b border-white/40">
-              <div className="w-12 h-12 rounded-2xl bg-white/50 backdrop-blur-md border border-white/60 flex items-center justify-center text-primary-600 group-hover:bg-primary-500/20 group-hover:text-primary-700 transition-colors duration-300 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-white/50 backdrop-blur-md border border-white/60 flex items-center justify-center text-purple-600 group-hover:bg-purple-500/20 group-hover:text-purple-700 transition-colors duration-300 shadow-sm">
                 <FiUser className="text-2xl" />
               </div>
               <div>
@@ -156,16 +156,16 @@ const PatientProfile = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700 ml-1">Full Name</label>
                   <div className="relative group/input">
-                    <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-primary-600 transition-colors" />
-                    <input {...register('name')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl pl-11 pr-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-primary-400/40 focus:border-primary-400/50 focus:bg-white/70 transition-all" required />
+                    <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-purple-600 transition-colors" />
+                    <input {...register('name')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl pl-11 pr-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-400/50 focus:bg-white/70 transition-all" required />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700 ml-1">Phone Number</label>
                   <div className="relative group/input">
-                    <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-primary-600 transition-colors" />
-                    <input {...register('phone')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl pl-11 pr-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-primary-400/40 focus:border-primary-400/50 focus:bg-white/70 transition-all" placeholder="+1 234 567 8900" />
+                    <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-purple-600 transition-colors" />
+                    <input {...register('phone')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl pl-11 pr-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-400/50 focus:bg-white/70 transition-all" placeholder="+1 234 567 8900" />
                   </div>
                 </div>
               </div>
@@ -173,12 +173,12 @@ const PatientProfile = () => {
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700 ml-1">Date of Birth</label>
-                  <input type="date" {...register('dateOfBirth')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl px-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-primary-400/40 focus:border-primary-400/50 focus:bg-white/70 transition-all" />
+                  <input type="date" {...register('dateOfBirth')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl px-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-400/50 focus:bg-white/70 transition-all" />
                 </div>
                 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700 ml-1">Blood Group</label>
-                  <select {...register('bloodGroup')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl px-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-primary-400/40 focus:border-primary-400/50 focus:bg-white/70 transition-all appearance-none cursor-pointer">
+                  <select {...register('bloodGroup')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl px-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-400/50 focus:bg-white/70 transition-all appearance-none cursor-pointer">
                     <option value="">Select Blood Group</option>
                     <option value="A+">A+</option>
                     <option value="A-">A-</option>
@@ -194,11 +194,11 @@ const PatientProfile = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700 ml-1">Allergies</label>
-                <input {...register('allergies')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl px-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-primary-400/40 focus:border-primary-400/50 focus:bg-white/70 transition-all" placeholder="e.g. Peanuts, Penicillin (comma separated)" />
+                <input {...register('allergies')} className="w-full bg-white/50 backdrop-blur-sm border border-white/60 text-slate-800 rounded-2xl px-4 py-3.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-400/50 focus:bg-white/70 transition-all" placeholder="e.g. Peanuts, Penicillin (comma separated)" />
               </div>
 
               <div className="pt-4">
-                <button type="submit" disabled={updateMutation.isPending} className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-primary-600/90 to-primary-500/90 hover:from-primary-600 hover:to-primary-500 backdrop-blur-md text-white font-semibold rounded-2xl shadow-[0_8px_20px_rgba(14,165,233,0.3)] border border-white/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                <button type="submit" disabled={updateMutation.isPending} className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-purple-500/90 to-emerald-400/90 hover:from-purple-500 hover:to-emerald-400 backdrop-blur-md text-white font-semibold rounded-2xl shadow-[0_8px_20px_rgba(168,85,247,0.3)] border border-white/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
                   <FiSave className="text-lg" />
                   {updateMutation.isPending ? 'Saving Changes...' : 'Save Profile Changes'}
                 </button>
