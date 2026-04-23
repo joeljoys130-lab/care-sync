@@ -1,19 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { paymentAPI } from '../../api';
 import { toast } from 'react-toastify';
 import { FiCreditCard } from "react-icons/fi";
 
-const Payment = ({ amount, appointmentId }) => {
+const Payment = () => {
+  const { appointmentId } = useParams();
+  const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    // Fetch appointment details to get amount
+    // Assuming you have an API to get appointment by ID
+    // For now, set a default or fetch from props/route
+    setAmount(500); // Replace with actual fetch
+  }, [appointmentId]);
+
   const handlePayment = async () => {
+    setLoading(true);
     try {
-      const response = await paymentAPI.createPayment({ amount, appointmentId });
-      toast.success('Payment successful!');
-      console.log(response.data);
+      // Step 1: Create Razorpay order
+      const orderRes = await paymentAPI.createRazorpayOrder({ amount, appointmentId });
+      const { order } = orderRes.data;
+
+      // Step 2: Open Razorpay checkout
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'Care Sync',
+        description: 'Appointment Payment',
+        order_id: order.id,
+        handler: async (response) => {
+          // Step 3: Confirm payment on success
+          try {
+            await paymentAPI.confirm({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              appointmentId,
+              amount,
+            });
+            toast.success('Payment successful!');
+          } catch (error) {
+            toast.error('Payment confirmation failed');
+          }
+        },
+        prefill: {
+          name: 'Patient Name',
+          email: 'patient@example.com',
+          contact: '9999999999',
+        },
+        theme: {
+          color: '#3399cc',
+        },
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
-      toast.error('Payment failed');
-      console.error(error);
+      toast.error('Failed to initiate payment');
     } finally {
       setLoading(false);
     }

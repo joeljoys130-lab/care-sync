@@ -1,38 +1,55 @@
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 const Payment = require('../models/payment.model');
 
-exports.createPayment = async (req, res)=> {
-    try{
-        const { amount } = req.body;
+// Initialize Razorpay instance
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
-        const payment = await Payment.create({
-            userId: req.user.id,
-            amount,
-            status: "success",
-            transactionId: "TXN" + Date.now()
-        });
-
-        res.status(201).json({
-            success: true,
-            payment
-        });
-    }
-    catch(err){
-        res.status(500).json({
-            message: err.message
-        });
-    }
+const createRazorpayOrder = async (req, res) => {
+  try {
+    const { amount, appointmentId } = req.body;
+    const options = {
+      amount: amount * 100, // Razorpay expects amount in paisa
+      currency: 'INR',
+      receipt: `receipt_${appointmentId}`,
+    };
+    const order = await razorpay.orders.create(options);
+    res.json({ success: true, order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
-exports.getPayments = async(req, res)=>{
-    try{
-        const payments = await Payment.find({ userId: req.user.id });
-
-        res.status(200).json({
-            success: true,
-            payments
-        });
+const confirmPayment = async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, appointmentId, amount } = req.body;
+    
+    // Verify payment signature
+    const sign = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSign = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(sign.toString())
+      .digest('hex');
+    
+    if (razorpay_signature === expectedSign) {
+      // Save payment to database
+      const payment = new Payment({
+        userId: req.user.id, // Assuming auth middleware sets req.user
+        appointmentId,
+        amount,
+        status: 'success',
+        transactionId: razorpay_payment_id,
+      });
+      await payment.save();
+      res.json({ success: true, message: 'Payment confirmed' });
+    } else {
+      res.status(400).json({ success: false, message: 'Payment verification failed' });
     }
-    catch(err){
-        res.status(500).json({message: err.message});
-    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
+
+module.exports = { createRazorpayOrder, confirmPayment };
