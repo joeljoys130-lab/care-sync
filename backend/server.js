@@ -21,6 +21,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const appointmentRoutes = require('./routes/appointments');
 const adminRoutes = require('./routes/adminRoutes');
 const reviewRoutes = require('./routes/reviews');
+const notificationRoutes = require('./routes/notifications');
 
 // Initialize app
 const app = express();
@@ -101,6 +102,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ─── Health Check ────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

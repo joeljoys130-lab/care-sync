@@ -125,11 +125,15 @@ export const notificationAPI = {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   REVIEW API
+   REVIEW API  (used by DoctorDetail.jsx + DoctorList.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const reviewAPI = {
   getDoctorReviews: (id, params) => api.get(`/doctors/${id}/reviews`, { params })
     .catch(() => ({ data: { data: { reviews: [] } } })),
+  getForDoctor: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params })
+    .catch(() => ({ data: { data: { reviews: [], averageRating: 0, totalReviews: 0 } } })),
+  create: (data) => api.post('/reviews', data)
+    .catch((err) => Promise.reject(err)),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -146,15 +150,4 @@ export const adminAPI = {
   rescheduleAppt:    (id, data)   => api.patch(`/admin/appointments/${id}/reschedule`, data),
   getComplaints:     (params)     => api.get('/admin/complaints', { params }),
   updateComplaint:   (id, data)   => api.patch(`/admin/complaints/${id}/status`, data),
-};
-
-/* ═══════════════════════════════════════════════════════════════
-   REVIEW API  (used by DoctorDetail.jsx)
-   — stubs gracefully if backend reviews route not yet wired
-═══════════════════════════════════════════════════════════════ */
-export const reviewAPI = {
-  getForDoctor: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params })
-    .catch(() => ({ data: { data: { reviews: [], averageRating: 0, totalReviews: 0 } } })),
-  create: (data) => api.post('/reviews', data)
-    .catch((err) => Promise.reject(err)),
 };
