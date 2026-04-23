@@ -35,7 +35,18 @@ const userSchema = new mongoose.Schema({
   otpExpiry: Date,
   isApproved: {
     type: Boolean,
-    default: true,
+    default: false,
+  },
+  approvalStatus: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
+  },
+  rejectionReason: String,
+  accountStatus: {
+    type: String,
+    enum: ["active", "blocked"],
+    default: "active",
   },
   dateOfBirth: Date,
   gender: String,
@@ -48,6 +59,7 @@ const userSchema = new mongoose.Schema({
     phone: String
   },
   address: String,
+  avatar: String,
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
