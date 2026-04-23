@@ -2,14 +2,11 @@ const mongoose = require("mongoose");
 
 // Appointment schema
 // Captures booking details, lifecycle state, and payment details.
-// This model is used in admin monitoring APIs and dashboard analytics.
 const appointmentSchema = new mongoose.Schema(
   {
-    // References to patient/doctor user documents keep data normalized
-    // and allow populate() for readable admin responses.
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "User", // Keep User ref for simplicity unless Patient model is mandatory
       required: true,
     },
     doctorId: {
@@ -21,17 +18,18 @@ const appointmentSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    timeSlot: {
+    appointmentTime: {
       type: String,
       required: true,
     },
     status: {
       type: String,
-      enum: ["booked", "cancelled", "completed", "rescheduled"],
-      default: "booked",
+      enum: ["pending", "confirmed", "booked", "cancelled", "completed", "rescheduled"],
+      default: "pending",
     },
-    // consultationFee is aggregated in analytics to compute revenue,
-    // but only for records where paymentStatus is "paid".
+    symptoms: [String],
+    notes: String,
+    doctorNotes: String,
     consultationFee: {
       type: Number,
       default: 0,
@@ -44,5 +42,10 @@ const appointmentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Indexes
+appointmentSchema.index({ patientId: 1, appointmentDate: 1 });
+appointmentSchema.index({ doctorId: 1, appointmentDate: 1 });
+appointmentSchema.index({ status: 1 });
 
 module.exports = mongoose.model("Appointment", appointmentSchema);

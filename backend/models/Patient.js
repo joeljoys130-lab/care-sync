@@ -9,14 +9,13 @@ const patientSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
-    dateOfBirth: {
-      type: Date,
-    },
+    dateOfBirth: Date,
     gender: {
       type: String,
       enum: ['male', 'female', 'other', ''],
       default: '',
     },
+    phone: String,
     bloodGroup: {
       type: String,
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', ''],
@@ -41,6 +40,11 @@ const patientSchema = new mongoose.Schema(
       state: { type: String, default: '' },
       zipCode: { type: String, default: '' },
     },
+    medicalHistory: [{
+      condition: String,
+      diagnosedDate: Date,
+      notes: String
+    }],
     // Favorite doctors
     favorites: [
       {
