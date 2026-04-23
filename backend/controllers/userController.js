@@ -7,18 +7,24 @@ const fs = require('fs');
 // ─── Get Current User Profile ─────────────────────────────────────────────────
 exports.getProfile = async (req, res, next) => {
   try {
-  const user = await User.findById(req.user.id);
-  if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
 
-  let profile = null;
-  if (user.role === 'doctor') {
-    profile = await Doctor.findOne({ userId: user._id });
-  } else if (user.role === 'patient') {
-    profile = await Patient.findOne({ userId: user._id });
-  }
+    let profile = null;
 
-  res.json({ success: true, data: { user, profile } });
-} catch (err) {
+    if (user.role === 'doctor') {
+      profile = await Doctor.findOne({ userId: user._id });
+    } else if (user.role === 'patient') {
+      profile = await Patient.findOne({ userId: user._id });
+    }
+
+    res.json({
+      success: true,
+      data: { user, profile }
+    });
+  } catch (err) {
     next(err);
   }
 };
@@ -26,45 +32,73 @@ exports.getProfile = async (req, res, next) => {
 // ─── Update Profile ───────────────────────────────────────────────────────────
 exports.updateProfile = async (req, res, next) => {
   try {
-  const { name, phone } = req.body;
-  const updates = {};
+    const { name, phone } = req.body;
+    const updates = {};
 
-  if (name) updates.name = name;
-  if (phone) updates.phone = phone;
+    if (name) updates.name = name;
+    if (phone) updates.phone = phone;
 
-  const user = await User.findByIdAndUpdate(req.user.id, updates, {
-    new: true,
-    runValidators: true,
-  });
+    const user = await User.findByIdAndUpdate(req.user.id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
-  res.json({ success: true, message: 'Profile updated.', data: { user } });
-} catch (err) {
+    res.json({
+      success: true,
+      message: 'Profile updated.',
+      data: { user }
+    });
+  } catch (err) {
     next(err);
   }
 };
 
-// ─── Upload Avatar ────────────────────────────────────────────────────────────
+// ─── Upload Avatar (SAFE) ─────────────────────────────────────────────────────
 exports.uploadAvatar = async (req, res, next) => {
   try {
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: 'No file uploaded.' });
-  }
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded.'
+      });
+    }
 
-  const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id);
 
-  // Delete old avatar if it exists and is not a URL
-  if (user.avatar && user.avatar.startsWith('/uploads/')) {
-    const oldPath = path.join(__dirname, '..', user.avatar);
-    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-  }
+    // Delete old avatar safely
+    if (user.avatar && user.avatar.startsWith('/uploads/')) {
+      const baseDir = path.join(__dirname, '..', 'uploads', 'avatars');
 
-  // Store relative URL
-  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-  user.avatar = avatarUrl;
-  await user.save();
+      // Extract only filename (prevents ../../ attacks)
+      const safeFilename = path.basename(user.avatar);
 
-  res.json({ success: true, message: 'Avatar updated.', data: { avatar: avatarUrl } });
-} catch (err) {
+      const oldPath = path.join(baseDir, safeFilename);
+
+      // Ensure path stays inside allowed directory
+      if (!oldPath.startsWith(baseDir)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid file path'
+        });
+      }
+
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    // Store relative URL safely
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    user.avatar = avatarUrl;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Avatar updated.',
+      data: { avatar: avatarUrl }
+    });
+  } catch (err) {
     next(err);
   }
 };
@@ -72,20 +106,27 @@ exports.uploadAvatar = async (req, res, next) => {
 // ─── Change Password ──────────────────────────────────────────────────────────
 exports.changePassword = async (req, res, next) => {
   try {
-  const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
 
-  const user = await User.findById(req.user.id).select('+password');
-  const isMatch = await user.comparePassword(currentPassword);
+    const user = await User.findById(req.user.id).select('+password');
 
-  if (!isMatch) {
-    return res.status(400).json({ success: false, message: 'Current password is incorrect.' });
-  }
+    const isMatch = await user.comparePassword(currentPassword);
 
-  user.password = newPassword;
-  await user.save();
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect.'
+      });
+    }
 
-  res.json({ success: true, message: 'Password changed successfully.' });
-} catch (err) {
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully.'
+    });
+  } catch (err) {
     next(err);
   }
 };
@@ -93,15 +134,24 @@ exports.changePassword = async (req, res, next) => {
 // ─── Delete Account ───────────────────────────────────────────────────────────
 exports.deleteAccount = async (req, res, next) => {
   try {
-  const user = await User.findById(req.user.id);
-  if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+    const user = await User.findById(req.user.id);
 
-  // Soft delete — set inactive
-  user.isActive = false;
-  await user.save();
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.'
+      });
+    }
 
-  res.json({ success: true, message: 'Account deactivated successfully.' });
-} catch (err) {
+    // Soft delete
+    user.isActive = false;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Account deactivated successfully.'
+    });
+  } catch (err) {
     next(err);
   }
 };
