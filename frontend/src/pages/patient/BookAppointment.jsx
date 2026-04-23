@@ -1,27 +1,13 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { doctorAPI, appointmentAPI, paymentAPI } from '../../api';
+import { doctorAPI, appointmentAPI } from '../../api';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import DatePicker from 'react-datepicker';
 import { addDays, format } from 'date-fns';
 import { FiCalendar, FiClock, FiShield } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
-// Utility securely loads Razorpay native checkout script dynamically directly into the head layer
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    if (window.Razorpay) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
 
 const BookAppointment = () => {
   const { doctorId } = useParams();
@@ -58,17 +44,10 @@ const BookAppointment = () => {
       return toast.warning('Please fill all required fields.');
     }
     
-    // 1. Fetch Razorpay native checkout script bounds securely
-    const isScriptLoaded = await loadRazorpayScript();
-    if (!isScriptLoaded) {
-      return toast.error('Failed to load Razorpay SDK securely. Please check connection.');
-    }
-
     setPaymentLoading(true);
 
     try {
-      // 2. Create the pending appointment base via original mutator
-      const apptRes = await bookMutation.mutateAsync({
+      await bookMutation.mutateAsync({
         doctorId,
         appointmentDate: format(selectedDate, 'yyyy-MM-dd'),
         slot: selectedSlot,
@@ -76,76 +55,10 @@ const BookAppointment = () => {
         type,
       });
 
-      const apptId = apptRes.data.data.appointment._id;
-
-      // 3. Initiate backend handshake for official Razorpay internal tracking token generator
-      const orderRes = await paymentAPI.createRazorpayOrder({ appointmentId: apptId });
-      const { paymentId, razorpayOrderId, amount, currency, keyId } = orderRes.data.data;
-      
-      // 4. Configure Razorpay Official User Popup Component Properties
-      const options = {
-        key: keyId, // Publicly available tracking Key mapped securely to secret backend
-        amount: amount.toString(), // Expressed strictly in integer paisa internally
-        currency: currency,
-        name: 'CareSync Healthcare',
-        description: `Consultation with Dr. ${userInfo?.name}`,
-        order_id: razorpayOrderId,
-        
-        handler: async function (response) {
-            try {
-              // 5. Native success trigger handles cryptographic payload transfer securely
-              await paymentAPI.confirm({
-                paymentId,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-              });
-
-              toast.success('Payment verified! Appointment Confirmed 🎉');
-              navigate('/patient/appointments');
-            } catch (err) {
-              console.error(err);
-              toast.error(err.response?.data?.message || 'Verification rejected!');
-            }
-        },
-        prefill: {
-            name: 'CareSync Patient',
-            email: 'patient@caresync.com',
-            contact: '9999999999'
-        },
-        theme: {
-            color: '#0ea5e9',
-        },
-        display: {
-          blocks: {
-            upi: {
-              name: "Pay using UPI",
-              instruments: [
-                {
-                  method: "upi"
-                }
-              ]
-            }
-          },
-          sequence: ["block.upi", "block.cards", "block.banks", "block.wallets"],
-          preferences: {
-            show_default_blocks: true
-          }
-        }
-      };
-
-      // 6. Spawn official widget safely
-      const paymentObject = new window.Razorpay(options);
-      
-      paymentObject.on('payment.failed', function (response) {
-         toast.error(response.error.description || 'Transaction Failed');
-      });
-
-      paymentObject.open();
-
+      toast.success('Appointment Confirmed 🎉');
+      navigate('/patient/appointments');
     } catch (error) {
       console.error(error);
-      toast.error('Payment initialization blocked. Are parameters correct?');
     } finally {
       setPaymentLoading(false);
     }
@@ -280,19 +193,15 @@ const BookAppointment = () => {
           <button onClick={handleStartBooking} disabled={paymentLoading || !reason.trim()} className="btn-primary w-full btn-lg relative overflow-hidden group">
             <div className="flex items-center justify-center gap-2 relative z-10">
                {paymentLoading ? (
-                 <span className="animate-pulse">Connecting to Payment Gateway...</span>
+                 <span className="animate-pulse">Confirming...</span>
                ) : (
                  <>
-                   <FiShield /> Checkout securely via Razorpay
+                   <FiCalendar /> Confirm Booking
                  </>
                )}
             </div>
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
           </button>
-          
-          <p className="text-center text-xs text-slate-400 mt-3 mt-4 flex items-center justify-center gap-1">
-             UPI, Cards, and Netbanking securely processed.
-          </p>
         </div>
       )}
     </div>

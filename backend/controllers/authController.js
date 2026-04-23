@@ -1,9 +1,10 @@
 const User = require("../models/User");
+const Patient = require("../models/Patient");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 // ================= REGISTER =================
-exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -22,7 +23,9 @@ exports.registerUser = async (req, res) => {
       isActive: true,
     });
 
-    // Removed Patient creation dependency
+    if (user.role === 'patient') {
+      await Patient.create({ userId: user._id });
+    }
 
     res.status(201).json({
       message: "User registered",
@@ -34,14 +37,13 @@ exports.registerUser = async (req, res) => {
       },
     });
 
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    next(err);
   }
 };
 
 // ================= LOGIN =================
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -55,9 +57,16 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    if (user.role === 'patient') {
+      const patientExists = await Patient.findOne({ userId: user._id });
+      if (!patientExists) {
+        await Patient.create({ userId: user._id });
+      }
+    }
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET,
       { expiresIn: "7d" }
     );
 
@@ -71,16 +80,15 @@ exports.loginUser = async (req, res) => {
       }
     });
 
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    next(err);
   }
 };
 
 // ================= OTP =================
 const otps = {};
 
-exports.sendOtp = async (req, res) => {
+exports.sendOtp = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -91,12 +99,12 @@ exports.sendOtp = async (req, res) => {
 
     res.json({ message: "OTP sent successfully" });
 
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    next(err);
   }
 };
 
-exports.verifyOtp = async (req, res) => {
+exports.verifyOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
 
@@ -117,12 +125,19 @@ exports.verifyOtp = async (req, res) => {
         isActive: true,
       });
 
-      // Removed Patient creation dependency
+      await Patient.create({ userId: user._id });
+    }
+
+    if (user.role === 'patient') {
+      const patientExists = await Patient.findOne({ userId: user._id });
+      if (!patientExists) {
+        await Patient.create({ userId: user._id });
+      }
     }
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET,
       { expiresIn: "7d" }
     );
 
@@ -138,7 +153,7 @@ exports.verifyOtp = async (req, res) => {
       }
     });
 
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    next(err);
   }
 };

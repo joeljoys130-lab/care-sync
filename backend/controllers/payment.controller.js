@@ -1,6 +1,6 @@
 const Payment = require('../models/payment.model');
 
-exports.createPayment = async (req, res)=> {
+exports.createPayment = async (req, res, next) => {
     try{
         const { amount } = req.body;
 
@@ -23,7 +23,7 @@ exports.createPayment = async (req, res)=> {
     }
 };
 
-exports.getPayments = async(req, res)=>{
+exports.getPayments = async (req, res, next) =>{
     try{
         const payments = await Payment.find({ userId: req.user.id });
 

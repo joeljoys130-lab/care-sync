@@ -4,7 +4,8 @@ const User = require('../models/User');
 const path = require('path');
 
 // ─── Create Medical Record (Doctor only) ──────────────────────────────────────
-exports.createRecord = async (req, res) => {
+exports.createRecord = async (req, res, next) => {
+  try {
   if (req.user.role !== 'doctor') return res.status(403).json({ success: false, message: 'Only doctors can create records.' });
 
   const { appointmentId, patientId, diagnosis, symptoms, prescriptions, labTests, followUpDate, doctorNotes } =
@@ -49,10 +50,14 @@ exports.createRecord = async (req, res) => {
     message: 'Medical record created.',
     data: { record },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Medical Records for Patient ─────────────────────────────────────────
-exports.getPatientRecords = async (req, res) => {
+exports.getPatientRecords = async (req, res, next) => {
+  try {
   const { patientId } = req.params;
   const { page = 1, limit = 10 } = req.query;
 
@@ -82,10 +87,14 @@ exports.getPatientRecords = async (req, res) => {
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Single Record ────────────────────────────────────────────────────────
-exports.getRecordById = async (req, res) => {
+exports.getRecordById = async (req, res, next) => {
+  try {
   const record = await MedicalRecord.findById(req.params.id)
     .populate('doctorId', 'name email')
     .populate('patientId', 'name email')
@@ -93,10 +102,14 @@ exports.getRecordById = async (req, res) => {
 
   if (!record) return res.status(404).json({ success: false, message: 'Record not found.' });
   res.json({ success: true, data: { record } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Update Medical Record ────────────────────────────────────────────────────
-exports.updateRecord = async (req, res) => {
+exports.updateRecord = async (req, res, next) => {
+  try {
   const record = await MedicalRecord.findOne({ _id: req.params.id, doctorId: req.user.id });
   if (!record) return res.status(404).json({ success: false, message: 'Record not found.' });
 
@@ -108,4 +121,7 @@ exports.updateRecord = async (req, res) => {
   await record.save();
 
   res.json({ success: true, message: 'Record updated.', data: { record } });
+} catch (err) {
+    next(err);
+  }
 };

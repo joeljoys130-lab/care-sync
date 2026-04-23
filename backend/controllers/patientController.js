@@ -1,29 +1,32 @@
 const User = require('../models/User');
 const Appointment = require('../models/Appointment');
 const Doctor = require('../models/Doctor');
+const Patient = require('../models/Patient');
 
-exports.getPatientProfile = async (req, res) => {
+exports.getPatientProfile = async (req, res, next) => {
   try {
+    const patient = await Patient.findOne({ userId: req.user.id }).populate('userId', 'name email avatar');
+    if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
+
     res.json({
       success: true,
       message: "Patient profile fetched",
       data: {
-        user: req.user
+        user: req.user,
+        patient
       }
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
+  } catch (err) {
+    next(err);
   }
 };
 // ─── Update Patient Profile ───────────────────────────────────────────────────
-exports.updatePatientProfile = async (req, res) => {
+exports.updatePatientProfile = async (req, res, next) => {
+  try {
   const { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address } = req.body;
 
-  const patient = await User.findByIdAndUpdate(
-    req.user.id,
+  const patient = await Patient.findOneAndUpdate(
+      { userId: req.user.id },
     { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address },
     { new: true, runValidators: true }
   );
@@ -31,12 +34,16 @@ exports.updatePatientProfile = async (req, res) => {
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
   res.json({ success: true, message: 'Profile updated.', data: { patient } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Patient Appointments ──────────────────────────────────────────────────
-exports.getPatientAppointments = async (req, res) => {
+exports.getPatientAppointments = async (req, res, next) => {
+  try {
   const { status, page = 1, limit = 10 } = req.query;
-  const patient = await User.findById(req.user.id);
+  const patient = await Patient.findOne({ userId: req.user.id });
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
   const query = { patientId: req.user.id };
@@ -60,16 +67,20 @@ exports.getPatientAppointments = async (req, res) => {
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Toggle Favorite Doctor ───────────────────────────────────────────────────
-exports.toggleFavorite = async (req, res) => {
+exports.toggleFavorite = async (req, res, next) => {
+  try {
   const { doctorId } = req.params;
 
   const doctor = await Doctor.findById(doctorId);
   if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
 
-  const patient = await User.findById(req.user.id);
+  const patient = await Patient.findOne({ userId: req.user.id });
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
   const index = patient.favorites.indexOf(doctorId);
@@ -84,11 +95,15 @@ exports.toggleFavorite = async (req, res) => {
 
   await patient.save();
   res.json({ success: true, message, data: { favorites: patient.favorites } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Favorites ────────────────────────────────────────────────────────────
-exports.getFavorites = async (req, res) => {
-  const patient = await User.findById(req.user.id).populate({
+exports.getFavorites = async (req, res, next) => {
+  try {
+  const patient = await Patient.findOne({ userId: req.user.id }).populate({
     path: 'favorites',
     populate: { path: 'userId', select: 'name email avatar' },
   });
@@ -96,4 +111,7 @@ exports.getFavorites = async (req, res) => {
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
   res.json({ success: true, data: { favorites: patient.favorites } });
+} catch (err) {
+    next(err);
+  }
 };
