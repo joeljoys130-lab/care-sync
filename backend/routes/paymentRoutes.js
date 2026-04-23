@@ -5,17 +5,16 @@ const { protect } = require("../middleware/auth");
 const { authorize } = require("../middleware/authorize");
 
 const {
-  createPayment,
-  getPayments,
   createRazorpayOrder,
-  confirmPayment
+  confirmPayment,
+  getPaymentHistory,
 } = require("../controllers/paymentController");
 
+// Razorpay payment flow
+router.post('/razorpay/order', protect, authorize('patient'), createRazorpayOrder);
+router.post('/razorpay/confirm', protect, authorize('patient'), confirmPayment);
 
-router.post("/create", protect, authorize("patient"), createPayment);
-router.get("/history", protect, authorize("patient"), getPayments);
-router.post('/razorpay/order', createRazorpayOrder);
-router.post('/razorpay/confirm', confirmPayment);
-
+// Payment history
+router.get('/history', protect, authorize('patient', 'doctor'), getPaymentHistory);
 
 module.exports = router;
