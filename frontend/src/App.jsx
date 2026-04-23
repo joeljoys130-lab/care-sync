@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
@@ -26,19 +27,19 @@ import PaymentHistory from './pages/patient/PaymentHistory';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/ui/LoadingSpinner';
+=======
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import DoctorList from './pages/DoctorList';
+import BookAppointment from './pages/BookAppointment';
+import MyAppointments from './pages/MyAppointments';
+>>>>>>> 351661ddff1e8fa1896cf371a04f4a7b529a5ff3
 
 
 function App() {
-  const { loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
   return (
+<<<<<<< HEAD
     <Routes>
       {/* ─── Public ──────────────────────────────────────────── */}
       <Route path="/" element={<Landing />} />
@@ -67,6 +68,17 @@ function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+=======
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/doctors" element={<DoctorList />} />
+        <Route path="/book/:doctorId" element={<BookAppointment />} />
+        <Route path="/appointments" element={<MyAppointments />} />
+      </Routes>
+    </BrowserRouter>
+>>>>>>> 351661ddff1e8fa1896cf371a04f4a7b529a5ff3
   );
 }
 

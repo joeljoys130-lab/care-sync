@@ -1,22 +1,19 @@
 import { useState } from "react";
-import axios from "axios";
+import { paymentAPI } from '../../api';
+import { toast } from 'react-toastify';
 import { FiCreditCard } from "react-icons/fi";
 
-const Payment = () => {
+const Payment = ({ amount, appointmentId }) => {
   const [loading, setLoading] = useState(false);
 
   const handlePayment = async () => {
-    setLoading(true);
     try {
-      const res = await axios.post("/api/payments/create", {
-        amount: 500,
-        appointmentId: "ID"
-      });
-      alert("Payment successful!");
-      console.log(res.data);
-    } catch (err) {
-      alert("Payment failed!");
-      console.error(err);
+      const response = await paymentAPI.createPayment({ amount, appointmentId });
+      toast.success('Payment successful!');
+      console.log(response.data);
+    } catch (error) {
+      toast.error('Payment failed');
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -45,7 +42,7 @@ const Payment = () => {
         {/* Amount */}
         <div className="bg-slate-50 rounded-xl p-4 mb-6">
           <p className="text-sm text-slate-500">Amount to pay</p>
-          <p className="text-3xl font-bold text-slate-800 mt-1">₹500</p>
+          <p className="text-3xl font-bold text-slate-800 mt-1">₹{amount}</p>
         </div>
 
         {/* Button */}

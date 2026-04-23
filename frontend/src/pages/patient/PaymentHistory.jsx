@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { paymentAPI } from '../../api';
 import { FiList, FiCheckCircle, FiXCircle, FiClock } from "react-icons/fi";
 
 const statusStyles = {
@@ -13,17 +13,15 @@ const PaymentHistory = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchHistory = async () => {
+    const fetchPayments = async () => {
       try {
-        const res = await axios.get("/api/payments/history");
-        setPayments(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+        const res = await paymentAPI.getPayments();
+        setPayments(res.data.payments);
+      } catch (error) {
+        console.error('Error fetching payments:', error);
       }
     };
-    fetchHistory();
+    fetchPayments();
   }, []);
 
   return (

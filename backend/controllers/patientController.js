@@ -1,4 +1,4 @@
-const Patient = require('../models/Patient');
+const User = require('../models/User');
 const Appointment = require('../models/Appointment');
 const Doctor = require('../models/Doctor');
 
@@ -22,8 +22,8 @@ exports.getPatientProfile = async (req, res) => {
 exports.updatePatientProfile = async (req, res) => {
   const { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address } = req.body;
 
-  const patient = await Patient.findOneAndUpdate(
-    { userId: req.user.id },
+  const patient = await User.findByIdAndUpdate(
+    req.user.id,
     { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address },
     { new: true, runValidators: true }
   );
@@ -36,10 +36,10 @@ exports.updatePatientProfile = async (req, res) => {
 // ─── Get Patient Appointments ──────────────────────────────────────────────────
 exports.getPatientAppointments = async (req, res) => {
   const { status, page = 1, limit = 10 } = req.query;
-  const patient = await Patient.findOne({ userId: req.user.id });
+  const patient = await User.findById(req.user.id);
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  const query = { patientId: patient._id };
+  const query = { patientId: req.user.id };
   if (status) query.status = status;
 
   const skip = (Number(page) - 1) * Number(limit);
@@ -69,7 +69,7 @@ exports.toggleFavorite = async (req, res) => {
   const doctor = await Doctor.findById(doctorId);
   if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
 
-  const patient = await Patient.findOne({ userId: req.user.id });
+  const patient = await User.findById(req.user.id);
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
   const index = patient.favorites.indexOf(doctorId);
@@ -88,7 +88,7 @@ exports.toggleFavorite = async (req, res) => {
 
 // ─── Get Favorites ────────────────────────────────────────────────────────────
 exports.getFavorites = async (req, res) => {
-  const patient = await Patient.findOne({ userId: req.user.id }).populate({
+  const patient = await User.findById(req.user.id).populate({
     path: 'favorites',
     populate: { path: 'userId', select: 'name email avatar' },
   });
