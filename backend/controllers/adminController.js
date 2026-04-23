@@ -7,7 +7,8 @@ const Review = require('../models/Review');
 const { createNotification } = require('../utils/notificationHelper');
 
 // ─── Get All Users (with filter, pagination) ──────────────────────────────────
-exports.getUsers = async (req, res) => {
+exports.getUsers = async (req, res, next) => {
+  try {
   const { role, search, isActive, page = 1, limit = 15 } = req.query;
   const query = {};
 
@@ -30,10 +31,14 @@ exports.getUsers = async (req, res) => {
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Update User Status (activate / deactivate) ───────────────────────────────
-exports.updateUserStatus = async (req, res) => {
+exports.updateUserStatus = async (req, res, next) => {
+  try {
   const { isActive } = req.body;
   const user = await User.findByIdAndUpdate(
     req.params.id,
@@ -44,19 +49,27 @@ exports.updateUserStatus = async (req, res) => {
   if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
 
   res.json({ success: true, message: `User ${isActive ? 'activated' : 'deactivated'}.`, data: { user } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Pending Doctor Approvals ─────────────────────────────────────────────
-exports.getPendingDoctors = async (req, res) => {
+exports.getPendingDoctors = async (req, res, next) => {
+  try {
   const doctors = await Doctor.find({ isApproved: false }).populate(
     'userId',
     'name email avatar createdAt'
   );
   res.json({ success: true, data: { doctors } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Approve / Reject Doctor ──────────────────────────────────────────────────
-exports.approveDoctor = async (req, res) => {
+exports.approveDoctor = async (req, res, next) => {
+  try {
   const { isApproved, reason } = req.body;
   const doctor = await Doctor.findByIdAndUpdate(
     req.params.id,
@@ -81,10 +94,14 @@ exports.approveDoctor = async (req, res) => {
     message: `Doctor ${isApproved ? 'approved' : 'rejected'} successfully.`,
     data: { doctor },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Admin Analytics Dashboard ────────────────────────────────────────────────
-exports.getAnalytics = async (req, res) => {
+exports.getAnalytics = async (req, res, next) => {
+  try {
   const [
     totalUsers,
     totalDoctors,
@@ -166,10 +183,14 @@ exports.getAnalytics = async (req, res) => {
       topDoctors,
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get All Appointments (Admin) ─────────────────────────────────────────────
-exports.getAllAppointments = async (req, res) => {
+exports.getAllAppointments = async (req, res, next) => {
+  try {
   const { status, page = 1, limit = 15 } = req.query;
   const query = {};
   if (status) query.status = status;
@@ -190,4 +211,7 @@ exports.getAllAppointments = async (req, res) => {
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };

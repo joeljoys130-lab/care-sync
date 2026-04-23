@@ -4,7 +4,8 @@ const Patient = require('../models/Patient');
 const Appointment = require('../models/Appointment');
 
 // ─── Create Review ────────────────────────────────────────────────────────────
-exports.createReview = async (req, res) => {
+exports.createReview = async (req, res, next) => {
+  try {
   const { appointmentId, doctorId, rating, comment, isAnonymous = false } = req.body;
 
   const patient = await Patient.findOne({ userId: req.user.id });
@@ -40,10 +41,14 @@ exports.createReview = async (req, res) => {
   });
 
   res.status(201).json({ success: true, message: 'Review submitted.', data: { review } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Reviews for a Doctor ─────────────────────────────────────────────────
-exports.getDoctorReviews = async (req, res) => {
+exports.getDoctorReviews = async (req, res, next) => {
+  try {
   const { page = 1, limit = 10 } = req.query;
   const skip = (Number(page) - 1) * Number(limit);
 
@@ -73,10 +78,14 @@ exports.getDoctorReviews = async (req, res) => {
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Update Review ────────────────────────────────────────────────────────────
-exports.updateReview = async (req, res) => {
+exports.updateReview = async (req, res, next) => {
+  try {
   const patient = await Patient.findOne({ userId: req.user.id });
   const review = await Review.findOne({ _id: req.params.id, patientId: patient._id });
   if (!review) return res.status(404).json({ success: false, message: 'Review not found.' });
@@ -87,10 +96,14 @@ exports.updateReview = async (req, res) => {
   await review.save();
 
   res.json({ success: true, message: 'Review updated.', data: { review } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Delete Review ────────────────────────────────────────────────────────────
-exports.deleteReview = async (req, res) => {
+exports.deleteReview = async (req, res, next) => {
+  try {
   const patient = await Patient.findOne({ userId: req.user.id });
   const review = await Review.findOne({
     _id: req.params.id,
@@ -101,10 +114,14 @@ exports.deleteReview = async (req, res) => {
 
   await review.deleteOne();
   res.json({ success: true, message: 'Review deleted.' });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Doctor Reply to Review ───────────────────────────────────────────────────
-exports.replyToReview = async (req, res) => {
+exports.replyToReview = async (req, res, next) => {
+  try {
   const { reply } = req.body;
   const doctor = await Doctor.findOne({ userId: req.user.id });
   const review = await Review.findOne({ _id: req.params.id, doctorId: doctor._id });
@@ -115,4 +132,7 @@ exports.replyToReview = async (req, res) => {
   await review.save();
 
   res.json({ success: true, message: 'Reply submitted.', data: { review } });
+} catch (err) {
+    next(err);
+  }
 };

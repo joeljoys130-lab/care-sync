@@ -5,7 +5,8 @@ const path = require('path');
 const fs = require('fs');
 
 // ─── Get Current User Profile ─────────────────────────────────────────────────
-exports.getProfile = async (req, res) => {
+exports.getProfile = async (req, res, next) => {
+  try {
   const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
 
@@ -17,10 +18,14 @@ exports.getProfile = async (req, res) => {
   }
 
   res.json({ success: true, data: { user, profile } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Update Profile ───────────────────────────────────────────────────────────
-exports.updateProfile = async (req, res) => {
+exports.updateProfile = async (req, res, next) => {
+  try {
   const { name, phone } = req.body;
   const updates = {};
 
@@ -33,10 +38,14 @@ exports.updateProfile = async (req, res) => {
   });
 
   res.json({ success: true, message: 'Profile updated.', data: { user } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Upload Avatar ────────────────────────────────────────────────────────────
-exports.uploadAvatar = async (req, res) => {
+exports.uploadAvatar = async (req, res, next) => {
+  try {
   if (!req.file) {
     return res.status(400).json({ success: false, message: 'No file uploaded.' });
   }
@@ -55,10 +64,14 @@ exports.uploadAvatar = async (req, res) => {
   await user.save();
 
   res.json({ success: true, message: 'Avatar updated.', data: { avatar: avatarUrl } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Change Password ──────────────────────────────────────────────────────────
-exports.changePassword = async (req, res) => {
+exports.changePassword = async (req, res, next) => {
+  try {
   const { currentPassword, newPassword } = req.body;
 
   const user = await User.findById(req.user.id).select('+password');
@@ -72,10 +85,14 @@ exports.changePassword = async (req, res) => {
   await user.save();
 
   res.json({ success: true, message: 'Password changed successfully.' });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Delete Account ───────────────────────────────────────────────────────────
-exports.deleteAccount = async (req, res) => {
+exports.deleteAccount = async (req, res, next) => {
+  try {
   const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
 
@@ -84,4 +101,7 @@ exports.deleteAccount = async (req, res) => {
   await user.save();
 
   res.json({ success: true, message: 'Account deactivated successfully.' });
+} catch (err) {
+    next(err);
+  }
 };

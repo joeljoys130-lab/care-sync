@@ -4,7 +4,8 @@ const Appointment = require('../models/Appointment');
 const Payment = require('../models/Payment');
 
 // ─── Get All Doctors (with search, filter, pagination) ──────────────────────
-exports.getDoctors = async (req, res) => {
+exports.getDoctors = async (req, res, next) => {
+  try {
   const {
     search,
     specialization,
@@ -67,17 +68,25 @@ exports.getDoctors = async (req, res) => {
       },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Doctor by ID ─────────────────────────────────────────────────────────
-exports.getDoctorById = async (req, res) => {
+exports.getDoctorById = async (req, res, next) => {
+  try {
   const doctor = await Doctor.findById(req.params.id).populate('userId', 'name email avatar phone');
   if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
   res.json({ success: true, data: { doctor } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Update Doctor Profile ────────────────────────────────────────────────────
-exports.updateDoctorProfile = async (req, res) => {
+exports.updateDoctorProfile = async (req, res, next) => {
+  try {
   const { specialization, qualifications, experience, fees, bio, hospital, address, city } = req.body;
 
   const doctor = await Doctor.findOneAndUpdate(
@@ -89,10 +98,14 @@ exports.updateDoctorProfile = async (req, res) => {
   if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
 
   res.json({ success: true, message: 'Profile updated.', data: { doctor } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get or Update Availability ───────────────────────────────────────────────
-exports.updateAvailability = async (req, res) => {
+exports.updateAvailability = async (req, res, next) => {
+  try {
   const { availability } = req.body;
 
   const doctor = await Doctor.findOneAndUpdate(
@@ -104,10 +117,14 @@ exports.updateAvailability = async (req, res) => {
   if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
 
   res.json({ success: true, message: 'Availability updated.', data: { availability: doctor.availability } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Doctor's Appointments ────────────────────────────────────────────────
-exports.getDoctorAppointments = async (req, res) => {
+exports.getDoctorAppointments = async (req, res, next) => {
+  try {
   const { status, page = 1, limit = 10, date } = req.query;
   const doctor = await Doctor.findOne({ userId: req.user.id });
   if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
@@ -137,10 +154,14 @@ exports.getDoctorAppointments = async (req, res) => {
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Update Appointment Status (Doctor) ───────────────────────────────────────
-exports.updateAppointmentStatus = async (req, res) => {
+exports.updateAppointmentStatus = async (req, res, next) => {
+  try {
   const { status, notes } = req.body;
   const doctor = await Doctor.findOne({ userId: req.user.id });
 
@@ -156,10 +177,14 @@ exports.updateAppointmentStatus = async (req, res) => {
   await appointment.save();
 
   res.json({ success: true, message: 'Appointment updated.', data: { appointment } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Doctor Earnings ──────────────────────────────────────────────────────
-exports.getDoctorEarnings = async (req, res) => {
+exports.getDoctorEarnings = async (req, res, next) => {
+  try {
   const doctor = await Doctor.findOne({ userId: req.user.id });
   if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
 
@@ -206,10 +231,14 @@ exports.getDoctorEarnings = async (req, res) => {
       totalEarnings: doctor.totalEarnings,
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Available Slots for a Doctor on a Date ───────────────────────────────
-exports.getAvailableSlots = async (req, res) => {
+exports.getAvailableSlots = async (req, res, next) => {
+  try {
   const { date } = req.query;
   const { doctorId } = req.params;
 
@@ -258,6 +287,9 @@ exports.getAvailableSlots = async (req, res) => {
   }));
 
   res.json({ success: true, data: { slots: slotsWithStatus } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Helper: Generate Time Slots ─────────────────────────────────────────────
