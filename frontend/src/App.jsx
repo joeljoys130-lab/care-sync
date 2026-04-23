@@ -20,6 +20,8 @@ import MedicalRecords   from './pages/patient/MedicalRecords';
 import Favorites        from './pages/patient/Favorites';
 import PatientProfile   from './pages/patient/Profile';
 import Notifications    from './pages/patient/Notifications';
+import Payment          from './pages/patient/Payment';
+import PaymentHistory   from './pages/patient/PaymentHistory';
 
 /* ── Placeholder dashboard pages (to be replaced when Adithya + Kavish finish) ── */
 const AdminDashboard = () => (
@@ -77,6 +79,8 @@ function App() {
           <Route path="/patient/favorites"    element={<Favorites />} />
           <Route path="/patient/profile"      element={<PatientProfile />} />
           <Route path="/patient/notifications" element={<Notifications />} />
+          <Route path="/patient/payment/:appointmentId" element={<Payment />} />
+          <Route path="/patient/payment-history" element={<PaymentHistory />} />
         </Route>
       </Route>
 
