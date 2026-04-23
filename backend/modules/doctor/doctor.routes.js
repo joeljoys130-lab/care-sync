@@ -6,7 +6,8 @@ const availabilityController = require("./availability.controller");
 const prescriptionController = require("./prescription.controller");
 
 // Import Joel's middleware (adjust path if needed)
-const { protect, isDoctor } = require("../../middleware/authMiddleware");
+const { protect, authorize } = require("../../middleware/auth");
+const isDoctor = authorize("doctor");
 
 // Protect all routes → only authenticated doctors
 router.use(protect);

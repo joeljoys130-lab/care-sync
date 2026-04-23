@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { authAPI } from '../../api';
 import { MdLocalHospital } from 'react-icons/md';
 import { FiUser, FiMail, FiLock, FiPhone, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useState } from 'react';
@@ -24,7 +25,7 @@ const schema = z.object({
 const SPECIALIZATIONS = ['Cardiology', 'Dermatology', 'General', 'Neurology', 'Orthopedics', 'Pediatrics', 'Psychiatry', 'Radiology'];
 
 const Register = () => {
-  const { register: registerUser } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
@@ -40,8 +41,8 @@ const Register = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      await registerUser(data);
-      toast.success('Account created! Please check your email for the OTP.');
+      await authAPI.register(data);
+      toast.success('Account created! Please verify your email.');
       navigate('/verify-otp', { state: { email: data.email } });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed.');

@@ -89,6 +89,9 @@ export const doctorAPI = {
   getDoctors:     (params) => api.get('/doctors', { params }),
   getDoctorById:  (id)     => api.get(`/doctors/${id}`),
   getAvailableSlots: (id, date) => api.get(`/doctors/${id}/slots`, { params: { date } }),
+  getMyAppointments: (params) => api.get('/doctors/me/appointments', { params }),
+  updateMyAppointment: (id, data) => api.patch(`/doctors/me/appointments/${id}`, data),
+  getEarnings: () => api.get('/doctors/me/earnings'),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -128,13 +131,14 @@ export const notificationAPI = {
 export const reviewAPI = {
   getDoctorReviews: (id, params) => api.get(`/doctors/${id}/reviews`, { params })
     .catch(() => ({ data: { data: { reviews: [] } } })),
+  getDoctorReviewsAlt: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params }),
 };
 
 /* ═══════════════════════════════════════════════════════════════
    ADMIN API  (used by Adithya's admin dashboard)
 ═══════════════════════════════════════════════════════════════ */
 export const adminAPI = {
-  getStats:          ()           => api.get('/admin/analytics'),
+  getAnalytics:      ()           => api.get('/admin/analytics'),
   getUsers:          (params)     => api.get('/admin/users', { params }),
   updateUserStatus:  (id, data)   => api.patch(`/admin/users/${id}/status`, data),
   getDoctors:        ()           => api.get('/admin/doctors'),
@@ -144,11 +148,4 @@ export const adminAPI = {
   rescheduleAppt:    (id, data)   => api.patch(`/admin/appointments/${id}/reschedule`, data),
   getComplaints:     (params)     => api.get('/admin/complaints', { params }),
   updateComplaint:   (id, data)   => api.patch(`/admin/complaints/${id}/status`, data),
-};
-
-/* ═══════════════════════════════════════════════════════════════
-   REVIEW API
-═══════════════════════════════════════════════════════════════ */
-export const reviewAPI = {
-  getDoctorReviews: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params }),
 };

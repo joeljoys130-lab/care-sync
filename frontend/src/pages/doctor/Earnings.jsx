@@ -9,7 +9,7 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 const DoctorEarnings = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['doctor-earnings'],
-    queryFn: doctorAPI.getEarnings,
+    queryFn: () => doctorAPI.getEarnings(),
   });
 
   if (isLoading) return <LoadingSpinner className="h-64" />;

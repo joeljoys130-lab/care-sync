@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FiHome, FiCalendar, FiUsers, FiUser, FiHeart,
-  FiFileText, FiBell, FiLogOut, FiX, FiCreditCard, FiList,
+  FiFileText, FiBell, FiLogOut, FiX, FiCreditCard, FiList, FiClock,
 } from 'react-icons/fi';
 import { MdLocalHospital } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';

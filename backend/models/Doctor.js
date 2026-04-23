@@ -107,4 +107,4 @@ doctorSchema.index({ fees: 1 });
 doctorSchema.index({ rating: -1 });
 // isApproved index is set inline
 
-module.exports = mongoose.model('Doctor', doctorSchema);
+module.exports = mongoose.models.Doctor || mongoose.model('Doctor', doctorSchema);

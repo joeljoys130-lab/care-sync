@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../../api";
+import api from "../../api";
 import { FiList, FiCheckCircle, FiXCircle, FiClock } from "react-icons/fi";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 

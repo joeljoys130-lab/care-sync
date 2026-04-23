@@ -50,7 +50,7 @@ const RoleRedirect = () => {
 };
 
 function App() {
-  const { loading } = useAuth();
+  const { loading, user } = useAuth();
 
   if (loading) {
     return (
@@ -62,12 +62,15 @@ function App() {
 
   return (
     <Routes>
-      {/* ── Root redirect ─────────────────────────────── */}
-      <Route path="/" element={<RoleRedirect />} />
+      {/* ── Root ──────────────────────────────────────── */}
+      <Route path="/" element={user ? <RoleRedirect /> : <Landing />} />
 
-      {/* ── Public ────────────────────────────────────── */}
-      <Route path="/login"    element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      {/* ── Auth ──────────────────────────────────────── */}
+      <Route path="/login"    element={!user ? <Login /> : <RoleRedirect />} />
+      <Route path="/register" element={!user ? <Register /> : <RoleRedirect />} />
+      <Route path="/verify-otp"       element={<VerifyOTP />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password"  element={<ResetPassword />} />
 
       {/* ── Patient (protected) ───────────────────────── */}
       <Route element={<ProtectedRoute allowedRoles={['patient']} />}>
@@ -106,12 +109,6 @@ function App() {
           <Route path="/doctor/profile" element={<DoctorProfile />} />
         </Route>
       </Route>
-
-      {/* ── Legacy redirects (in case old links exist) ── */}
-      <Route path="/doctors"          element={<Navigate to="/patient/doctors"      replace />} />
-      <Route path="/appointments"     element={<Navigate to="/patient/appointments" replace />} />
-      <Route path="/admin-dashboard"  element={<Navigate to="/admin/dashboard"      replace />} />
-      <Route path="/doctor-dashboard" element={<Navigate to="/doctor/dashboard"     replace />} />
 
       {/* ── 404 ───────────────────────────────────────── */}
       <Route path="*" element={<Navigate to="/" replace />} />

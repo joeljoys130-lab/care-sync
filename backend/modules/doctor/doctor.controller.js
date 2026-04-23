@@ -96,7 +96,7 @@ exports.getMyAppointments = async (req, res, next) => {
  */
 exports.updateAppointmentStatus = async (req, res, next) => {
   try {
-    const { appointmentId } = req.params;
+    const { id } = req.params;
     const { status, notes } = req.body;
 
     if (!status) {
@@ -108,7 +108,7 @@ exports.updateAppointmentStatus = async (req, res, next) => {
 
     const appointment = await doctorService.updateAppointmentStatus(
       req.user.id,
-      appointmentId,
+      id,
       status,
       notes
     );
@@ -140,22 +140,16 @@ exports.getEarningsSummary = async (req, res, next) => {
 };
 
 /**
- * Get Earnings for Period
+ * GET /doctors/me/earnings — full summary + monthly chart data
  */
 exports.getEarnings = async (req, res, next) => {
   try {
-    const { startDate, endDate } = req.query;
     const earningsService = require("./earnings.service");
-
-    const earnings = await earningsService.calculateEarnings(
-      req.user.id,
-      startDate,
-      endDate
-    );
+    const data = await earningsService.getEarningsSummary(req.user.id);
 
     res.status(200).json({
       success: true,
-      data: earnings
+      data,
     });
   } catch (error) {
     next(error);
