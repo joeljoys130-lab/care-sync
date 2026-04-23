@@ -1,5 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Auth & Public
 import Login from './pages/auth/Login';
@@ -26,7 +26,7 @@ import PaymentHistory from './pages/patient/PaymentHistory';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/ui/LoadingSpinner';
-import React from 'react';
+
 
 function App() {
   return (

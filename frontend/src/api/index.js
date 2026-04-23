@@ -68,8 +68,3 @@ export const cancelAppointment = async (id) => {
   if (!res.ok) throw new Error(json.message || 'Failed to cancel appointment');
   return json;
 };
-
-export const paymentAPI = {
-  createRazorpayOrder: (data) => api.post('/payments/razorpay/order', data),
-  confirm: (data) => api.post('/payments/razorpay/confirm', data),
-};
