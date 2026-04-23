@@ -78,9 +78,9 @@ const Register = () => {
             <span className="text-xl font-bold text-slate-800">CareSync</span>
           </div>
 
-          <div className="card">
-            <h2 className="text-2xl font-bold text-slate-800 mb-1">Create Account</h2>
-            <p className="text-slate-500 text-sm mb-6">Join thousands of users on CareSync</p>
+          <div className="card shadow-2xl shadow-primary-500/10 dark:shadow-cyan-500/10 border-slate-200/50 dark:border-white/5">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">Create Account</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Join thousands of users on CareSync</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Role Toggle */}

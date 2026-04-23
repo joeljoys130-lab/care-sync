@@ -26,8 +26,8 @@ const Payment = () => {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Payment</h1>
-        <p className="text-sm text-slate-500 mt-1">Complete your appointment payment</p>
+        <h1 className="page-title">Payment</h1>
+        <p className="page-subtitle">Complete your appointment payment</p>
       </div>
 
       {/* Card */}
@@ -43,9 +43,9 @@ const Payment = () => {
         </div>
 
         {/* Amount */}
-        <div className="bg-slate-50 rounded-xl p-4 mb-6">
-          <p className="text-sm text-slate-500">Amount to pay</p>
-          <p className="text-3xl font-bold text-slate-800 mt-1">₹500</p>
+        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-white/5">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Amount to pay</p>
+          <p className="text-3xl font-bold text-slate-800 dark:text-white mt-1">₹500</p>
         </div>
 
         {/* Button */}

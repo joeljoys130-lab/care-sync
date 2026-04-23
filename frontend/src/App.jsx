@@ -27,20 +27,18 @@ import Notifications from './pages/patient/Notifications';
 import Payment from './pages/patient/Payment';
 import PaymentHistory from './pages/patient/PaymentHistory';
 
-// Admin / Doctor placeholders (to be updated)
-const AdminDashboard = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold dark:text-white">⚙️ Admin Dashboard</h1>
-    <p className="text-slate-500 dark:text-slate-400">Admin portal is active.</p>
-  </div>
-);
+// Admin pages
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminUsers from './pages/admin/Users';
+import AdminDoctors from './pages/admin/Doctors';
+import AdminAppointments from './pages/admin/Appointments';
 
-const DoctorDashboard = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold dark:text-white">🩺 Doctor Dashboard</h1>
-    <p className="text-slate-500 dark:text-slate-400">Doctor portal coming soon.</p>
-  </div>
-);
+// Doctor pages
+import DoctorDashboard from './pages/doctor/Dashboard';
+import DoctorAppointments from './pages/doctor/Appointments';
+import DoctorAvailability from './pages/doctor/Availability';
+import DoctorEarnings from './pages/doctor/Earnings';
+import DoctorProfile from './pages/doctor/Profile';
 
 /** Root redirect — send users to their correct home based on role */
 const RoleRedirect = () => {
@@ -92,6 +90,9 @@ function App() {
       <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
         <Route element={<DashboardLayout role="admin" />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/doctors" element={<AdminDoctors />} />
+          <Route path="/admin/appointments" element={<AdminAppointments />} />
         </Route>
       </Route>
 
@@ -99,6 +100,10 @@ function App() {
       <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
         <Route element={<DashboardLayout role="doctor" />}>
           <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+          <Route path="/doctor/appointments" element={<DoctorAppointments />} />
+          <Route path="/doctor/availability" element={<DoctorAvailability />} />
+          <Route path="/doctor/earnings" element={<DoctorEarnings />} />
+          <Route path="/doctor/profile" element={<DoctorProfile />} />
         </Route>
       </Route>
 

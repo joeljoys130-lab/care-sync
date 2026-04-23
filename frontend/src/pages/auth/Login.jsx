@@ -63,9 +63,9 @@ const Login = () => {
             <span className="text-xl font-bold text-slate-800">CareSync</span>
           </div>
 
-          <div className="card">
-            <h2 className="text-2xl font-bold text-slate-800 mb-1">Sign In</h2>
-            <p className="text-slate-500 text-sm mb-6">Enter your credentials to access your account</p>
+          <div className="card shadow-2xl shadow-primary-500/10 dark:shadow-cyan-500/10 border-slate-200/50 dark:border-white/5">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">Sign In</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Enter your credentials to access your account</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
@@ -113,9 +113,9 @@ const Login = () => {
               </button>
             </form>
 
-            <p className="text-center text-sm text-slate-500 mt-6">
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
               Don't have an account?{' '}
-              <Link to="/register" className="text-primary-600 font-medium hover:underline">
+              <Link to="/register" className="text-primary-600 dark:text-cyan-400 font-medium hover:underline">
                 Create Account
               </Link>
             </p>

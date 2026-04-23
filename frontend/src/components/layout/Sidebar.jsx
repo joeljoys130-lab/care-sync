@@ -18,6 +18,20 @@ const NAV_ITEMS = {
     { label: 'Payment History', icon: FiList, to: '/patient/payment/history' },
     { label: 'My Profile', icon: FiUser, to: '/patient/profile' },
   ],
+  admin: [
+    { label: 'Dashboard', icon: FiHome, to: '/admin/dashboard' },
+    { label: 'Users', icon: FiUsers, to: '/admin/users' },
+    { label: 'Doctors', icon: FiUser, to: '/admin/doctors' },
+    { label: 'Appointments', icon: FiCalendar, to: '/admin/appointments' },
+    { label: 'System Settings', icon: FiLogOut, to: '/admin/settings' }, // Placeholder
+  ],
+  doctor: [
+    { label: 'Dashboard', icon: FiHome, to: '/doctor/dashboard' },
+    { label: 'Schedule', icon: FiCalendar, to: '/doctor/appointments' },
+    { label: 'Availability', icon: FiClock, to: '/doctor/availability' },
+    { label: 'Earnings', icon: FiCreditCard, to: '/doctor/earnings' },
+    { label: 'My Profile', icon: FiUser, to: '/doctor/profile' },
+  ],
 };
 
 const Sidebar = ({ role = 'patient', open, onClose }) => {
