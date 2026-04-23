@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Patient = require("../models/Patient");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -22,7 +23,9 @@ exports.registerUser = async (req, res) => {
       isActive: true,
     });
 
-    // Removed Patient creation dependency
+    if (user.role === 'patient') {
+      await Patient.create({ userId: user._id });
+    }
 
     res.status(201).json({
       message: "User registered",
@@ -57,7 +60,7 @@ exports.loginUser = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET,
       { expiresIn: "7d" }
     );
 
@@ -117,12 +120,12 @@ exports.verifyOtp = async (req, res) => {
         isActive: true,
       });
 
-      // Removed Patient creation dependency
+      await Patient.create({ userId: user._id });
     }
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET,
       { expiresIn: "7d" }
     );
 
