@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
 
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import App from './App';
 
 const queryClient = new QueryClient({
@@ -24,16 +25,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <App />
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            closeOnClick
-            pauseOnHover
-            draggable
-            theme="light"
-          />
+          <ThemeProvider>
+            <App />
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              closeOnClick
+              pauseOnHover
+              draggable
+              theme="light"
+            />
+          </ThemeProvider>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>

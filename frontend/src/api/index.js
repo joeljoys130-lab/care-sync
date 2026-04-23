@@ -104,8 +104,9 @@ export const paymentAPI = {
    MEDICAL RECORDS API  (used by MedicalRecords.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const recordAPI = {
-  getAll:  (params) => api.get('/records', { params }),
-  getById: (id)     => api.get(`/records/${id}`),
+  getAll:            (params)      => api.get('/records', { params }),
+  getById:           (id)          => api.get(`/records/${id}`),
+  getPatientRecords: (patientId, params) => api.get(`/records/patient/${patientId}`, { params }),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -113,11 +114,13 @@ export const recordAPI = {
    — stub until backend is built, returns empty gracefully
 ═══════════════════════════════════════════════════════════════ */
 export const notificationAPI = {
-  getAll:   (params) => api.get('/notifications', { params })
+  getAll:      (params) => api.get('/notifications', { params })
     .catch(() => ({ data: { data: { notifications: [], unreadCount: 0 } } })),
-  markRead: (id)     => api.patch(`/notifications/${id}/read`)
+  markAsRead:  (id)     => api.patch(`/notifications/${id}/read`)
     .catch(() => ({})),
-  markAllRead: ()    => api.patch('/notifications/read-all')
+  markAllRead: ()       => api.patch('/notifications/read-all')
+    .catch(() => ({})),
+  delete:      (id)     => api.delete(`/notifications/${id}`)
     .catch(() => ({})),
 };
 
@@ -135,4 +138,15 @@ export const adminAPI = {
   rescheduleAppt:    (id, data)   => api.patch(`/admin/appointments/${id}/reschedule`, data),
   getComplaints:     (params)     => api.get('/admin/complaints', { params }),
   updateComplaint:   (id, data)   => api.patch(`/admin/complaints/${id}/status`, data),
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   REVIEW API  (used by DoctorDetail.jsx)
+   — stubs gracefully if backend reviews route not yet wired
+═══════════════════════════════════════════════════════════════ */
+export const reviewAPI = {
+  getForDoctor: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params })
+    .catch(() => ({ data: { data: { reviews: [], averageRating: 0, totalReviews: 0 } } })),
+  create: (data) => api.post('/reviews', data)
+    .catch((err) => Promise.reject(err)),
 };
