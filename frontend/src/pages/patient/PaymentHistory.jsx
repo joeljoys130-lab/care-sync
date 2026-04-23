@@ -11,7 +11,7 @@ const statusStyles = {
 const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
-
+ 
   useEffect(() => {
     const fetchPayments = async () => {
       try {
