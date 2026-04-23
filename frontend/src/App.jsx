@@ -2,37 +2,43 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 
-/* ── Layout & Guards ── */
+// Auth & Public
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import VerifyOTP from './pages/auth/VerifyOTP';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import Landing from './pages/Landing';
+
+// Layout & Guards
 import DashboardLayout from './components/layout/DashboardLayout';
-import ProtectedRoute  from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 
-/* ── Public pages ── */
-import Login    from './pages/Login';
-import Register from './pages/Register';
-
-/* ── Patient pages ── */
+// Patient pages
 import PatientDashboard from './pages/patient/Dashboard';
-import DoctorList       from './pages/patient/DoctorList';
-import DoctorDetail     from './pages/patient/DoctorDetail';
-import BookAppointment  from './pages/patient/BookAppointment';
-import MyAppointments   from './pages/patient/MyAppointments';
-import MedicalRecords   from './pages/patient/MedicalRecords';
-import Favorites        from './pages/patient/Favorites';
-import PatientProfile   from './pages/patient/Profile';
-import Notifications    from './pages/patient/Notifications';
+import DoctorList from './pages/patient/DoctorList';
+import DoctorDetail from './pages/patient/DoctorDetail';
+import BookAppointment from './pages/patient/BookAppointment';
+import MyAppointments from './pages/patient/MyAppointments';
+import MedicalRecords from './pages/patient/MedicalRecords';
+import Favorites from './pages/patient/Favorites';
+import PatientProfile from './pages/patient/Profile';
+import Notifications from './pages/patient/Notifications';
+import Payment from './pages/patient/Payment';
+import PaymentHistory from './pages/patient/PaymentHistory';
 
-/* ── Placeholder dashboard pages (to be replaced when Adithya + Kavish finish) ── */
+// Admin / Doctor placeholders (to be updated)
 const AdminDashboard = () => (
-  <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
-    <h1>⚙️ Admin Dashboard</h1>
-    <p style={{ color: '#64748b' }}>Adithya is building this — backend APIs are ready at <code>/api/admin</code>.</p>
+  <div className="p-8">
+    <h1 className="text-2xl font-bold dark:text-white">⚙️ Admin Dashboard</h1>
+    <p className="text-slate-500 dark:text-slate-400">Admin portal is active.</p>
   </div>
 );
 
 const DoctorDashboard = () => (
-  <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
-    <h1>🩺 Doctor Dashboard</h1>
-    <p style={{ color: '#64748b' }}>Doctor portal coming soon.</p>
+  <div className="p-8">
+    <h1 className="text-2xl font-bold dark:text-white">🩺 Doctor Dashboard</h1>
+    <p className="text-slate-500 dark:text-slate-400">Doctor portal coming soon.</p>
   </div>
 );
 
@@ -77,6 +83,8 @@ function App() {
           <Route path="/patient/favorites"    element={<Favorites />} />
           <Route path="/patient/profile"      element={<PatientProfile />} />
           <Route path="/patient/notifications" element={<Notifications />} />
+          <Route path="/patient/payment" element={<Payment />} />
+          <Route path="/patient/payment/history" element={<PaymentHistory />} />
         </Route>
       </Route>
 

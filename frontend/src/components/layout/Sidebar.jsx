@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FiHome, FiCalendar, FiUsers, FiUser, FiHeart,
-  FiFileText, FiBell, FiLogOut, FiX,
+  FiFileText, FiBell, FiLogOut, FiX, FiCreditCard, FiList,
 } from 'react-icons/fi';
 import { MdLocalHospital } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
@@ -14,6 +14,8 @@ const NAV_ITEMS = {
     { label: 'Medical Records', icon: FiFileText, to: '/patient/records' },
     { label: 'Favorites', icon: FiHeart, to: '/patient/favorites' },
     { label: 'Notifications', icon: FiBell, to: '/patient/notifications' },
+    { label: 'Payment', icon: FiCreditCard, to: '/patient/payment' },
+    { label: 'Payment History', icon: FiList, to: '/patient/payment/history' },
     { label: 'My Profile', icon: FiUser, to: '/patient/profile' },
   ],
 };
