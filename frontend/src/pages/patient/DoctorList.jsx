@@ -54,7 +54,7 @@ const DoctorList = () => {
         </div>
         <button
           onClick={() => setShowFilters((v) => !v)}
-          className={`btn-outline btn-sm ${showFilters ? 'bg-primary-50' : ''}`}
+          className={`btn-outline btn-sm ${showFilters ? 'bg-primary-50 dark:bg-cyan-500/20' : ''}`}
         >
           <FiFilter /> Filters
         </button>

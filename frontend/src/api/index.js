@@ -53,9 +53,9 @@ export const authAPI = {
    USER / PROFILE API  (used by Profile.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const userAPI = {
-  getProfile:   ()       => api.get('/patients/me'),
-  updateProfile: (data)  => api.put('/patients/me', data),
-  uploadAvatar:  (form)  => api.post('/patients/me/avatar', form, {
+  getProfile:   ()       => api.get('/patients/profile'),
+  updateProfile: (data)  => api.put('/patients/profile', data),
+  uploadAvatar:  (form)  => api.post('/patients/profile/avatar', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   changePassword: (data) => api.post('/auth/change-password', data),
@@ -65,11 +65,11 @@ export const userAPI = {
    PATIENT API  (used by Dashboard.jsx, DoctorList.jsx, etc.)
 ═══════════════════════════════════════════════════════════════ */
 export const patientAPI = {
-  getProfile:      ()       => api.get('/patients/me'),
-  updateProfile:   (data)   => api.put('/patients/me', data),
-  getAppointments: (params) => api.get('/patients/me/appointments', { params }),
-  getFavorites:    ()       => api.get('/patients/me/favorites'),
-  toggleFavorite:  (docId)  => api.post(`/patients/me/favorites/${docId}`),
+  getProfile:      ()       => api.get('/patients/profile'),
+  updateProfile:   (data)   => api.put('/patients/profile', data),
+  getAppointments: (params) => api.get('/patients/appointments', { params }),
+  getFavorites:    ()       => api.get('/patients/favorites'),
+  toggleFavorite:  (docId)  => api.post(`/patients/favorites/${docId}`),
 };
 
 /* ═══════════════════════════════════════════════════════════════

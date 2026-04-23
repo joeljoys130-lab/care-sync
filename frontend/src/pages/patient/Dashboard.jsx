@@ -93,11 +93,11 @@ const PatientDashboard = () => {
         <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="section-title mb-0">Upcoming Appointments</h2>
-            <Link to="/patient/appointments" className="text-sm text-primary-600 hover:underline">View all</Link>
+            <Link to="/patient/appointments" className="text-sm text-primary-600 dark:text-cyan-400 hover:underline">View all</Link>
           </div>
 
           {apptLoading ? (
-            <LoadingSpinner className="h-32 text-primary-400" />
+            <LoadingSpinner className="h-32 text-primary-400 dark:text-cyan-400" />
           ) : appointments.length === 0 ? (
             <div className="card text-center py-12">
               <FiCalendar className="mx-auto text-4xl text-slate-500 dark:text-slate-400 mb-3" />
@@ -122,7 +122,7 @@ const PatientDashboard = () => {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="section-title mb-0">Recent Notifications</h2>
-            <Link to="/patient/notifications" className="text-sm text-primary-600 hover:underline">View all</Link>
+            <Link to="/patient/notifications" className="text-sm text-primary-600 dark:text-cyan-400 hover:underline">View all</Link>
           </div>
           <div className="space-y-2">
             {notifications.length === 0 ? (

@@ -163,11 +163,11 @@ const BookAppointment = () => {
 
       {/* Doctor summary */}
       <div className="card mb-6 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-primary-50 flex items-center justify-center flex-shrink-0">
+        <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-[#1c283d] flex items-center justify-center flex-shrink-0">
           {userInfo?.avatar ? (
              <img src={userInfo.avatar} alt="Doctor avatar" className="w-full h-full object-cover rounded-2xl" />
           ) : (
-            <span className="text-primary-600 font-bold text-xl">{userInfo?.name?.charAt(0)}</span>
+            <span className="text-primary-600 dark:text-cyan-400 font-bold text-xl">{userInfo?.name?.charAt(0)}</span>
           )}
         </div>
         <div className="flex-1">
@@ -175,7 +175,7 @@ const BookAppointment = () => {
           <p className="text-sm text-slate-500 dark:text-slate-400">{doc.specialization}</p>
         </div>
         <div className="text-right">
-          <p className="text-lg font-bold text-primary-600">₹{doc.fees}</p>
+          <p className="text-lg font-bold text-primary-600 dark:text-cyan-400">₹{doc.fees}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400">per consultation</p>
         </div>
       </div>
@@ -216,9 +216,9 @@ const BookAppointment = () => {
                   <button key={i} onClick={() => !slot.isBooked && setSelectedSlot(slot)}
                     disabled={slot.isBooked}
                     className={`py-2 px-3 rounded-xl text-sm font-medium border-2 transition ${
-                      slot.isBooked ? 'border-slate-200 dark:border-white/5 bg-white dark:bg-sky-100 dark:bg-[#1c283d]/50 text-slate-300 cursor-not-allowed'
-                      : selectedSlot?.startTime === slot.startTime ? 'border-primary-500 bg-primary-50 text-primary-700'
-                      : 'border-slate-200 dark:border-white/5 hover:border-primary-300 hover:bg-primary-50 text-slate-500 dark:text-slate-400'
+                      slot.isBooked ? 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#1c283d]/50 text-slate-300 cursor-not-allowed'
+                      : selectedSlot?.startTime === slot.startTime ? 'border-primary-500 bg-primary-50 dark:bg-cyan-500/20 text-primary-700 dark:text-cyan-300'
+                      : 'border-slate-200 dark:border-white/5 hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-cyan-500/10 text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     <FiClock className="inline mr-1 text-xs" />
@@ -254,7 +254,7 @@ const BookAppointment = () => {
             <div className="flex gap-3">
               {['in-person', 'video', 'phone'].map((t) => (
                 <label key={t} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer transition text-sm ${
-                  type === t ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400'
+                  type === t ? 'border-primary-500 bg-primary-50 dark:bg-cyan-500/20 text-primary-700 dark:text-cyan-300' : 'border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400'
                 }`}>
                   <input type="radio" value={t} checked={type === t} onChange={() => setType(t)} className="sr-only" />
                   <span className="capitalize">{t === 'in-person' ? '🏥 In-Person' : t === 'video' ? '📹 Video' : '📞 Phone'}</span>
@@ -274,7 +274,7 @@ const BookAppointment = () => {
             <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Date</span><span className="font-medium">{format(selectedDate, 'MMMM d, yyyy')}</span></div>
             <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Time</span><span className="font-medium">{selectedSlot.startTime} – {selectedSlot.endTime}</span></div>
             <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Type</span><span className="font-medium capitalize">{type}</span></div>
-            <div className="flex justify-between pt-2 border-t border-slate-200 dark:border-white/5"><span className="font-semibold">Total</span><span className="text-primary-600 font-bold">₹{doc.fees}</span></div>
+            <div className="flex justify-between pt-2 border-t border-slate-200 dark:border-white/5"><span className="font-semibold">Total</span><span className="text-primary-600 dark:text-cyan-400 font-bold">₹{doc.fees}</span></div>
           </div>
 
           <button onClick={handleStartBooking} disabled={paymentLoading || !reason.trim()} className="btn-primary w-full btn-lg relative overflow-hidden group">
@@ -287,7 +287,7 @@ const BookAppointment = () => {
                  </>
                )}
             </div>
-            <div className="absolute inset-0 bg-white dark:bg-[#131d30]/60/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+            <div className="absolute inset-0 bg-white/20 dark:bg-[#131d30]/60 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
           </button>
           
           <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-3 mt-4 flex items-center justify-center gap-1">

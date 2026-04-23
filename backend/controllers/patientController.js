@@ -97,3 +97,21 @@ exports.getFavorites = async (req, res) => {
 
   res.json({ success: true, data: { favorites: patient.favorites } });
 };
+
+// ─── Upload Avatar ────────────────────────────────────────────────────────────
+exports.uploadAvatar = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'Please upload an image file' });
+  }
+
+  const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
+  
+  const patient = await User.findByIdAndUpdate(
+    req.user.id,
+    { avatar: avatarUrl },
+    { new: true }
+  );
+
+  res.json({ success: true, message: 'Avatar updated', data: { avatar: avatarUrl, user: patient } });
+};
+

@@ -41,18 +41,18 @@ const DoctorCard = ({ doctor, isFavorite = false }) => {
       {/* Avatar + Favorite */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-primary-100 dark:bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
             {doctor?.avatar ? (
               <img src={doctor.avatar} alt={name} className="w-full h-full object-cover rounded-xl" />
             ) : (
-              <span className="text-primary-700 font-bold text-lg">
+              <span className="text-primary-700 dark:text-cyan-400 font-bold text-lg">
                 {name.charAt(0).toUpperCase()}
               </span>
             )}
           </div>
           <div>
             <p className="font-semibold text-slate-800 dark:text-white text-sm leading-tight">Dr. {name}</p>
-            <p className="text-xs text-primary-600 mt-0.5">{specialization}</p>
+            <p className="text-xs text-primary-600 dark:text-cyan-400 mt-0.5">{specialization}</p>
           </div>
         </div>
 
@@ -63,8 +63,8 @@ const DoctorCard = ({ doctor, isFavorite = false }) => {
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           className={`p-2 rounded-xl transition ${
             isFavorite
-              ? 'bg-red-50 text-red-500'
-              : 'hover:bg-slate-100 text-slate-300'
+              ? 'bg-red-50 dark:bg-red-500/10 text-red-500'
+              : 'hover:bg-slate-100 dark:hover:bg-[#1c283d] text-slate-300 dark:text-slate-600'
           }`}
         >
           <FiHeart className={isFavorite ? 'fill-current' : ''} />
@@ -74,27 +74,27 @@ const DoctorCard = ({ doctor, isFavorite = false }) => {
       {/* Info chips */}
       <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400">
         {rating !== null && (
-          <span className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full font-medium">
+          <span className="flex items-center gap-1 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full font-medium">
             <FiStar className="fill-amber-400 stroke-amber-400" /> {rating.toFixed(1)}
           </span>
         )}
         {city && (
-          <span className="flex items-center gap-1 bg-white dark:bg-sky-100 dark:bg-[#1c283d]/50 px-2.5 py-1 rounded-full">
+          <span className="flex items-center gap-1 bg-slate-50 dark:bg-[#1c283d]/50 px-2.5 py-1 rounded-full">
             <FiMapPin /> {city}
           </span>
         )}
         {experience !== null && (
-          <span className="flex items-center gap-1 bg-white dark:bg-sky-100 dark:bg-[#1c283d]/50 px-2.5 py-1 rounded-full">
+          <span className="flex items-center gap-1 bg-slate-50 dark:bg-[#1c283d]/50 px-2.5 py-1 rounded-full">
             {experience} yrs exp
           </span>
         )}
       </div>
 
       {/* Fee + Book */}
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50 dark:border-white/5">
         <div>
           <p className="text-xs text-slate-500 dark:text-slate-400">Consultation</p>
-          <p className="text-lg font-bold text-primary-600 leading-tight">
+          <p className="text-lg font-bold text-primary-600 dark:text-cyan-400 leading-tight">
             <span className="text-sm font-normal">₹</span>{fees}
           </p>
         </div>
