@@ -2,6 +2,7 @@ const Doctor = require('../models/Doctor');
 const User = require('../models/User');
 const Appointment = require('../models/Appointment');
 const Payment = require('../models/Payment');
+const Availability = require('../models/Availability');
 
 // ✅ SAFE HELPER (added once)
 const escapeRegex = (str) =>
@@ -362,3 +363,140 @@ function generateTimeSlots(startTime, endTime, duration = 30) {
 
   return slots;
 }
+
+// ─── Set Date-Based Availability Schedule ────────────────────────────────────
+// POST /api/doctors/me/availability/schedule
+exports.setAvailabilitySchedule = async (req, res, next) => {
+  try {
+    const { date, slots } = req.body;
+
+    if (!date || !Array.isArray(slots)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Date and slots array are required.',
+      });
+    }
+
+    const doctor = await Doctor.findOne({ userId: req.user.id });
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+    }
+
+    let availability = await Availability.findOne({
+      doctorId: doctor._id,
+      date: new Date(date),
+    });
+
+    if (availability) {
+      availability.slots = slots;
+      await availability.save();
+    } else {
+      availability = await Availability.create({
+        doctorId: doctor._id,
+        date: new Date(date),
+        slots,
+      });
+    }
+
+    res.json({ success: true, data: { availability } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Get Date-Based Availability for a Specific Date ─────────────────────────
+// GET /api/doctors/me/availability/schedule?date=YYYY-MM-DD
+exports.getAvailabilitySchedule = async (req, res, next) => {
+  try {
+    const { date } = req.query;
+    const doctor = await Doctor.findOne({ userId: req.user.id });
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+    }
+
+    const availability = await Availability.findOne({
+      doctorId: doctor._id,
+      date: new Date(date),
+    });
+
+    res.json({
+      success: true,
+      data: { availability: availability || { doctorId: doctor._id, date, slots: [] } },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Get All Date-Based Availability ─────────────────────────────────────────
+// GET /api/doctors/me/availability/schedule/all
+exports.getAllAvailabilitySchedule = async (req, res, next) => {
+  try {
+    const doctor = await Doctor.findOne({ userId: req.user.id });
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+    }
+
+    const availability = await Availability.find({ doctorId: doctor._id }).sort({ date: 1 });
+    res.json({ success: true, data: { availability } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Get Available Slots for a Doctor on a Date (Public) ─────────────────────
+// GET /api/doctors/:doctorId/slots?date=YYYY-MM-DD
+exports.getAvailableSlots = async (req, res, next) => {
+  try {
+    const { date } = req.query;
+    const { doctorId } = req.params;
+
+    if (!date) {
+      return res.status(400).json({ success: false, message: 'Date is required.' });
+    }
+
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found.' });
+    }
+
+    const selectedDate = new Date(date);
+    const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+    const dayAvailability = doctor.availability.find(
+      (a) => a.day === dayName && a.isAvailable
+    );
+
+    if (!dayAvailability) {
+      return res.json({ success: true, data: { slots: [] } });
+    }
+
+    const slots = generateTimeSlots(
+      dayAvailability.startTime,
+      dayAvailability.endTime,
+      dayAvailability.slotDuration
+    );
+
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    const bookedAppointments = await Appointment.find({
+      doctorId,
+      appointmentDate: { $gte: start, $lte: end },
+      status: { $nin: ['cancelled'] },
+    }).select('slot');
+
+    const bookedStartTimes = bookedAppointments.map((a) => a.slot?.startTime);
+
+    const slotsWithStatus = slots.map((slot) => ({
+      ...slot,
+      isBooked: bookedStartTimes.includes(slot.startTime),
+    }));
+
+    res.json({ success: true, data: { slots: slotsWithStatus } });
+  } catch (err) {
+    next(err);
+  }
+};
