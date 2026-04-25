@@ -3,6 +3,7 @@ const Appointment = require('../models/Appointment');
 const Doctor = require('../models/Doctor');
 const Patient = require('../models/Patient');
 
+// ─── Get Patient Profile ──────────────────────────────────────────────────────
 exports.getPatientProfile = async (req, res, next) => {
   try {
     const patient = await Patient.findOne({ userId: req.user.id }).populate('userId', 'name email avatar');
@@ -20,21 +21,50 @@ exports.getPatientProfile = async (req, res, next) => {
     next(err);
   }
 };
+
 // ─── Update Patient Profile ───────────────────────────────────────────────────
 exports.updatePatientProfile = async (req, res, next) => {
   try {
-  const { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address } = req.body;
+    const { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address } = req.body;
 
-  const patient = await Patient.findOneAndUpdate(
+    const patient = await Patient.findOneAndUpdate(
       { userId: req.user.id },
-    { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address },
-    { new: true, runValidators: true }
-  );
+      { dateOfBirth, gender, bloodGroup, allergies, chronicConditions, emergencyContact, address },
+      { new: true, runValidators: true }
+    );
 
-  if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
+    if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  res.json({ success: true, message: 'Profile updated.', data: { patient } });
-} catch (err) {
+    res.json({ success: true, message: 'Profile updated.', data: { patient } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Upload Avatar ────────────────────────────────────────────────────────────
+// Multer has already validated MIME type and sanitized filename before this runs
+exports.uploadAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded.' });
+    }
+
+    // Build a public URL for the uploaded avatar
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    // Save avatar URL to the User model
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatar: avatarUrl },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Avatar uploaded successfully.',
+      data: { avatar: user.avatar },
+    });
+  } catch (err) {
     next(err);
   }
 };
@@ -42,32 +72,32 @@ exports.updatePatientProfile = async (req, res, next) => {
 // ─── Get Patient Appointments ──────────────────────────────────────────────────
 exports.getPatientAppointments = async (req, res, next) => {
   try {
-  const { status, page = 1, limit = 10 } = req.query;
-  const patient = await Patient.findOne({ userId: req.user.id });
-  if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
+    const { status, page = 1, limit = 10 } = req.query;
+    const patient = await Patient.findOne({ userId: req.user.id });
+    if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  const query = { patientId: req.user.id };
-  if (status) query.status = status;
+    const query = { patientId: req.user.id };
+    if (status) query.status = status;
 
-  const skip = (Number(page) - 1) * Number(limit);
-  const total = await Appointment.countDocuments(query);
-  const appointments = await Appointment.find(query)
-    .populate({
-      path: 'doctorId',
-      populate: { path: 'userId', select: 'name email avatar' },
-    })
-    .sort({ appointmentDate: -1 })
-    .skip(skip)
-    .limit(Number(limit));
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await Appointment.countDocuments(query);
+    const appointments = await Appointment.find(query)
+      .populate({
+        path: 'doctorId',
+        populate: { path: 'userId', select: 'name email avatar' },
+      })
+      .sort({ appointmentDate: -1 })
+      .skip(skip)
+      .limit(Number(limit));
 
-  res.json({
-    success: true,
-    data: {
-      appointments,
-      pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
-    },
-  });
-} catch (err) {
+    res.json({
+      success: true,
+      data: {
+        appointments,
+        pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
+      },
+    });
+  } catch (err) {
     next(err);
   }
 };
@@ -75,27 +105,27 @@ exports.getPatientAppointments = async (req, res, next) => {
 // ─── Toggle Favorite Doctor ───────────────────────────────────────────────────
 exports.toggleFavorite = async (req, res, next) => {
   try {
-  const { doctorId } = req.params;
+    const { doctorId } = req.params;
 
-  const doctor = await Doctor.findById(doctorId);
-  if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
 
-  const patient = await Patient.findOne({ userId: req.user.id });
-  if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
+    const patient = await Patient.findOne({ userId: req.user.id });
+    if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  const index = patient.favorites.indexOf(doctorId);
-  let message;
-  if (index > -1) {
-    patient.favorites.splice(index, 1);
-    message = 'Removed from favorites.';
-  } else {
-    patient.favorites.push(doctorId);
-    message = 'Added to favorites.';
-  }
+    const index = patient.favorites.indexOf(doctorId);
+    let message;
+    if (index > -1) {
+      patient.favorites.splice(index, 1);
+      message = 'Removed from favorites.';
+    } else {
+      patient.favorites.push(doctorId);
+      message = 'Added to favorites.';
+    }
 
-  await patient.save();
-  res.json({ success: true, message, data: { favorites: patient.favorites } });
-} catch (err) {
+    await patient.save();
+    res.json({ success: true, message, data: { favorites: patient.favorites } });
+  } catch (err) {
     next(err);
   }
 };
@@ -103,15 +133,15 @@ exports.toggleFavorite = async (req, res, next) => {
 // ─── Get Favorites ────────────────────────────────────────────────────────────
 exports.getFavorites = async (req, res, next) => {
   try {
-  const patient = await Patient.findOne({ userId: req.user.id }).populate({
-    path: 'favorites',
-    populate: { path: 'userId', select: 'name email avatar' },
-  });
+    const patient = await Patient.findOne({ userId: req.user.id }).populate({
+      path: 'favorites',
+      populate: { path: 'userId', select: 'name email avatar' },
+    });
 
-  if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
+    if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  res.json({ success: true, data: { favorites: patient.favorites } });
-} catch (err) {
+    res.json({ success: true, data: { favorites: patient.favorites } });
+  } catch (err) {
     next(err);
   }
 };
