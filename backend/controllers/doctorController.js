@@ -3,261 +3,337 @@ const User = require('../models/User');
 const Appointment = require('../models/Appointment');
 const Payment = require('../models/Payment');
 
+// ✅ SAFE HELPER (added once)
+const escapeRegex = (str) =>
+  str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // ─── Get All Doctors (with search, filter, pagination) ──────────────────────
-exports.getDoctors = async (req, res) => {
-  const {
-    search,
-    specialization,
-    city,
-    minFees,
-    maxFees,
-    minRating,
-    sortBy = 'rating',
-    order = 'desc',
-    page = 1,
-    limit = 10,
-  } = req.query;
+exports.getDoctors = async (req, res, next) => {
+  try {
+    const {
+      search,
+      specialization,
+      city,
+      minFees,
+      maxFees,
+      minRating,
+      sortBy = 'rating',
+      order = 'desc',
+      page = 1,
+      limit = 10,
+    } = req.query;
 
-  const query = { isApproved: true };
+    const query = { isApproved: true };
 
-  if (specialization) query.specialization = new RegExp(specialization, 'i');
-  if (city) query.city = new RegExp(city, 'i');
-  if (minFees || maxFees) {
-    query.fees = {};
-    if (minFees) query.fees.$gte = Number(minFees);
-    if (maxFees) query.fees.$lte = Number(maxFees);
-  }
-  if (minRating) query.rating = { $gte: Number(minRating) };
+    // ✅ FIXED (safe regex)
+    if (specialization) {
+      const safeSpec = escapeRegex(specialization);
+      query.specialization = new RegExp(safeSpec, 'i');
+    }
 
-  // Build sort object
-  const sortObj = {};
-  sortObj[sortBy] = order === 'desc' ? -1 : 1;
+    // ✅ FIXED
+    if (city) {
+      const safeCity = escapeRegex(city);
+      query.city = new RegExp(safeCity, 'i');
+    }
 
-  // If search query, match against user's name
-  let doctorIds = null;
-  if (search) {
-    // Strip "Dr." so users can comfortably search the exact name they see on screen
-    const cleanSearch = search.replace(/^Dr\.\s*/i, '');
-    
-    const users = await User.find({ name: new RegExp(cleanSearch, 'i'), role: 'doctor' }).select('_id');
-    const ids = users.map((u) => u._id);
-    const doctors = await Doctor.find({ userId: { $in: ids } }).select('_id');
-    doctorIds = doctors.map((d) => d._id);
-    query._id = { $in: doctorIds };
-  }
+    if (minFees || maxFees) {
+      query.fees = {};
+      if (minFees) query.fees.$gte = Number(minFees);
+      if (maxFees) query.fees.$lte = Number(maxFees);
+    }
 
-  const skip = (Number(page) - 1) * Number(limit);
-  const total = await Doctor.countDocuments(query);
+    if (minRating) query.rating = { $gte: Number(minRating) };
 
-  const doctors = await Doctor.find(query)
-    .populate('userId', 'name email avatar phone')
-    .sort(sortObj)
-    .skip(skip)
-    .limit(Number(limit));
+    const sortObj = {};
+    sortObj[sortBy] = order === 'desc' ? -1 : 1;
 
-  res.json({
-    success: true,
-    data: {
-      doctors,
-      pagination: {
-        total,
-        page: Number(page),
-        limit: Number(limit),
-        pages: Math.ceil(total / Number(limit)),
+    let doctorIds = null;
+
+    if (search) {
+      const cleanSearch = search.replace(/^Dr\.\s*/i, '');
+
+      // ✅ FIXED
+      const safeSearch = escapeRegex(cleanSearch);
+
+      const users = await User.find({
+        name: new RegExp(safeSearch, 'i'),
+        role: 'doctor',
+      }).select('_id');
+
+      const ids = users.map((u) => u._id);
+
+      const doctors = await Doctor.find({
+        userId: { $in: ids },
+      }).select('_id');
+
+      doctorIds = doctors.map((d) => d._id);
+
+      query._id = { $in: doctorIds };
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await Doctor.countDocuments(query);
+
+    const doctors = await Doctor.find(query)
+      .populate('userId', 'name email avatar phone')
+      .sort(sortObj)
+      .skip(skip)
+      .limit(Number(limit));
+
+    res.json({
+      success: true,
+      data: {
+        doctors,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          pages: Math.ceil(total / Number(limit)),
+        },
       },
-    },
-  });
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Doctor by ID ─────────────────────────────────────────────────────────
-exports.getDoctorById = async (req, res) => {
-  const doctor = await Doctor.findById(req.params.id).populate('userId', 'name email avatar phone');
-  if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
-  res.json({ success: true, data: { doctor } });
+exports.getDoctorById = async (req, res, next) => {
+  try {
+    const doctor = await Doctor.findById(req.params.id)
+      .populate('userId', 'name email avatar phone');
+
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found.',
+      });
+    }
+
+    res.json({ success: true, data: { doctor } });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // ─── Update Doctor Profile ────────────────────────────────────────────────────
-exports.updateDoctorProfile = async (req, res) => {
-  const { specialization, qualifications, experience, fees, bio, hospital, address, city } = req.body;
+exports.updateDoctorProfile = async (req, res, next) => {
+  try {
+    const {
+      specialization,
+      qualifications,
+      experience,
+      fees,
+      bio,
+      hospital,
+      address,
+      city,
+    } = req.body;
 
-  const doctor = await Doctor.findOneAndUpdate(
-    { userId: req.user.id },
-    { specialization, qualifications, experience, fees, bio, hospital, address, city },
-    { new: true, runValidators: true }
-  );
+    const doctor = await Doctor.findOneAndUpdate(
+      { userId: req.user.id },
+      { specialization, qualifications, experience, fees, bio, hospital, address, city },
+      { new: true, runValidators: true }
+    );
 
-  if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor profile not found.',
+      });
+    }
 
-  res.json({ success: true, message: 'Profile updated.', data: { doctor } });
+    res.json({
+      success: true,
+      message: 'Profile updated.',
+      data: { doctor },
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get or Update Availability ───────────────────────────────────────────────
-exports.updateAvailability = async (req, res) => {
-  const { availability } = req.body;
+exports.updateAvailability = async (req, res, next) => {
+  try {
+    const { availability } = req.body;
 
-  const doctor = await Doctor.findOneAndUpdate(
-    { userId: req.user.id },
-    { availability },
-    { new: true, runValidators: true }
-  );
+    const doctor = await Doctor.findOneAndUpdate(
+      { userId: req.user.id },
+      { availability },
+      { new: true, runValidators: true }
+    );
 
-  if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor profile not found.',
+      });
+    }
 
-  res.json({ success: true, message: 'Availability updated.', data: { availability: doctor.availability } });
+    res.json({
+      success: true,
+      message: 'Availability updated.',
+      data: { availability: doctor.availability },
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Doctor's Appointments ────────────────────────────────────────────────
-exports.getDoctorAppointments = async (req, res) => {
-  const { status, page = 1, limit = 10, date } = req.query;
-  const doctor = await Doctor.findOne({ userId: req.user.id });
-  if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+exports.getDoctorAppointments = async (req, res, next) => {
+  try {
+    const { status, page = 1, limit = 10, date } = req.query;
 
-  const query = { doctorId: doctor._id };
-  if (status) query.status = status;
-  if (date) {
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
-    query.appointmentDate = { $gte: start, $lte: end };
+    const doctor = await Doctor.findOne({ userId: req.user.id });
+
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor profile not found.',
+      });
+    }
+
+    const query = { doctorId: doctor._id };
+
+    if (status) query.status = status;
+
+    if (date) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+
+      query.appointmentDate = { $gte: start, $lte: end };
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await Appointment.countDocuments(query);
+
+    const appointments = await Appointment.find(query)
+      .populate({
+        path: 'patientId',
+        populate: { path: 'userId', select: 'name email avatar phone' },
+      })
+      .sort({ appointmentDate: 1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    res.json({
+      success: true,
+      data: {
+        appointments,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          pages: Math.ceil(total / Number(limit)),
+        },
+      },
+    });
+  } catch (err) {
+    next(err);
   }
-
-  const skip = (Number(page) - 1) * Number(limit);
-  const total = await Appointment.countDocuments(query);
-  const appointments = await Appointment.find(query)
-    .populate({ path: 'patientId', populate: { path: 'userId', select: 'name email avatar phone' } })
-    .sort({ appointmentDate: 1 })
-    .skip(skip)
-    .limit(Number(limit));
-
-  res.json({
-    success: true,
-    data: {
-      appointments,
-      pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
-    },
-  });
 };
 
-// ─── Update Appointment Status (Doctor) ───────────────────────────────────────
-exports.updateAppointmentStatus = async (req, res) => {
-  const { status, notes } = req.body;
-  const doctor = await Doctor.findOne({ userId: req.user.id });
+// ─── Update Appointment Status ───────────────────────────────────────────────
+exports.updateAppointmentStatus = async (req, res, next) => {
+  try {
+    const { status, notes } = req.body;
 
-  const appointment = await Appointment.findOne({
-    _id: req.params.id,
-    doctorId: doctor._id,
-  });
+    const doctor = await Doctor.findOne({ userId: req.user.id });
 
-  if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found.' });
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      doctorId: doctor._id,
+    });
 
-  appointment.status = status;
-  if (notes) appointment.notes = notes;
-  await appointment.save();
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found.',
+      });
+    }
 
-  res.json({ success: true, message: 'Appointment updated.', data: { appointment } });
+    appointment.status = status;
+    if (notes) appointment.notes = notes;
+
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: 'Appointment updated.',
+      data: { appointment },
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Doctor Earnings ──────────────────────────────────────────────────────
-exports.getDoctorEarnings = async (req, res) => {
-  const doctor = await Doctor.findOne({ userId: req.user.id });
-  if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+exports.getDoctorEarnings = async (req, res, next) => {
+  try {
+    const doctor = await Doctor.findOne({ userId: req.user.id });
 
-  const { startDate, endDate } = req.query;
-  const matchQuery = { doctorId: doctor._id, status: 'completed' };
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor profile not found.',
+      });
+    }
 
-  if (startDate || endDate) {
-    matchQuery.createdAt = {};
-    if (startDate) matchQuery.createdAt.$gte = new Date(startDate);
-    if (endDate) matchQuery.createdAt.$lte = new Date(endDate);
-  }
+    const { startDate, endDate } = req.query;
 
-  const earnings = await Payment.aggregate([
-    { $match: matchQuery },
-    {
-      $group: {
-        _id: null,
-        total: { $sum: '$amount' },
-        count: { $sum: 1 },
-        avgPerAppointment: { $avg: '$amount' },
+    const matchQuery = {
+      doctorId: doctor._id,
+      status: 'completed',
+    };
+
+    if (startDate || endDate) {
+      matchQuery.createdAt = {};
+      if (startDate) matchQuery.createdAt.$gte = new Date(startDate);
+      if (endDate) matchQuery.createdAt.$lte = new Date(endDate);
+    }
+
+    const earnings = await Payment.aggregate([
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$amount' },
+          count: { $sum: 1 },
+          avgPerAppointment: { $avg: '$amount' },
+        },
       },
-    },
-  ]);
+    ]);
 
-  // Monthly breakdown
-  const monthly = await Payment.aggregate([
-    { $match: { doctorId: doctor._id, status: 'completed' } },
-    {
-      $group: {
-        _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
-        total: { $sum: '$amount' },
-        count: { $sum: 1 },
+    const monthly = await Payment.aggregate([
+      { $match: { doctorId: doctor._id, status: 'completed' } },
+      {
+        $group: {
+          _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+          total: { $sum: '$amount' },
+          count: { $sum: 1 },
+        },
       },
-    },
-    { $sort: { '_id.year': -1, '_id.month': -1 } },
-    { $limit: 12 },
-  ]);
+      { $sort: { '_id.year': -1, '_id.month': -1 } },
+      { $limit: 12 },
+    ]);
 
-  res.json({
-    success: true,
-    data: {
-      summary: earnings[0] || { total: 0, count: 0, avgPerAppointment: 0 },
-      monthly,
-      totalEarnings: doctor.totalEarnings,
-    },
-  });
-};
-
-// ─── Get Available Slots for a Doctor on a Date ───────────────────────────────
-exports.getAvailableSlots = async (req, res) => {
-  const { date } = req.query;
-  const { doctorId } = req.params;
-
-  if (!date) return res.status(400).json({ success: false, message: 'Date is required.' });
-
-  const doctor = await Doctor.findById(doctorId);
-  if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
-
-  const selectedDate = new Date(date);
-  const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-
-  // Find availability for the day
-  const dayAvailability = doctor.availability.find(
-    (a) => a.day === dayName && a.isAvailable
-  );
-
-  if (!dayAvailability) {
-    return res.json({ success: true, data: { slots: [] } });
+    res.json({
+      success: true,
+      data: {
+        summary: earnings[0] || { total: 0, count: 0, avgPerAppointment: 0 },
+        monthly,
+        totalEarnings: doctor.totalEarnings,
+      },
+    });
+  } catch (err) {
+    next(err);
   }
-
-  // Generate time slots based on duration
-  const slots = generateTimeSlots(
-    dayAvailability.startTime,
-    dayAvailability.endTime,
-    dayAvailability.slotDuration
-  );
-
-  // Get already booked slots for that day
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(date);
-  end.setHours(23, 59, 59, 999);
-
-  const bookedAppointments = await Appointment.find({
-    doctorId,
-    appointmentDate: { $gte: start, $lte: end },
-    status: { $nin: ['cancelled'] },
-  }).select('slot');
-
-  const bookedStartTimes = bookedAppointments.map((a) => a.slot.startTime);
-
-  // Mark slots as available/booked
-  const slotsWithStatus = slots.map((slot) => ({
-    ...slot,
-    isBooked: bookedStartTimes.includes(slot.startTime),
-  }));
-
-  res.json({ success: true, data: { slots: slotsWithStatus } });
 };
 
 // ─── Helper: Generate Time Slots ─────────────────────────────────────────────
@@ -276,8 +352,13 @@ function generateTimeSlots(startTime, endTime, duration = 30) {
     const h2 = Math.floor(next / 60).toString().padStart(2, '0');
     const m2 = (next % 60).toString().padStart(2, '0');
 
-    slots.push({ startTime: `${h1}:${m1}`, endTime: `${h2}:${m2}` });
+    slots.push({
+      startTime: `${h1}:${m1}`,
+      endTime: `${h2}:${m2}`,
+    });
+
     current = next;
   }
+
   return slots;
 }

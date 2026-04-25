@@ -1,7 +1,8 @@
 const Notification = require('../models/Notification');
 
 // ─── Get User Notifications ───────────────────────────────────────────────────
-exports.getNotifications = async (req, res) => {
+exports.getNotifications = async (req, res, next) => {
+  try {
   const { page = 1, limit = 20, unreadOnly } = req.query;
   const query = { userId: req.user.id };
   if (unreadOnly === 'true') query.isRead = false;
@@ -23,25 +24,40 @@ exports.getNotifications = async (req, res) => {
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Mark Single Notification as Read ────────────────────────────────────────
-exports.markAsRead = async (req, res) => {
+exports.markAsRead = async (req, res, next) => {
+  try {
   await Notification.findOneAndUpdate(
     { _id: req.params.id, userId: req.user.id },
     { isRead: true }
   );
   res.json({ success: true, message: 'Marked as read.' });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Mark All as Read ─────────────────────────────────────────────────────────
-exports.markAllAsRead = async (req, res) => {
+exports.markAllAsRead = async (req, res, next) => {
+  try {
   await Notification.updateMany({ userId: req.user.id, isRead: false }, { isRead: true });
   res.json({ success: true, message: 'All notifications marked as read.' });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Delete a Notification ────────────────────────────────────────────────────
-exports.deleteNotification = async (req, res) => {
+exports.deleteNotification = async (req, res, next) => {
+  try {
   await Notification.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
   res.json({ success: true, message: 'Notification deleted.' });
+} catch (err) {
+    next(err);
+  }
 };

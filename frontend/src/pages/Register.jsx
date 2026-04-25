@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../api/api';
+import { authAPI } from '../api';
 
 const Register = () => {
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', role: 'patient' });
@@ -23,10 +23,10 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await register({ name: form.name, email: form.email, password: form.password, role: form.role });
-      navigate('/login');
+      await authAPI.register({ name: form.name, email: form.email, password: form.password, role: form.role });
+      navigate('/verify-otp', { state: { email: form.email } });
     } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

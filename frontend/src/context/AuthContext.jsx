@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authAPI } from '../api';
 
 const AuthContext = createContext(null);
 
@@ -54,7 +55,27 @@ export const AuthProvider = ({ children }) => {
     });
   }, []);
 
-  const value = { user, token, loading, login, logout, updateUser };
+  /* ── register: called by Register page ── */
+  const register = useCallback(async (data) => {
+    const res = await authAPI.register(data);
+    return res.data;
+  }, []);
+
+  /* ── verifyOTP: confirms the 6-digit code ── */
+  const verifyOTP = useCallback(async (data) => {
+    const res = await authAPI.verifyOtp(data);
+    const { user: userData, token: authToken } = res.data;
+    login(userData, authToken);
+    return userData;
+  }, [login]);
+
+  /* ── sendOTP: triggers a new code ── */
+  const sendOTP = useCallback(async (data) => {
+    const res = await authAPI.sendOtp(data);
+    return res.data;
+  }, []);
+
+  const value = { user, token, loading, login, logout, register, verifyOTP, sendOTP, updateUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

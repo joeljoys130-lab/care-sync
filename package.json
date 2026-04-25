@@ -3,12 +3,19 @@
   "version": "1.0.0",
   "description": "Digital Healthcare System",
   "scripts": {
-    "dev": "cd backend && npm start",
     "dev:backend": "cd backend && npm start",
-    "dev:frontend": "cd frontend && npm start",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
-  "keywords": ["healthcare", "mern", "digital-health"],
+  "keywords": [
+    "healthcare",
+    "mern",
+    "digital-health"
+  ],
   "author": "CareSync Team",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
 }

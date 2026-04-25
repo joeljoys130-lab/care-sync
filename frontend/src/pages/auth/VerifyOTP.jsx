@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authAPI } from '../../api';
@@ -9,7 +9,7 @@ const ROLE_HOME = { patient: '/patient/dashboard', doctor: '/doctor/dashboard', 
 
 const VerifyOTP = () => {
   const { state } = useLocation();
-  const { login } = useAuth();
+  const { verifyOTP } = useAuth();
   const navigate = useNavigate();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
@@ -17,18 +17,6 @@ const VerifyOTP = () => {
   const inputRefs = useRef([]);
 
   const email = state?.email || '';
-
-  // Auto-send OTP when the page mounts (triggered after registration)
-  useEffect(() => {
-    if (!email) {
-      toast.error('Email not found. Please register again.');
-      navigate('/register');
-      return;
-    }
-    authAPI.sendOtp({ email }).catch(() => {
-      // Silently fail — user can resend manually
-    });
-  }, [email]); // eslint-disable-line
 
   const handleChange = (value, index) => {
     if (!/^\d*$/.test(value)) return;
@@ -60,11 +48,8 @@ const VerifyOTP = () => {
 
     setLoading(true);
     try {
-      const res = await authAPI.verifyOtp({ email, otp: otpStr });
-      const { token, user } = res.data;
-      login(user, token);
-      toast.success(`Welcome, ${user.name}! 🎉`);
-      navigate(ROLE_HOME[user.role] || '/patient/dashboard');
+      const user = await verifyOTP({ email, otp: otpStr });
+      navigate(ROLE_HOME[user.role]);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid OTP. Please try again.');
     } finally {
@@ -75,8 +60,8 @@ const VerifyOTP = () => {
   const handleResend = async () => {
     setResending(true);
     try {
-      await authAPI.sendOtp({ email });
-      toast.success('New OTP sent! Check your console (demo mode).');
+      await authAPI.sendOtp({ email, purpose: 'verification' });
+      toast.success('New OTP sent to your email!');
     } catch {
       toast.error('Failed to resend OTP.');
     } finally {
@@ -100,12 +85,7 @@ const VerifyOTP = () => {
           </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-2">Verify Your Email</h2>
           <p className="text-slate-500 text-sm mb-1">We sent a 6-digit code to</p>
-          <p className="text-primary-600 font-semibold mb-3">{email}</p>
-
-          {/* Demo mode hint */}
-          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-4 py-2 rounded-xl mb-6">
-            <span>🔑</span> Demo OTP: <span className="font-mono tracking-widest text-sm">123456</span>
-          </div>
+          <p className="text-primary-600 font-semibold mb-8">{email}</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex gap-2 justify-center">

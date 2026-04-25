@@ -2,9 +2,12 @@ const User = require("../models/User");
 const Patient = require("../models/Patient");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { generateOTP } = require("../utils/generateOTP");
+const { sendEmail, otpEmailTemplate } = require("../utils/sendEmail");
 
 // ================= REGISTER =================
-exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -14,6 +17,7 @@ exports.registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const { otp, otpExpiry } = generateOTP();
 
     const user = await User.create({
       name,
@@ -21,14 +25,29 @@ exports.registerUser = async (req, res) => {
       password: hashedPassword,
       role,
       isActive: true,
+      otp,
+      otpExpiry
     });
 
     if (user.role === 'patient') {
       await Patient.create({ userId: user._id });
     }
 
+    // Attempt to send email
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Welcome to CareSync - Verify Your Account",
+        html: otpEmailTemplate(user.name, otp, "verification")
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      console.log(`[DEV FALLBACK] Registration OTP for ${email}: ${otp}`);
+    }
+
     res.status(201).json({
-      message: "User registered",
+      success: true,
+      message: "User registered. Please verify your email.",
       user: {
         id: user._id,
         name: user.name,
@@ -37,14 +56,13 @@ exports.registerUser = async (req, res) => {
       },
     });
 
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    next(err);
   }
 };
 
 // ================= LOGIN =================
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -58,6 +76,20 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    if (!user.isVerified) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Please verify your email address before logging in." 
+      });
+    }
+
+    if (user.role === 'patient') {
+      const patientExists = await Patient.findOne({ userId: user._id });
+      if (!patientExists) {
+        await Patient.create({ userId: user._id });
+      }
+    }
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET,
@@ -74,53 +106,79 @@ exports.loginUser = async (req, res) => {
       }
     });
 
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    next(err);
   }
 };
 
-// ================= OTP =================
-const otps = {};
-
-exports.sendOtp = async (req, res) => {
+exports.sendOtp = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    const otp = "123456"; // demo
-    otps[email] = otp;
+    const { otp, otpExpiry } = generateOTP();
 
-    console.log(`OTP for ${email}: ${otp}`);
-
-    res.json({ message: "OTP sent successfully" });
-
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-exports.verifyOtp = async (req, res) => {
-  try {
-    const { email, otp } = req.body;
-
-    if (otps[email] !== otp) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-
+    // Store in User model (or just update if exists)
     let user = await User.findOne({ email });
-
     if (!user) {
-      const hashedPassword = await bcrypt.hash("Default@123", 10);
-
+      // For new users, we might want to store the OTP in a temp collection or just create a pending user
+      // For now, let's just create a user with a placeholder password
+      const hashedPassword = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
       user = await User.create({
         name: email.split("@")[0],
         email,
         password: hashedPassword,
         role: "patient",
         isActive: true,
+        otp,
+        otpExpiry
       });
+    } else {
+      user.otp = otp;
+      user.otpExpiry = otpExpiry;
+      await user.save();
+    }
 
-      await Patient.create({ userId: user._id });
+    // Attempt to send email
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Your CareSync Verification Code",
+        html: otpEmailTemplate(user.name, otp, "verification")
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      // Fallback: log to console for dev
+      console.log(`[DEV FALLBACK] OTP for ${email}: ${otp}`);
+    }
+
+    res.json({ success: true, message: "OTP sent successfully" });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.verifyOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user || user.otp !== otp || !user.otpExpiry || user.otpExpiry < Date.now()) {
+      return res.status(400).json({ success: false, message: "Invalid or expired OTP" });
+    }
+
+    // Clear OTP and verify user
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    user.isVerified = true;
+    await user.save();
+
+    if (user.role === 'patient') {
+      const patientExists = await Patient.findOne({ userId: user._id });
+      if (!patientExists) {
+        await Patient.create({ userId: user._id });
+      }
     }
 
     const token = jwt.sign(
@@ -129,9 +187,8 @@ exports.verifyOtp = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    delete otps[email];
-
     res.json({
+      success: true,
       token,
       user: {
         _id: user._id,
@@ -141,22 +198,7 @@ exports.verifyOtp = async (req, res) => {
       }
     });
 
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ================= CHANGE PASSWORD =================
-exports.changePassword = async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.id);
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
-    res.json({ message: 'Password updated successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    next(err);
   }
-};
+};

@@ -1,376 +1,259 @@
-const User = require("../models/User");
-const Complaint = require("../models/Complaint");
-const Appointment = require("../models/Appointment");
+const User = require('../models/User');
+const Doctor = require('../models/Doctor');
+const Patient = require('../models/Patient');
+const Appointment = require('../models/Appointment');
+const Payment = require('../models/Payment');
+const Review = require('../models/Review');
+const { createNotification } = require('../utils/notificationHelper');
 
-// Admin controller
-// This file contains all admin-only business logic so role-protected routes can remain
-// thin and only delegate request handling here.
+// ✅ SAFE HELPER (added)
+const escapeRegex = (str) =>
+  str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-// GET /api/admin/users
-// Purpose: return user list for admin panel with optional role filtering.
-// Why pagination: avoids sending large datasets in one response and keeps API fast.
-exports.getAllUsers = async (req, res) => {
+// ─── Get All Users (with filter, pagination) ──────────────────────────────────
+exports.getUsers = async (req, res, next) => {
   try {
-    const { role, page = 1, limit = 10 } = req.query;
+    const { role, search, isActive, page = 1, limit = 15 } = req.query;
+    const query = {};
 
-    // Build filter dynamically so the same endpoint supports both
-    // "all users" and "users by role" use cases.
-    let filter = {};
-    if (role) {
-      filter.role = role;
+    if (role) query.role = role;
+    if (isActive !== undefined) query.isActive = isActive === 'true';
+
+    // ✅ FIXED (safe regex)
+    if (search) {
+      const safeSearch = escapeRegex(search);
+      query.name = new RegExp(safeSearch, 'i');
     }
 
-    // Pagination formula: skip records from previous pages.
-    const skip = (page - 1) * limit;
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await User.countDocuments(query);
 
-    const users = await User.find(filter)
-      .select("-password")
-      .limit(parseInt(limit))
-      .skip(skip);
+    const users = await User.find(query)
+      .select('-password -otp -otpExpiry -refreshToken')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
 
-    const totalUsers = await User.countDocuments(filter);
-
-    res.status(200).json({
-      message: "Users fetched successfully",
-      totalUsers,
-      currentPage: page,
-      totalPages: Math.ceil(totalUsers / limit),
-      users,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// PATCH /api/admin/doctors/:doctorId/approval
-// Purpose: admin approves or rejects doctor onboarding requests.
-// Rule: rejection must include a reason so decision is auditable.
-exports.approveDoctorAccount = async (req, res) => {
-  try {
-    const { doctorId } = req.params;
-    const { status, rejectionReason } = req.body;
-
-    // Validate requested decision before any database write.
-    if (!status || !["approved", "rejected"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status. Use 'approved' or 'rejected'" });
-    }
-
-    if (status === "rejected" && !rejectionReason) {
-      return res.status(400).json({ message: "Rejection reason required when rejecting" });
-    }
-
-    // Verify target exists and is a doctor account.
-    // This prevents applying doctor workflow to patient/admin users.
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== "doctor") {
-      return res.status(404).json({ message: "Doctor not found" });
-    }
-
-    // Keep boolean and enum status synchronized.
-    // isApproved is convenient for quick checks, approvalStatus is clearer in UI/reports.
-    doctor.isApproved = status === "approved" ? true : false;
-    doctor.approvalStatus = status;
-    if (status === "rejected") {
-      doctor.rejectionReason = rejectionReason;
-    }
-
-    await doctor.save();
-
-    res.status(200).json({
-      message: `Doctor ${status} successfully`,
-      doctor: {
-        id: doctor._id,
-        name: doctor.name,
-        email: doctor.email,
-        approvalStatus: doctor.approvalStatus,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// GET /api/admin/analytics
-// Purpose: returns dashboard counters and revenue summary in one call.
-// Benefit: frontend can load dashboard cards from a single API response.
-exports.getAnalytics = async (req, res) => {
-  try {
-    // Core population and approval metrics.
-    const totalUsers = await User.countDocuments();
-    const totalDoctors = await User.countDocuments({ role: "doctor" });
-    const totalPatients = await User.countDocuments({ role: "patient" });
-    const approvedDoctors = await User.countDocuments({
-      role: "doctor",
-      isApproved: true,
-    });
-    const pendingDoctors = await User.countDocuments({
-      role: "doctor",
-      approvalStatus: "pending",
-    });
-    const totalAppointments = await Appointment.countDocuments();
-    const bookedAppointments = await Appointment.countDocuments({ status: "booked" });
-    const cancelledAppointments = await Appointment.countDocuments({ status: "cancelled" });
-    const totalComplaints = await Complaint.countDocuments();
-    const openComplaints = await Complaint.countDocuments({ status: "open" });
-
-    // Revenue uses only paid appointments so pending/failed payments are ignored.
-    // Aggregate is used because revenue is a SUM operation across multiple documents.
-    const revenueResult = await Appointment.aggregate([
-      { $match: { paymentStatus: "paid" } },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$consultationFee" },
+    res.json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          pages: Math.ceil(total / Number(limit)),
         },
       },
-    ]);
-    const totalRevenue = revenueResult.length ? revenueResult[0].totalRevenue : 0;
-
-    res.status(200).json({
-      message: "Analytics fetched successfully",
-      analytics: {
-        totalUsers,
-        totalDoctors,
-        totalPatients,
-        approvedDoctors,
-        pendingDoctors,
-        totalAppointments,
-        bookedAppointments,
-        cancelledAppointments,
-        totalComplaints,
-        openComplaints,
-        totalRevenue,
-      },
     });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+  } catch (err) {
+    next(err);
   }
 };
 
-// GET /api/admin/appointments
-// Purpose: admin monitoring endpoint for appointment list, filters, and pagination.
-exports.getAllAppointments = async (req, res) => {
+// ─── Update User Status (activate / deactivate) ───────────────────────────────
+exports.updateUserStatus = async (req, res, next) => {
   try {
-    const { status, page = 1, limit = 10 } = req.query;
+    const { isActive } = req.body;
 
-    // Optional status filter allows focused views like only cancelled appointments.
-    const filter = {};
-    if (status) filter.status = status;
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive },
+      { new: true }
+    ).select('-password');
 
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
-    const skip = (pageNum - 1) * limitNum;
-
-    // populate() replaces ObjectIds with selected user fields so admin UI can
-    // display names/emails without making extra user lookup requests.
-    const appointments = await Appointment.find(filter)
-      .populate("patientId", "name email")
-      .populate("doctorId", "name email")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum);
-
-    const total = await Appointment.countDocuments(filter);
-
-    return res.status(200).json({
-      message: "Appointments fetched successfully",
-      total,
-      page: pageNum,
-      totalPages: Math.ceil(total / limitNum),
-      appointments,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
-  }
-};
-
-// PATCH /api/admin/users/:userId/status
-// Purpose: moderation control to block/unblock non-admin user accounts.
-exports.updateUserStatus = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { status } = req.body;
-
-    if (!status || !["active", "blocked"].includes(status)) {
-      return res.status(400).json({
-        message: "Invalid status. Use 'active' or 'blocked'",
-      });
-    }
-
-    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
     }
 
-    // Safety guard to avoid accidental lockout of platform administrators.
-    if (user.role === "admin") {
-      return res.status(400).json({ message: "Admin accounts cannot be blocked" });
+    res.json({
+      success: true,
+      message: `User ${isActive ? 'activated' : 'deactivated'}.`,
+      data: { user },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Get Pending Doctor Approvals ─────────────────────────────────────────────
+exports.getPendingDoctors = async (req, res, next) => {
+  try {
+    const doctors = await Doctor.find({ isApproved: false }).populate(
+      'userId',
+      'name email avatar createdAt'
+    );
+
+    res.json({
+      success: true,
+      data: { doctors },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Approve / Reject Doctor ──────────────────────────────────────────────────
+exports.approveDoctor = async (req, res, next) => {
+  try {
+    const { isApproved, reason } = req.body;
+
+    const doctor = await Doctor.findByIdAndUpdate(
+      req.params.id,
+      {
+        isApproved,
+        ...(isApproved ? { approvedAt: new Date() } : {}),
+      },
+      { new: true }
+    ).populate('userId', 'name email');
+
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found.',
+      });
     }
 
-    user.accountStatus = status;
-    await user.save();
+    // Notify doctor
+    await createNotification({
+      userId: doctor.userId._id,
+      title: isApproved ? 'Account Approved! 🎉' : 'Application Rejected',
+      message: isApproved
+        ? 'Your doctor profile has been approved. You can now receive appointments.'
+        : `Your doctor application was rejected. Reason: ${reason || 'Please contact support.'}`,
+      type: isApproved ? 'doctor_approved' : 'doctor_rejected',
+    });
 
-    return res.status(200).json({
-      message: "User status updated successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        accountStatus: user.accountStatus,
+    res.json({
+      success: true,
+      message: `Doctor ${isApproved ? 'approved' : 'rejected'} successfully.`,
+      data: { doctor },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Admin Analytics Dashboard ────────────────────────────────────────────────
+exports.getAnalytics = async (req, res, next) => {
+  try {
+    const [
+      totalUsers,
+      totalDoctors,
+      totalPatients,
+      totalAppointments,
+      pendingApprovals,
+      completedAppointments,
+      cancelledAppointments,
+      totalRevenue,
+      recentAppointments,
+      appointmentsByMonth,
+      revenueByMonth,
+      topDoctors,
+    ] = await Promise.all([
+      User.countDocuments(),
+      Doctor.countDocuments({ isApproved: true }),
+      Patient.countDocuments(),
+      Appointment.countDocuments(),
+      Doctor.countDocuments({ isApproved: false }),
+      Appointment.countDocuments({ status: 'completed' }),
+      Appointment.countDocuments({ status: 'cancelled' }),
+      Payment.aggregate([
+        { $match: { status: 'completed' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]),
+      Appointment.find()
+        .populate({ path: 'doctorId', populate: { path: 'userId', select: 'name' } })
+        .populate({ path: 'patientId', populate: { path: 'userId', select: 'name' } })
+        .sort({ createdAt: -1 })
+        .limit(5),
+      Appointment.aggregate([
+        {
+          $group: {
+            _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { '_id.year': -1, '_id.month': -1 } },
+        { $limit: 6 },
+      ]),
+      Payment.aggregate([
+        { $match: { status: 'completed' } },
+        {
+          $group: {
+            _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+            total: { $sum: '$amount' },
+          },
+        },
+        { $sort: { '_id.year': -1, '_id.month': -1 } },
+        { $limit: 6 },
+      ]),
+      Doctor.find({ isApproved: true })
+        .populate('userId', 'name avatar')
+        .sort({ rating: -1, totalPatients: -1 })
+        .limit(5),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        overview: {
+          totalUsers,
+          totalDoctors,
+          totalPatients,
+          totalAppointments,
+          pendingApprovals,
+          completedAppointments,
+          cancelledAppointments,
+          totalRevenue: totalRevenue[0]?.total || 0,
+        },
+        recentAppointments,
+        charts: {
+          appointmentsByMonth: appointmentsByMonth.reverse(),
+          revenueByMonth: revenueByMonth.reverse(),
+        },
+        topDoctors,
       },
     });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
+  } catch (err) {
+    next(err);
   }
 };
 
-// PATCH /api/admin/appointments/:appointmentId/status
-// Purpose: generic status transition endpoint for operational admin actions.
-exports.updateAppointmentStatus = async (req, res) => {
+// ─── Get All Appointments (Admin) ─────────────────────────────────────────────
+exports.getAllAppointments = async (req, res, next) => {
   try {
-    const { appointmentId } = req.params;
-    const { status } = req.body;
+    const { status, page = 1, limit = 15 } = req.query;
+    const query = {};
 
-    if (!status || !["booked", "cancelled", "completed", "rescheduled"].includes(status)) {
-      return res.status(400).json({
-        message: "Invalid status. Use 'booked', 'cancelled', 'completed', or 'rescheduled'",
-      });
-    }
+    if (status) query.status = status;
 
-    const appointment = await Appointment.findById(appointmentId);
-    if (!appointment) {
-      return res.status(404).json({ message: "Appointment not found" });
-    }
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await Appointment.countDocuments(query);
 
-    // This endpoint only changes lifecycle state, not date/time fields.
-    appointment.status = status;
-    await appointment.save();
-
-    return res.status(200).json({
-      message: "Appointment status updated successfully",
-      appointment,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
-  }
-};
-
-// PATCH /api/admin/appointments/:appointmentId/reschedule
-// Purpose: move appointment to a new date/time and mark it as rescheduled.
-exports.rescheduleAppointment = async (req, res) => {
-  try {
-    const { appointmentId } = req.params;
-    const { appointmentDate, timeSlot } = req.body;
-
-    if (!appointmentDate || !timeSlot) {
-      return res.status(400).json({
-        message: "appointmentDate and timeSlot are required",
-      });
-    }
-
-    const appointment = await Appointment.findById(appointmentId);
-    if (!appointment) {
-      return res.status(404).json({ message: "Appointment not found" });
-    }
-
-    // Both fields are updated together so schedule stays consistent.
-    appointment.appointmentDate = appointmentDate;
-    appointment.timeSlot = timeSlot;
-    appointment.status = "rescheduled";
-    await appointment.save();
-
-    return res.status(200).json({
-      message: "Appointment rescheduled successfully",
-      appointment,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
-  }
-};
-
-// GET /api/admin/complaints
-// Purpose: admin complaint queue endpoint with status/priority filtering.
-exports.getAllComplaints = async (req, res) => {
-  try {
-    const { status, priority, page = 1, limit = 10 } = req.query;
-
-    // Multiple optional filters support queue segmentation, for example:
-    // "open + high priority" complaints only.
-    const filter = {};
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
-
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
-    const skip = (pageNum - 1) * limitNum;
-
-    // Include reporter details directly to reduce frontend round-trips.
-    const complaints = await Complaint.find(filter)
-      .populate("userId", "name email role")
+    const appointments = await Appointment.find(query)
+      .populate({ path: 'doctorId', populate: { path: 'userId', select: 'name' } })
+      .populate({ path: 'patientId', populate: { path: 'userId', select: 'name' } })
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limitNum);
+      .limit(Number(limit));
 
-    const total = await Complaint.countDocuments(filter);
-
-    return res.status(200).json({
-      message: "Complaints fetched successfully",
-      total,
-      page: pageNum,
-      totalPages: Math.ceil(total / limitNum),
-      complaints,
+    res.json({
+      success: true,
+      data: {
+        appointments,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          pages: Math.ceil(total / Number(limit)),
+        },
+      },
     });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
+  } catch (err) {
+    next(err);
   }
-};
-
-// PATCH /api/admin/complaints/:complaintId/status
-// Purpose: update complaint workflow state after admin action.
-exports.updateComplaintStatus = async (req, res) => {
-  try {
-    const { complaintId } = req.params;
-    const { status } = req.body;
-
-    if (!status || !["open", "in_progress", "resolved"].includes(status)) {
-      return res.status(400).json({
-        message: "Invalid status. Use 'open', 'in_progress', or 'resolved'",
-      });
-    }
-
-    const complaint = await Complaint.findById(complaintId);
-    if (!complaint) {
-      return res.status(404).json({ message: "Complaint not found" });
-    }
-
-    // Allowed states enforce a predictable support lifecycle.
-    complaint.status = status;
-    await complaint.save();
-
-    return res.status(200).json({
-      message: "Complaint status updated successfully",
-      complaint,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
-  }
-};
+};  

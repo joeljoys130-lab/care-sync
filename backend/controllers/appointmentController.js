@@ -4,7 +4,8 @@ const Patient = require('../models/Patient');
 const { createNotification } = require('../utils/notificationHelper');
 
 // ─── Book Appointment ─────────────────────────────────────────────────────────
-exports.bookAppointment = async (req, res) => {
+exports.bookAppointment = async (req, res, next) => {
+  try {
   const { doctorId, appointmentDate, slot, reason, type = 'in-person' } = req.body;
 
   // Get patient profile
@@ -58,10 +59,14 @@ exports.bookAppointment = async (req, res) => {
     message: 'Appointment booked successfully.',
     data: { appointment },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Single Appointment ───────────────────────────────────────────────────
-exports.getAppointmentById = async (req, res) => {
+exports.getAppointmentById = async (req, res, next) => {
+  try {
   const appointment = await Appointment.findById(req.params.id)
     .populate({ path: 'doctorId', populate: { path: 'userId', select: 'name email avatar' } })
     .populate({ path: 'patientId', populate: { path: 'userId', select: 'name email avatar' } })
@@ -82,10 +87,14 @@ exports.getAppointmentById = async (req, res) => {
   if (!isOwner) return res.status(403).json({ success: false, message: 'Not authorized.' });
 
   res.json({ success: true, data: { appointment } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Cancel Appointment ───────────────────────────────────────────────────────
-exports.cancelAppointment = async (req, res) => {
+exports.cancelAppointment = async (req, res, next) => {
+  try {
   const { reason } = req.body;
   const appointment = await Appointment.findById(req.params.id);
   if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found.' });
@@ -135,10 +144,14 @@ exports.cancelAppointment = async (req, res) => {
   }
 
   res.json({ success: true, message: 'Appointment cancelled.', data: { appointment } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Reschedule Appointment ───────────────────────────────────────────────────
-exports.rescheduleAppointment = async (req, res) => {
+exports.rescheduleAppointment = async (req, res, next) => {
+  try {
   const { appointmentDate, slot } = req.body;
   const appointment = await Appointment.findById(req.params.id);
   if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found.' });
@@ -166,10 +179,14 @@ exports.rescheduleAppointment = async (req, res) => {
   await appointment.save();
 
   res.json({ success: true, message: 'Appointment rescheduled.', data: { appointment } });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Update Status (Admin / Doctor) ──────────────────────────────────────────
-exports.updateAppointmentStatus = async (req, res) => {
+exports.updateAppointmentStatus = async (req, res, next) => {
+  try {
   const { status, notes } = req.body;
   const appointment = await Appointment.findById(req.params.id);
   if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found.' });
@@ -179,4 +196,7 @@ exports.updateAppointmentStatus = async (req, res) => {
   await appointment.save();
 
   res.json({ success: true, message: 'Status updated.', data: { appointment } });
+} catch (err) {
+    next(err);
+  }
 };

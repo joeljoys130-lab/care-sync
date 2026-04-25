@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createAppointment } from '../api/api';
+import { appointmentAPI } from '../api';
 
 const BookAppointment = () => {
   const { doctorId } = useParams();

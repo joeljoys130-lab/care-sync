@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
-const { authorize } = require('../middleware/authorize');
+const { protect, authorize } = require('../middleware/auth');
 const ctrl = require('../controllers/doctorController');
+const pCtrl = require('../controllers/prescriptionController');
 
 // ─── Public Routes ────────────────────────────────────────────────────────────
 router.get('/', ctrl.getDoctors);
@@ -16,8 +16,14 @@ router.get('/me/appointments', protect, authorize('doctor'), ctrl.getDoctorAppoi
 router.put('/me/appointments/:id', protect, authorize('doctor'), ctrl.updateAppointmentStatus);
 router.get('/me/earnings', protect, authorize('doctor'), ctrl.getDoctorEarnings);
 
+// Prescription routes
+router.post('/appointments/:appointmentId/prescription', protect, authorize('doctor'), pCtrl.createPrescription);
+router.get('/appointments/:appointmentId/prescription', protect, pCtrl.getPrescriptionByAppointment);
+router.put('/appointments/:appointmentId/prescription', protect, authorize('doctor'), pCtrl.updatePrescription);
+router.get('/me/prescriptions', protect, authorize('doctor'), pCtrl.getMyPrescriptions);
+
 // ─── Parameterized Public Routes (must be LAST) ───────────────────────────────
-router.get('/:doctorId/slots', ctrl.getAvailableSlots);
+// router.get('/:doctorId/slots', ctrl.getAvailableSlots);
 router.get('/:id', ctrl.getDoctorById);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAppointments, cancelAppointment } from '../api/api';
+import { appointmentAPI } from '../api';
 
 const statusColor = {
   confirmed: '#16a34a',

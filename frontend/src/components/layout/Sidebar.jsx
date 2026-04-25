@@ -1,37 +1,42 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FiHome, FiCalendar, FiUsers, FiUser, FiHeart,
-  FiFileText, FiBell, FiLogOut, FiX, FiCreditCard, FiList, FiClock,
+  FiFileText, FiBell, FiLogOut, FiX, FiDollarSign,
+  FiUserCheck, FiClock, FiShield, FiCreditCard, FiList,
 } from 'react-icons/fi';
 import { MdLocalHospital } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = {
   patient: [
-    { label: 'Dashboard', icon: FiHome, to: '/patient/dashboard' },
-    { label: 'Find Doctors', icon: FiUsers, to: '/patient/doctors' },
+    { label: 'Dashboard',       icon: FiHome,     to: '/patient/dashboard' },
+    { label: 'Find Doctors',    icon: FiUsers,    to: '/patient/doctors' },
     { label: 'My Appointments', icon: FiCalendar, to: '/patient/appointments' },
     { label: 'Medical Records', icon: FiFileText, to: '/patient/records' },
-    { label: 'Favorites', icon: FiHeart, to: '/patient/favorites' },
-    { label: 'Notifications', icon: FiBell, to: '/patient/notifications' },
-    { label: 'Payment', icon: FiCreditCard, to: '/patient/payment' },
-    { label: 'Payment History', icon: FiList, to: '/patient/payment/history' },
-    { label: 'My Profile', icon: FiUser, to: '/patient/profile' },
+    { label: 'Favorites',       icon: FiHeart,    to: '/patient/favorites' },
+    { label: 'Notifications',   icon: FiBell,     to: '/patient/notifications' },
+    { label: 'Payment History', icon: FiList,     to: '/patient/payment-history' },
+    { label: 'My Profile',      icon: FiUser,     to: '/patient/profile' },
   ],
   admin: [
-    { label: 'Dashboard', icon: FiHome, to: '/admin/dashboard' },
-    { label: 'Users', icon: FiUsers, to: '/admin/users' },
-    { label: 'Doctors', icon: FiUser, to: '/admin/doctors' },
-    { label: 'Appointments', icon: FiCalendar, to: '/admin/appointments' },
-    { label: 'System Settings', icon: FiLogOut, to: '/admin/settings' }, // Placeholder
+    { label: 'Dashboard',    icon: FiHome,      to: '/admin/dashboard' },
+    { label: 'Users',        icon: FiUsers,     to: '/admin/users' },
+    { label: 'Doctors',      icon: FiUserCheck, to: '/admin/doctors' },
+    { label: 'Appointments', icon: FiCalendar,  to: '/admin/appointments' },
   ],
   doctor: [
-    { label: 'Dashboard', icon: FiHome, to: '/doctor/dashboard' },
-    { label: 'Schedule', icon: FiCalendar, to: '/doctor/appointments' },
-    { label: 'Availability', icon: FiClock, to: '/doctor/availability' },
-    { label: 'Earnings', icon: FiCreditCard, to: '/doctor/earnings' },
-    { label: 'My Profile', icon: FiUser, to: '/doctor/profile' },
+    { label: 'Dashboard',    icon: FiHome,        to: '/doctor/dashboard' },
+    { label: 'Appointments', icon: FiCalendar,    to: '/doctor/appointments' },
+    { label: 'Availability', icon: FiClock,       to: '/doctor/availability' },
+    { label: 'Earnings',     icon: FiDollarSign,  to: '/doctor/earnings' },
+    { label: 'My Profile',   icon: FiUser,        to: '/doctor/profile' },
   ],
+};
+
+const PORTAL_LABELS = {
+  patient: 'Patient Portal',
+  admin:   'Admin Panel',
+  doctor:  'Doctor Portal',
 };
 
 const Sidebar = ({ role = 'patient', open, onClose }) => {
@@ -49,34 +54,34 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
     <aside
       className={`
         fixed lg:static inset-y-0 left-0 z-30
-        flex flex-col w-64 bg-sky-50 dark:bg-[#0a0f1a]/80 backdrop-blur-2xl border-r border-slate-200 dark:border-white/5
+        flex flex-col w-64 bg-white border-r border-slate-100 shadow-sm
         transition-transform duration-300
         ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
       `}
     >
       {/* Logo */}
-      <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-white/5">
+      <div className="flex items-center justify-between p-5 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-            <MdLocalHospital className="text-[#0a0f1a] text-xl" />
+          <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center">
+            <MdLocalHospital className="text-white text-xl" />
           </div>
           <div>
-            <span className="font-bold text-slate-800 dark:text-white text-lg leading-none">CareSync</span>
-            <span className="block text-xs text-primary-400 capitalize font-medium">Patient Portal</span>
+            <span className="font-bold text-slate-800 text-lg leading-none">CareSync</span>
+            <span className="block text-xs text-primary-600 capitalize font-medium">{PORTAL_LABELS[role] || 'Patient Portal'}</span>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="lg:hidden p-1.5 rounded-lg hover:bg-sky-100 dark:bg-[#1c283d] text-slate-500 dark:text-slate-400"
+          className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"
         >
           <FiX />
         </button>
       </div>
 
       {/* User Info */}
-      <div className="px-4 py-4 border-b border-slate-200 dark:border-white/5">
+      <div className="px-4 py-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-sky-100 dark:bg-[#1c283d] border border-slate-200 dark:border-white/5 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-100 flex items-center justify-center flex-shrink-0">
             {user?.avatar ? (
               <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full object-cover" />
             ) : (
@@ -86,8 +91,8 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{user?.name || 'Patient'}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
+            <p className="text-sm font-semibold text-slate-800 truncate">{user?.name || 'Patient'}</p>
+            <p className="text-xs text-slate-400 truncate">{user?.email}</p>
           </div>
         </div>
       </div>
@@ -110,10 +115,10 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
       </nav>
 
       {/* Logout */}
-      <div className="p-3 border-t border-slate-200 dark:border-white/5">
+      <div className="p-3 border-t border-slate-100">
         <button
           onClick={handleLogout}
-          className="nav-item w-full text-red-400 hover:bg-red-500/10 hover:text-red-300"
+          className="nav-item w-full text-red-500 hover:bg-red-50 hover:text-red-600"
         >
           <FiLogOut className="text-lg" />
           <span>Sign Out</span>

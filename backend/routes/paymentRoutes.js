@@ -6,12 +6,20 @@ router.get("/", protect, (req, res) => {
   res.json({ message: "Payment route working" });
 });
 
-const { createPayment, getPayments } = require("../controllers/payment.controller");
 const { protect } = require("../middleware/auth");
 const { authorize } = require("../middleware/authorize");
 
-router.post("/create", protect, authorize("patient"), createPayment);
-router.get("/history", protect, authorize("patient"), getPayments);
+const {
+  createRazorpayOrder,
+  confirmPayment,
+  getPaymentHistory,
+} = require("../controllers/paymentController");
 
+// Razorpay payment flow
+router.post('/razorpay/order', protect, authorize('patient'), createRazorpayOrder);
+router.post('/razorpay/confirm', protect, authorize('patient'), confirmPayment);
+
+// Payment history
+router.get('/history', protect, authorize('patient', 'doctor'), getPaymentHistory);
 
 module.exports = router;

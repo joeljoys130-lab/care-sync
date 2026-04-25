@@ -53,23 +53,22 @@ export const authAPI = {
    USER / PROFILE API  (used by Profile.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const userAPI = {
-  getProfile:   ()       => api.get('/patients/profile'),
-  updateProfile: (data)  => api.put('/patients/profile', data),
-  uploadAvatar:  (form)  => api.post('/patients/profile/avatar', form, {
+  getProfile:   ()       => api.get('/patients/me'),
+  updateProfile: (data)  => api.put('/patients/me', data),
+  uploadAvatar:  (form)  => api.post('/patients/me/avatar', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
-  changePassword: (data) => api.post('/auth/change-password', data),
 };
 
 /* ═══════════════════════════════════════════════════════════════
    PATIENT API  (used by Dashboard.jsx, DoctorList.jsx, etc.)
 ═══════════════════════════════════════════════════════════════ */
 export const patientAPI = {
-  getProfile:      ()       => api.get('/patients/profile'),
-  updateProfile:   (data)   => api.put('/patients/profile', data),
-  getAppointments: (params) => api.get('/patients/appointments', { params }),
-  getFavorites:    ()       => api.get('/patients/favorites'),
-  toggleFavorite:  (docId)  => api.post(`/patients/favorites/${docId}`),
+  getProfile:      ()       => api.get('/patients/me'),
+  updateProfile:   (data)   => api.put('/patients/me', data),
+  getAppointments: (params) => api.get('/patients/me/appointments', { params }),
+  getFavorites:    ()       => api.get('/patients/me/favorites'),
+  toggleFavorite:  (docId)  => api.post(`/patients/me/favorites/${docId}`),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -89,9 +88,6 @@ export const doctorAPI = {
   getDoctors:     (params) => api.get('/doctors', { params }),
   getDoctorById:  (id)     => api.get(`/doctors/${id}`),
   getAvailableSlots: (id, date) => api.get(`/doctors/${id}/slots`, { params: { date } }),
-  getMyAppointments: (params) => api.get('/doctors/me/appointments', { params }),
-  updateMyAppointment: (id, data) => api.patch(`/doctors/me/appointments/${id}`, data),
-  getEarnings: () => api.get('/doctors/me/earnings'),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -108,8 +104,9 @@ export const paymentAPI = {
    MEDICAL RECORDS API  (used by MedicalRecords.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const recordAPI = {
-  getAll:  (params) => api.get('/records', { params }),
-  getById: (id)     => api.get(`/records/${id}`),
+  getAll:            (params)      => api.get('/records', { params }),
+  getById:           (id)          => api.get(`/records/${id}`),
+  getPatientRecords: (patientId, params) => api.get(`/records/patient/${patientId}`, { params }),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -117,28 +114,33 @@ export const recordAPI = {
    — stub until backend is built, returns empty gracefully
 ═══════════════════════════════════════════════════════════════ */
 export const notificationAPI = {
-  getAll:   (params) => api.get('/notifications', { params })
+  getAll:      (params) => api.get('/notifications', { params })
     .catch(() => ({ data: { data: { notifications: [], unreadCount: 0 } } })),
-  markRead: (id)     => api.patch(`/notifications/${id}/read`)
+  markAsRead:  (id)     => api.patch(`/notifications/${id}/read`)
     .catch(() => ({})),
-  markAllRead: ()    => api.patch('/notifications/read-all')
+  markAllRead: ()       => api.patch('/notifications/read-all')
+    .catch(() => ({})),
+  delete:      (id)     => api.delete(`/notifications/${id}`)
     .catch(() => ({})),
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   REVIEW API
+   REVIEW API  (used by DoctorDetail.jsx + DoctorList.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const reviewAPI = {
   getDoctorReviews: (id, params) => api.get(`/doctors/${id}/reviews`, { params })
     .catch(() => ({ data: { data: { reviews: [] } } })),
-  getDoctorReviewsAlt: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params }),
+  getForDoctor: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params })
+    .catch(() => ({ data: { data: { reviews: [], averageRating: 0, totalReviews: 0 } } })),
+  create: (data) => api.post('/reviews', data)
+    .catch((err) => Promise.reject(err)),
 };
 
 /* ═══════════════════════════════════════════════════════════════
    ADMIN API  (used by Adithya's admin dashboard)
 ═══════════════════════════════════════════════════════════════ */
 export const adminAPI = {
-  getAnalytics:      ()           => api.get('/admin/analytics'),
+  getStats:          ()           => api.get('/admin/analytics'),
   getUsers:          (params)     => api.get('/admin/users', { params }),
   updateUserStatus:  (id, data)   => api.patch(`/admin/users/${id}/status`, data),
   getDoctors:        ()           => api.get('/admin/doctors'),

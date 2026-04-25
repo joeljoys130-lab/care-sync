@@ -1,22 +1,65 @@
 import { useState } from "react";
-import axios from "axios";
+import { useParams } from "react-router-dom";
+import { paymentAPI } from "../../api";
+import { toast } from "react-toastify";
 import { FiCreditCard } from "react-icons/fi";
 
 const Payment = () => {
+  const { appointmentId } = useParams();
   const [loading, setLoading] = useState(false);
 
   const handlePayment = async () => {
     setLoading(true);
+
     try {
-      const res = await axios.post("/api/payments/create", {
-        amount: 500,
-        appointmentId: "ID"
+      // Create Razorpay order from backend
+      const orderRes = await paymentAPI.createRazorpayOrder({
+        appointmentId,
       });
-      alert("Payment successful!");
-      console.log(res.data);
-    } catch (err) {
-      alert("Payment failed!");
-      console.error(err);
+
+      const {
+        razorpayOrderId,
+        amount,
+        currency,
+        keyId,
+        paymentId,
+      } = orderRes.data.data;
+
+      const options = {
+        key: keyId,
+        amount,
+        currency,
+        name: "CareSync",
+        description: "Appointment Payment",
+        order_id: razorpayOrderId,
+
+        handler: async (response) => {
+          try {
+            await paymentAPI.confirm({
+              paymentId,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            toast.success(
+              "Payment successful! Your appointment is confirmed."
+            );
+          } catch (error) {
+            toast.error("Payment confirmation failed.");
+          }
+        },
+
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (error) {
+      toast.error("Failed to initiate payment.");
     } finally {
       setLoading(false);
     }
@@ -26,8 +69,12 @@ const Payment = () => {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="page-title">Payment</h1>
-        <p className="page-subtitle">Complete your appointment payment</p>
+        <h1 className="text-2xl font-bold text-slate-800">
+          Payment
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Complete your appointment payment
+        </p>
       </div>
 
       {/* Card */}
@@ -36,24 +83,29 @@ const Payment = () => {
           <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
             <FiCreditCard className="text-primary-600 text-xl" />
           </div>
+
           <div>
-            <p className="font-semibold text-slate-800">Consultation Fee</p>
-            <p className="text-sm text-slate-400">Appointment payment</p>
+            <p className="font-semibold text-slate-800">
+              Consultation Fee
+            </p>
+            <p className="text-sm text-slate-400">
+              Appointment payment
+            </p>
           </div>
         </div>
 
-        {/* Amount */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-white/5">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Amount to pay</p>
-          <p className="text-3xl font-bold text-slate-800 dark:text-white mt-1">₹500</p>
+        {/* Amount note */}
+        <div className="bg-slate-50 rounded-xl p-4 mb-6">
+          <p className="text-sm text-slate-500">
+            Amount will be fetched securely from server
+          </p>
         </div>
 
         {/* Button */}
         <button
           onClick={handlePayment}
           disabled={loading}
-          className="w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-60 
-                     text-white font-semibold py-3 px-6 rounded-xl transition-colors"
+          className="w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-60 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
         >
           {loading ? "Processing..." : "Pay Now"}
         </button>

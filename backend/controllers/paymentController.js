@@ -8,13 +8,17 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
 // ─── Initialize Razorpay SDK ──────────────────────────────────────────────
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+let razorpay;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+}
 
 // ─── Create Razorpay Order ──────────────────────────────────────────────
-exports.createRazorpayOrder = async (req, res) => {
+exports.createRazorpayOrder = async (req, res, next) => {
+  try {
   const { appointmentId } = req.body;
 
   const appointment = await Appointment.findById(appointmentId).populate('doctorId');
@@ -68,10 +72,14 @@ exports.createRazorpayOrder = async (req, res) => {
     console.error('Razorpay Order error:', error);
     res.status(500).json({ success: false, message: 'Payment gateway error while creating order.' });
   }
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Confirm & Verify Real Razorpay Payment ────────────────────────────────────────
-exports.confirmPayment = async (req, res) => {
+exports.confirmPayment = async (req, res, next) => {
+  try {
   // We extract matching fields injected by the frontend Razorpay callback widget
   const { paymentId, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
 
@@ -132,10 +140,14 @@ exports.confirmPayment = async (req, res) => {
     message: 'Payment verified successfully and Appointment confirmed.',
     data: { payment },
   });
+} catch (err) {
+    next(err);
+  }
 };
 
 // ─── Get Payment History ──────────────────────────────────────────────────────
-exports.getPaymentHistory = async (req, res) => {
+exports.getPaymentHistory = async (req, res, next) => {
+  try {
   const { page = 1, limit = 10 } = req.query;
 
   let query = {};
@@ -162,4 +174,7 @@ exports.getPaymentHistory = async (req, res) => {
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });
+} catch (err) {
+    next(err);
+  }
 };

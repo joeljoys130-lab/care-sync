@@ -28,7 +28,12 @@ const Login = () => {
       else if (role === 'doctor') navigate('/doctor/dashboard');
       else navigate('/patient/dashboard');
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      const msg = err.response?.data?.message || err.message || 'Login failed. Please check your credentials.';
+      if (msg.toLowerCase().includes('verify')) {
+        navigate('/verify-otp', { state: { email } });
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
