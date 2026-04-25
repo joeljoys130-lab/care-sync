@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 const path = require('path');
 const fs = require('fs');
 
@@ -19,9 +20,10 @@ const recordRoutes = require('./routes/records');
 const doctorRoutes = require('./routes/doctors');
 const paymentRoutes = require('./routes/paymentRoutes');
 const appointmentRoutes = require('./routes/appointments');
-const adminRoutes = require('./routes/adminRoutes');
+const adminRoutes = require('./routes/admin');
 const reviewRoutes = require('./routes/reviews');
 const notificationRoutes = require('./routes/notifications');
+const userRoutes = require('./routes/users');
 
 // Initialize app
 const app = express();
@@ -42,6 +44,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // ─── Security Middleware ─────────────────────────────────────────
 app.use(helmet());
 app.use(mongoSanitize());
+app.use(xss());
 
 // ─── Logging ─────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'development') {
@@ -56,13 +59,13 @@ app.use((req, res, next) => {
 // ─── Rate Limiting ───────────────────────────────────────────────
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 100 : 5000,
+  max: 100,
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 20 : 5000,
+  max: 20,
   message: { success: false, message: 'Too many auth requests, please try again later.' },
 });
 
@@ -83,13 +86,18 @@ app.use(cors({
   credentials: true,
 }));
 
-app.options('*', cors({ origin: allowedOrigins, credentials: true }));
+// FIXED preflight handling
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 // ─── Static Files ────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── API Routes ──────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/records', recordRoutes);
 app.use('/api/doctors', doctorRoutes);
