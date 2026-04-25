@@ -24,9 +24,9 @@ const Favorites = () => {
         <LoadingSpinner className="h-64" />
       ) : favorites.length === 0 ? (
         <div className="card text-center py-20">
-          <FiHeart className="mx-auto text-5xl text-slate-200 mb-4" />
-          <h3 className="text-slate-600 font-semibold">No favorites yet</h3>
-          <p className="text-sm text-slate-400 mt-2 mb-6">Save doctors you love for quick access</p>
+          <FiHeart className="mx-auto text-5xl text-slate-700 dark:text-slate-200 mb-4" />
+          <h3 className="text-slate-500 dark:text-slate-400 font-semibold">No favorites yet</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 mb-6">Save doctors you love for quick access</p>
           <Link to="/patient/doctors" className="btn-primary btn-sm">Browse Doctors</Link>
         </div>
       ) : (

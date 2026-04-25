@@ -33,32 +33,44 @@ const Register = () => {
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <div style={styles.logo}>
-          <span style={styles.logoIcon}>🏥</span>
-          <span style={styles.logoText}>CareSync</span>
+    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden z-0 bg-sky-50 dark:bg-[#0a0f1a]">
+      {/* ── Abstract Background Orbs (Optimized for performance) ── */}
+      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/5 rounded-full filter blur-[100px] pointer-events-none -z-10"></div>
+      <div className="fixed top-[40%] right-[-5%] w-[600px] h-[600px] bg-blue-600/5 rounded-full filter blur-[120px] pointer-events-none -z-10"></div>
+      <div className="fixed bottom-[-20%] left-[30%] w-[800px] h-[800px] bg-indigo-500/5 rounded-full filter blur-[150px] pointer-events-none -z-10"></div>
+
+      <div className="card w-full max-w-md relative z-10 animate-slide-up">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+            <span className="text-[#0a0f1a] text-xl">🏥</span>
+          </div>
+          <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">CareSync</span>
         </div>
-        <h2 style={styles.title}>Create your account</h2>
-        <p style={styles.subtitle}>Join CareSync and manage your health</p>
+        
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">Create your account</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Join CareSync and manage your health</p>
 
-        {error && <div style={styles.errorBanner}>{error}</div>}
+        {error && (
+          <div className="bg-red-500/10 backdrop-blur-md border border-red-500/30 text-red-400 rounded-xl px-4 py-3 mb-6 text-sm">
+            {error}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Full Name</label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="label">Full Name</label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
               required
               placeholder="John Doe"
-              style={styles.input}
+              className="input"
             />
           </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Email address</label>
+          <div className="space-y-1.5">
+            <label className="label">Email address</label>
             <input
               type="email"
               name="email"
@@ -66,25 +78,25 @@ const Register = () => {
               onChange={handleChange}
               required
               placeholder="you@example.com"
-              style={styles.input}
+              className="input"
             />
           </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>I am a</label>
+          <div className="space-y-1.5">
+            <label className="label">I am a</label>
             <select
               name="role"
               value={form.role}
               onChange={handleChange}
-              style={styles.input}
+              className="input cursor-pointer"
             >
               <option value="patient">Patient</option>
               <option value="doctor">Doctor</option>
             </select>
           </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Password</label>
+          <div className="space-y-1.5">
+            <label className="label">Password</label>
             <input
               type="password"
               name="password"
@@ -92,12 +104,12 @@ const Register = () => {
               onChange={handleChange}
               required
               placeholder="Minimum 6 characters"
-              style={styles.input}
+              className="input"
             />
           </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Confirm Password</label>
+          <div className="space-y-1.5">
+            <label className="label">Confirm Password</label>
             <input
               type="password"
               name="confirm"
@@ -105,102 +117,28 @@ const Register = () => {
               onChange={handleChange}
               required
               placeholder="Re-enter password"
-              style={styles.input}
+              className="input"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            style={{ ...styles.submitBtn, opacity: loading ? 0.7 : 1 }}
+            className="w-full mt-2 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 backdrop-blur-md text-white font-semibold rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] border border-slate-300 dark:border-white/10 transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating account…' : 'Create Account'}
           </button>
         </form>
 
-        <p style={styles.footer}>
+        <p className="text-center mt-6 text-sm text-slate-500 dark:text-slate-400">
           Already have an account?{' '}
-          <Link to="/login" style={styles.link}>Sign in</Link>
+          <Link to="/login" className="text-cyan-400 font-semibold hover:text-cyan-300 transition-colors">
+            Sign in
+          </Link>
         </p>
       </div>
     </div>
   );
-};
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)',
-    fontFamily: "'Segoe UI', system-ui, sans-serif",
-    padding: '20px',
-  },
-  card: {
-    background: '#fff',
-    borderRadius: '20px',
-    padding: '40px',
-    width: '100%',
-    maxWidth: '440px',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
-  },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    marginBottom: '24px',
-  },
-  logoIcon: { fontSize: '28px' },
-  logoText: {
-    fontSize: '22px',
-    fontWeight: '700',
-    color: '#0ea5e9',
-  },
-  title: {
-    margin: '0 0 4px',
-    fontSize: '24px',
-    fontWeight: '700',
-    color: '#1e293b',
-  },
-  subtitle: {
-    margin: '0 0 24px',
-    fontSize: '14px',
-    color: '#64748b',
-  },
-  errorBanner: {
-    background: '#fef2f2',
-    border: '1px solid #fecaca',
-    color: '#dc2626',
-    borderRadius: '10px',
-    padding: '12px 16px',
-    marginBottom: '20px',
-    fontSize: '14px',
-  },
-  form: { display: 'flex', flexDirection: 'column', gap: '14px' },
-  fieldGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '13px', fontWeight: '600', color: '#374151' },
-  input: {
-    padding: '12px 14px',
-    borderRadius: '10px',
-    border: '1.5px solid #e2e8f0',
-    fontSize: '15px',
-    outline: 'none',
-    background: '#fff',
-  },
-  submitBtn: {
-    padding: '13px',
-    borderRadius: '10px',
-    border: 'none',
-    background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-    color: '#fff',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    marginTop: '4px',
-  },
-  footer: { textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748b' },
-  link: { color: '#0ea5e9', textDecoration: 'none', fontWeight: '600' },
 };
 
 export default Register;

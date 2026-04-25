@@ -4,20 +4,21 @@ export default {
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         primary: {
-          50:  '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
+          50:  '#ecfeff',
+          100: '#cffafe',
+          200: '#a5f3fc',
+          300: '#67e8f9',
+          400: '#22d3ee',
+          500: '#06b6d4',
+          600: '#0891b2',
+          700: '#0e7490',
+          800: '#155e75',
+          900: '#164e63',
         },
         secondary: {
           50:  '#f0fdf4',
@@ -32,10 +33,10 @@ export default {
           900: '#14532d',
         },
         surface: {
-          DEFAULT: '#ffffff',
-          50:  '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
+          DEFAULT: '#0a0f1a',
+          50:  '#131d30',
+          100: '#1c283d',
+          200: '#28364f',
         },
       },
       fontFamily: {

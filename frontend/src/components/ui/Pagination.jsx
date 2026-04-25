@@ -31,8 +31,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2 rounded-xl border border-slate-200 hover:border-primary-300 hover:bg-primary-50
-                   disabled:opacity-40 disabled:cursor-not-allowed transition text-slate-500"
+        className="p-2 rounded-xl border border-slate-200 dark:border-white/5 hover:border-primary-300 hover:bg-primary-50
+                   disabled:opacity-40 disabled:cursor-not-allowed transition text-slate-500 dark:text-slate-400"
         aria-label="Previous page"
       >
         <FiChevronLeft />
@@ -41,15 +41,15 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {/* Page numbers */}
       {pages.map((p, i) =>
         p === '...' ? (
-          <span key={`ellipsis-${i}`} className="px-2 text-slate-400 select-none">…</span>
+          <span key={`ellipsis-${i}`} className="px-2 text-slate-500 dark:text-slate-400 select-none">…</span>
         ) : (
           <button
             key={p}
             onClick={() => onPageChange(p)}
             className={`min-w-[36px] h-9 px-2.5 rounded-xl text-sm font-medium transition border ${
               p === currentPage
-                ? 'bg-primary-600 text-white border-primary-600 shadow-sm'
-                : 'border-slate-200 text-slate-600 hover:border-primary-300 hover:bg-primary-50'
+                ? 'bg-primary-600 text-slate-800 dark:text-white border-primary-600 shadow-lg dark:shadow-2xl'
+                : 'border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:border-primary-300 hover:bg-primary-50'
             }`}
           >
             {p}
@@ -61,8 +61,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2 rounded-xl border border-slate-200 hover:border-primary-300 hover:bg-primary-50
-                   disabled:opacity-40 disabled:cursor-not-allowed transition text-slate-500"
+        className="p-2 rounded-xl border border-slate-200 dark:border-white/5 hover:border-primary-300 hover:bg-primary-50
+                   disabled:opacity-40 disabled:cursor-not-allowed transition text-slate-500 dark:text-slate-400"
         aria-label="Next page"
       >
         <FiChevronRight />
