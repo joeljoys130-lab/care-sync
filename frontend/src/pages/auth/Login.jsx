@@ -30,7 +30,7 @@ const Login = () => {
       navigate(ROLE_HOME[user.role]);
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Please try again.';
-      if (msg.includes('verify')) {
+      if (msg.toLowerCase().includes('verify')) {
         toast.warning(msg);
         navigate('/verify-otp', { state: { email: data.email } });
       } else {

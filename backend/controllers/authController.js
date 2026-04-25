@@ -2,6 +2,9 @@ const User = require("../models/User");
 const Patient = require("../models/Patient");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { generateOTP } = require("../utils/generateOTP");
+const { sendEmail, otpEmailTemplate } = require("../utils/sendEmail");
 
 // ================= REGISTER =================
 exports.registerUser = async (req, res, next) => {
@@ -14,6 +17,7 @@ exports.registerUser = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const { otp, otpExpiry } = generateOTP();
 
     const user = await User.create({
       name,
@@ -21,14 +25,29 @@ exports.registerUser = async (req, res, next) => {
       password: hashedPassword,
       role,
       isActive: true,
+      otp,
+      otpExpiry
     });
 
     if (user.role === 'patient') {
       await Patient.create({ userId: user._id });
     }
 
+    // Attempt to send email
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Welcome to CareSync - Verify Your Account",
+        html: otpEmailTemplate(user.name, otp, "verification")
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      console.log(`[DEV FALLBACK] Registration OTP for ${email}: ${otp}`);
+    }
+
     res.status(201).json({
-      message: "User registered",
+      success: true,
+      message: "User registered. Please verify your email.",
       user: {
         id: user._id,
         name: user.name,
@@ -57,6 +76,13 @@ exports.loginUser = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    if (!user.isVerified) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Please verify your email address before logging in." 
+      });
+    }
+
     if (user.role === 'patient') {
       const patientExists = await Patient.findOne({ userId: user._id });
       if (!patientExists) {
@@ -85,19 +111,47 @@ exports.loginUser = async (req, res, next) => {
   }
 };
 
-// ================= OTP =================
-const otps = {};
-
 exports.sendOtp = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    const otp = "123456"; // demo
-    otps[email] = otp;
+    const { otp, otpExpiry } = generateOTP();
 
-    console.log(`OTP for ${email}: ${otp}`);
+    // Store in User model (or just update if exists)
+    let user = await User.findOne({ email });
+    if (!user) {
+      // For new users, we might want to store the OTP in a temp collection or just create a pending user
+      // For now, let's just create a user with a placeholder password
+      const hashedPassword = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
+      user = await User.create({
+        name: email.split("@")[0],
+        email,
+        password: hashedPassword,
+        role: "patient",
+        isActive: true,
+        otp,
+        otpExpiry
+      });
+    } else {
+      user.otp = otp;
+      user.otpExpiry = otpExpiry;
+      await user.save();
+    }
 
-    res.json({ message: "OTP sent successfully" });
+    // Attempt to send email
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Your CareSync Verification Code",
+        html: otpEmailTemplate(user.name, otp, "verification")
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      // Fallback: log to console for dev
+      console.log(`[DEV FALLBACK] OTP for ${email}: ${otp}`);
+    }
+
+    res.json({ success: true, message: "OTP sent successfully" });
 
   } catch (err) {
     next(err);
@@ -108,25 +162,17 @@ exports.verifyOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
 
-    if (otps[email] !== otp) {
-      return res.status(400).json({ message: "Invalid OTP" });
+    const user = await User.findOne({ email });
+
+    if (!user || user.otp !== otp || !user.otpExpiry || user.otpExpiry < Date.now()) {
+      return res.status(400).json({ success: false, message: "Invalid or expired OTP" });
     }
 
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      const hashedPassword = await bcrypt.hash("Default@123", 10);
-
-      user = await User.create({
-        name: email.split("@")[0],
-        email,
-        password: hashedPassword,
-        role: "patient",
-        isActive: true,
-      });
-
-      await Patient.create({ userId: user._id });
-    }
+    // Clear OTP and verify user
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    user.isVerified = true;
+    await user.save();
 
     if (user.role === 'patient') {
       const patientExists = await Patient.findOne({ userId: user._id });
@@ -141,9 +187,8 @@ exports.verifyOtp = async (req, res, next) => {
       { expiresIn: "7d" }
     );
 
-    delete otps[email];
-
     res.json({
+      success: true,
       token,
       user: {
         _id: user._id,
@@ -156,4 +201,4 @@ exports.verifyOtp = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+};

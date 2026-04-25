@@ -60,7 +60,7 @@ const VerifyOTP = () => {
   const handleResend = async () => {
     setResending(true);
     try {
-      await authAPI.resendOTP({ email, purpose: 'verification' });
+      await authAPI.sendOtp({ email, purpose: 'verification' });
       toast.success('New OTP sent to your email!');
     } catch {
       toast.error('Failed to resend OTP.');

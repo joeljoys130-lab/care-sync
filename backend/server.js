@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 const path = require('path');
 const fs = require('fs');
 
@@ -16,12 +17,13 @@ const { errorHandler, notFound } = require('./middleware/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const patientRoutes = require('./routes/patients');
 const recordRoutes = require('./routes/records');
-const doctorRoutes = require('./routes/doctorRoutes');
+const doctorRoutes = require('./routes/doctors');
 const paymentRoutes = require('./routes/paymentRoutes');
 const appointmentRoutes = require('./routes/appointments');
-const adminRoutes = require('./routes/adminRoutes');
+const adminRoutes = require('./routes/admin');
 const reviewRoutes = require('./routes/reviews');
 const notificationRoutes = require('./routes/notifications');
+const userRoutes = require('./routes/users');
 
 // Initialize app
 const app = express();
@@ -42,6 +44,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // ─── Security Middleware ─────────────────────────────────────────
 app.use(helmet());
 app.use(mongoSanitize());
+app.use(xss());
 
 // ─── Logging ─────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'development') {
@@ -95,6 +98,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── API Routes ──────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/records', recordRoutes);
 app.use('/api/doctors', doctorRoutes);

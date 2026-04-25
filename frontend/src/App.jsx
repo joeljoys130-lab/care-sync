@@ -9,6 +9,7 @@ import ProtectedRoute  from './components/ProtectedRoute';
 /* ── Public pages ── */
 import Login    from './pages/Login';
 import Register from './pages/Register';
+import VerifyOTP from './pages/auth/VerifyOTP';
 
 /* ── Patient pages ── */
 import PatientDashboard from './pages/patient/Dashboard';
@@ -66,6 +67,7 @@ function App() {
       {/* ── Public ────────────────────────────────────── */}
       <Route path="/login"    element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/verify-otp" element={<VerifyOTP />} />
 
       {/* ── Patient (protected) ───────────────────────── */}
       <Route element={<ProtectedRoute allowedRoles={['patient']} />}>
