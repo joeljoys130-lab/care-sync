@@ -31,24 +31,24 @@ exports.createPrescription = async (req, res, next) => {
       });
     }
 
-    const existing = await Prescription.findOne({ appointmentId });
-    if (existing) {
-      return res.status(409).json({
-        success: false,
-        message: 'Prescription already exists for this appointment.',
-      });
-    }
-
-    const prescription = await Prescription.create({
-      appointmentId,
-      doctorId: doctor._id,
-      patientId: appointment.patientId,
-      diagnosis,
-      symptoms,
-      medicines,
-      notes,
-      followUpDate,
-    });
+    // Atomic upsert — $setOnInsert only writes if no doc exists for this appointmentId.
+    // The unique DB index on appointmentId is the final safety net for concurrent requests.
+    const prescription = await Prescription.findOneAndUpdate(
+      { appointmentId },
+      {
+        $setOnInsert: {
+          appointmentId,
+          doctorId: doctor._id,
+          patientId: appointment.patientId,
+          diagnosis,
+          symptoms,
+          medicines,
+          notes,
+          followUpDate,
+        }
+      },
+      { upsert: true, new: true, runValidators: true }
+    );
 
     res.status(201).json({ success: true, data: { prescription } });
   } catch (err) {

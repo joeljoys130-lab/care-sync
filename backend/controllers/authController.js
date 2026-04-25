@@ -58,10 +58,13 @@ exports.loginUser = async (req, res, next) => {
     }
 
     if (user.role === 'patient') {
-      const patientExists = await Patient.findOne({ userId: user._id });
-      if (!patientExists) {
-        await Patient.create({ userId: user._id });
-      }
+      // Atomic upsert — idempotent under concurrent login requests
+      // (unique index on Patient.userId provides the final safety net)
+      await Patient.findOneAndUpdate(
+        { userId: user._id },
+        { $setOnInsert: { userId: user._id } },
+        { upsert: true, new: true }
+      );
     }
 
     const token = jwt.sign(
@@ -92,11 +95,10 @@ exports.sendOtp = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    const otp = "123456"; // demo
+    const otp = "123456"; // TODO: replace with crypto.randomInt(100000,999999) + real email delivery
     otps[email] = otp;
 
-    console.log(`OTP for ${email}: ${otp}`);
-
+    // NOTE: Do NOT log OTPs in production — use a proper email/SMS service
     res.json({ message: "OTP sent successfully" });
 
   } catch (err) {
@@ -129,10 +131,12 @@ exports.verifyOtp = async (req, res, next) => {
     }
 
     if (user.role === 'patient') {
-      const patientExists = await Patient.findOne({ userId: user._id });
-      if (!patientExists) {
-        await Patient.create({ userId: user._id });
-      }
+      // Atomic upsert — idempotent under concurrent OTP verify requests
+      await Patient.findOneAndUpdate(
+        { userId: user._id },
+        { $setOnInsert: { userId: user._id } },
+        { upsert: true, new: true }
+      );
     }
 
     const token = jwt.sign(

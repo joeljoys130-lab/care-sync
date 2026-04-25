@@ -24,6 +24,21 @@ const patientSchema = new mongoose.Schema({
     phone: String,
     relationship: String
   },
+  // Fields used by patientController & patient/Favorites.jsx — were missing (silent data loss)
+  bloodGroup: {
+    type: String,
+    enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+    trim: true
+  },
+  allergies: [{
+    type: String,
+    trim: true
+  }],
+  // Saved/favourite doctor IDs (used by patient/Favorites page)
+  favorites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Doctor"
+  }],
   medicalHistory: [{
     condition: String,
     diagnosedDate: Date,

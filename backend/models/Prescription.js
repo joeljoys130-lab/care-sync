@@ -33,7 +33,9 @@ const prescriptionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-prescriptionSchema.index({ appointmentId: 1 });
+// Unique on appointmentId: one prescription per appointment, enforced at DB level
+// (prevents race-condition duplicates even under concurrent requests)
+prescriptionSchema.index({ appointmentId: 1 }, { unique: true });
 prescriptionSchema.index({ doctorId: 1 });
 prescriptionSchema.index({ patientId: 1 });
 
