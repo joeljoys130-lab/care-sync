@@ -1,23 +1,42 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FiHome, FiCalendar, FiUsers, FiUser, FiHeart,
-  FiFileText, FiBell, FiLogOut, FiX, FiCreditCard, FiList,
+  FiFileText, FiBell, FiLogOut, FiX, FiDollarSign,
+  FiUserCheck, FiClock, FiShield, FiCreditCard, FiList,
 } from 'react-icons/fi';
 import { MdLocalHospital } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = {
   patient: [
-    { label: 'Dashboard', icon: FiHome, to: '/patient/dashboard' },
-    { label: 'Find Doctors', icon: FiUsers, to: '/patient/doctors' },
+    { label: 'Dashboard',       icon: FiHome,     to: '/patient/dashboard' },
+    { label: 'Find Doctors',    icon: FiUsers,    to: '/patient/doctors' },
     { label: 'My Appointments', icon: FiCalendar, to: '/patient/appointments' },
     { label: 'Medical Records', icon: FiFileText, to: '/patient/records' },
-    { label: 'Favorites', icon: FiHeart, to: '/patient/favorites' },
-    { label: 'Notifications', icon: FiBell, to: '/patient/notifications' },
-    { label: 'Payment', icon: FiCreditCard, to: '/patient/payment' },
-    { label: 'Payment History', icon: FiList, to: '/patient/payment/history' },
-    { label: 'My Profile', icon: FiUser, to: '/patient/profile' },
+    { label: 'Favorites',       icon: FiHeart,    to: '/patient/favorites' },
+    { label: 'Notifications',   icon: FiBell,     to: '/patient/notifications' },
+    { label: 'Payment History', icon: FiList,     to: '/patient/payment-history' },
+    { label: 'My Profile',      icon: FiUser,     to: '/patient/profile' },
   ],
+  admin: [
+    { label: 'Dashboard',    icon: FiHome,      to: '/admin/dashboard' },
+    { label: 'Users',        icon: FiUsers,     to: '/admin/users' },
+    { label: 'Doctors',      icon: FiUserCheck, to: '/admin/doctors' },
+    { label: 'Appointments', icon: FiCalendar,  to: '/admin/appointments' },
+  ],
+  doctor: [
+    { label: 'Dashboard',    icon: FiHome,        to: '/doctor/dashboard' },
+    { label: 'Appointments', icon: FiCalendar,    to: '/doctor/appointments' },
+    { label: 'Availability', icon: FiClock,       to: '/doctor/availability' },
+    { label: 'Earnings',     icon: FiDollarSign,  to: '/doctor/earnings' },
+    { label: 'My Profile',   icon: FiUser,        to: '/doctor/profile' },
+  ],
+};
+
+const PORTAL_LABELS = {
+  patient: 'Patient Portal',
+  admin:   'Admin Panel',
+  doctor:  'Doctor Portal',
 };
 
 const Sidebar = ({ role = 'patient', open, onClose }) => {
@@ -48,7 +67,7 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
           </div>
           <div>
             <span className="font-bold text-slate-800 text-lg leading-none">CareSync</span>
-            <span className="block text-xs text-primary-600 capitalize font-medium">Patient Portal</span>
+            <span className="block text-xs text-primary-600 capitalize font-medium">{PORTAL_LABELS[role] || 'Patient Portal'}</span>
           </div>
         </div>
         <button
