@@ -3,7 +3,8 @@ import { doctorAPI } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import AppointmentCard from '../../components/AppointmentCard';
-import { FiCalendar, FiUsers, FiDollarSign, FiStar, FiArrowRight } from 'react-icons/fi';
+import { FiCalendar, FiUsers, FiStar, FiArrowRight } from 'react-icons/fi';
+import { MdCurrencyRupee } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -68,7 +69,7 @@ const DoctorDashboard = () => {
           color="bg-blue-50 text-blue-600" to="/doctor/appointments" />
         <StatCard icon={FiUsers} label="Total Appointments" value={allAppts?.data?.data?.pagination?.total ?? 0}
           color="bg-purple-50 text-purple-600" to="/doctor/appointments" />
-        <StatCard icon={FiDollarSign} label="Total Earnings" value={`$${earnings?.total?.toFixed(0) || 0}`}
+        <StatCard icon={MdCurrencyRupee} label="Total Earnings" value={`₹${earnings?.total?.toFixed(0) || 0}`}
           color="bg-green-50 text-green-600" to="/doctor/earnings" />
         <StatCard icon={FiStar} label="Appointments Done" value={earnings?.count ?? 0}
           color="bg-amber-50 text-amber-600" to="/doctor/appointments" />

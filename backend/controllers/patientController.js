@@ -46,7 +46,7 @@ exports.getPatientAppointments = async (req, res, next) => {
   const patient = await Patient.findOne({ userId: req.user.id });
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  const query = { patientId: req.user.id };
+  const query = { patientId: patient._id };
   if (status) query.status = status;
 
   const skip = (Number(page) - 1) * Number(limit);

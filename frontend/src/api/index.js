@@ -53,9 +53,9 @@ export const authAPI = {
    USER / PROFILE API  (used by Profile.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const userAPI = {
-  getProfile:   ()       => api.get('/patients/me'),
-  updateProfile: (data)  => api.put('/patients/me', data),
-  uploadAvatar:  (form)  => api.post('/patients/me/avatar', form, {
+  getProfile:   ()       => api.get('/users/profile'),
+  updateProfile: (data)  => api.put('/users/profile', data),
+  uploadAvatar:  (form)  => api.put('/users/avatar', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
 };
@@ -64,11 +64,11 @@ export const userAPI = {
    PATIENT API  (used by Dashboard.jsx, DoctorList.jsx, etc.)
 ═══════════════════════════════════════════════════════════════ */
 export const patientAPI = {
-  getProfile:      ()       => api.get('/patients/me'),
-  updateProfile:   (data)   => api.put('/patients/me', data),
-  getAppointments: (params) => api.get('/patients/me/appointments', { params }),
-  getFavorites:    ()       => api.get('/patients/me/favorites'),
-  toggleFavorite:  (docId)  => api.post(`/patients/me/favorites/${docId}`),
+  getProfile:      ()       => api.get('/patients/profile'),
+  updateProfile:   (data)   => api.put('/patients/profile', data),
+  getAppointments: (params) => api.get('/patients/appointments', { params }),
+  getFavorites:    ()       => api.get('/patients/favorites'),
+  toggleFavorite:  (docId)  => api.post(`/patients/favorites/${docId}`),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -85,9 +85,13 @@ export const appointmentAPI = {
    DOCTOR API  (used by DoctorList.jsx, BookAppointment.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const doctorAPI = {
-  getDoctors:     (params) => api.get('/doctors', { params }),
-  getDoctorById:  (id)     => api.get(`/doctors/${id}`),
+  getDoctors:        (params) => api.get('/doctors', { params }),
+  getDoctorById:     (id)     => api.get(`/doctors/${id}`),
   getAvailableSlots: (id, date) => api.get(`/doctors/${id}/slots`, { params: { date } }),
+  getMyAppointments: (params) => api.get('/doctors/my/appointments', { params }),
+  updateMyAppointment: (id, data) => api.patch(`/doctors/my/appointments/${id}`, data),
+  getEarnings:       ()       => api.get('/doctors/my/earnings'),
+  updateAvailability: (data)   => api.put('/doctors/availability', data),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -107,6 +111,8 @@ export const recordAPI = {
   getAll:            (params)      => api.get('/records', { params }),
   getById:           (id)          => api.get(`/records/${id}`),
   getPatientRecords: (patientId, params) => api.get(`/records/patient/${patientId}`, { params }),
+  create:            (data)        => api.post('/records', data),
+  update:            (id, data)    => api.put(`/records/${id}`, data),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -140,12 +146,15 @@ export const reviewAPI = {
    ADMIN API  (used by Adithya's admin dashboard)
 ═══════════════════════════════════════════════════════════════ */
 export const adminAPI = {
+  getAnalytics:      ()           => api.get('/admin/analytics'),
   getStats:          ()           => api.get('/admin/analytics'),
   getUsers:          (params)     => api.get('/admin/users', { params }),
   updateUserStatus:  (id, data)   => api.patch(`/admin/users/${id}/status`, data),
   getDoctors:        ()           => api.get('/admin/doctors'),
+  getPendingDoctors: ()           => api.get('/admin/doctors/pending'),
   approveDoctor:     (id, data)   => api.patch(`/admin/doctors/${id}/approval`, data),
   getAppointments:   (params)     => api.get('/admin/appointments', { params }),
+  getAllAppointments:(params)     => api.get('/admin/appointments', { params }),
   updateApptStatus:  (id, data)   => api.patch(`/admin/appointments/${id}/status`, data),
   rescheduleAppt:    (id, data)   => api.patch(`/admin/appointments/${id}/reschedule`, data),
   getComplaints:     (params)     => api.get('/admin/complaints', { params }),

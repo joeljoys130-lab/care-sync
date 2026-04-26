@@ -10,6 +10,7 @@ import ProtectedRoute  from './components/ProtectedRoute';
 import Login    from './pages/Login';
 import Register from './pages/Register';
 import VerifyOTP from './pages/auth/VerifyOTP';
+import Landing   from './pages/Landing';
 
 /* ── Patient pages ── */
 import PatientDashboard from './pages/patient/Dashboard';
@@ -24,25 +25,25 @@ import Notifications    from './pages/patient/Notifications';
 import Payment          from './pages/patient/Payment';
 import PaymentHistory   from './pages/patient/PaymentHistory';
 
-/* ── Placeholder dashboard pages (to be replaced when Adithya + Kavish finish) ── */
-const AdminDashboard = () => (
-  <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
-    <h1>⚙️ Admin Dashboard</h1>
-    <p style={{ color: '#64748b' }}>Adithya is building this — backend APIs are ready at <code>/api/admin</code>.</p>
-  </div>
-);
+/* ── Admin pages ── */
+import AdminDashboard   from './pages/admin/Dashboard';
+import AdminUsers       from './pages/admin/Users';
+import AdminDoctors     from './pages/admin/Doctors';
+import AdminAppts       from './pages/admin/Appointments';
 
-const DoctorDashboard = () => (
-  <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
-    <h1>🩺 Doctor Dashboard</h1>
-    <p style={{ color: '#64748b' }}>Doctor portal coming soon.</p>
-  </div>
-);
+/* ── Doctor pages ── */
+import DoctorDashboard  from './pages/doctor/Dashboard';
+import DoctorAppts      from './pages/doctor/Appointments';
+import Availability     from './pages/doctor/Availability';
+import DoctorEarnings   from './pages/doctor/Earnings';
+import DoctorProfile    from './pages/doctor/Profile';
+
+
 
 /** Root redirect — send users to their correct home based on role */
 const RoleRedirect = () => {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Landing />;
   if (user.role === 'admin')   return <Navigate to="/admin/dashboard"   replace />;
   if (user.role === 'doctor')  return <Navigate to="/doctor/dashboard"  replace />;
   return <Navigate to="/patient/dashboard" replace />;
@@ -90,6 +91,9 @@ function App() {
       <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
         <Route element={<DashboardLayout role="admin" />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/doctors" element={<AdminDoctors />} />
+          <Route path="/admin/appointments" element={<AdminAppts />} />
         </Route>
       </Route>
 
@@ -97,6 +101,10 @@ function App() {
       <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
         <Route element={<DashboardLayout role="doctor" />}>
           <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+          <Route path="/doctor/appointments" element={<DoctorAppts />} />
+          <Route path="/doctor/availability" element={<Availability />} />
+          <Route path="/doctor/earnings" element={<DoctorEarnings />} />
+          <Route path="/doctor/profile" element={<DoctorProfile />} />
         </Route>
       </Route>
 

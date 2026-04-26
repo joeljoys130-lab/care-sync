@@ -85,23 +85,20 @@ const DoctorAvailability = () => {
           {slots.map((slot, i) => (
             <div
               key={i}
-              className="card flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-fade-in"
+              className="card grid grid-cols-1 sm:grid-cols-[auto_1fr_auto_auto] items-center gap-y-4 gap-x-6 animate-fade-in"
             >
-              {/* Available toggle + day */}
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <label className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                  <input
-                    type="checkbox"
-                    checked={slot.isAvailable}
-                    onChange={(e) => updateSlot(i, 'isAvailable', e.target.checked)}
-                    className="w-4 h-4 accent-primary-600"
-                  />
-                  Available
-                </label>
+              {/* Day + Availability */}
+              <div className="flex items-center gap-4 flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={slot.isAvailable}
+                  onChange={(e) => updateSlot(i, 'isAvailable', e.target.checked)}
+                  className="w-5 h-5 accent-primary-600 cursor-pointer"
+                />
                 <select
                   value={slot.day}
                   onChange={(e) => updateSlot(i, 'day', e.target.value)}
-                  className="select w-36"
+                  className="select w-36 font-medium"
                 >
                   {DAYS.map((d) => (
                     <option key={d}>{d}</option>
@@ -109,29 +106,35 @@ const DoctorAvailability = () => {
                 </select>
               </div>
 
-              {/* Time range */}
-              <div className="flex items-center gap-2 flex-1">
-                <input
-                  type="time"
-                  value={slot.startTime}
-                  onChange={(e) => updateSlot(i, 'startTime', e.target.value)}
-                  className="input w-32"
-                />
-                <span className="text-slate-400 text-sm">–</span>
-                <input
-                  type="time"
-                  value={slot.endTime}
-                  onChange={(e) => updateSlot(i, 'endTime', e.target.value)}
-                  className="input w-32"
-                />
+              {/* Time Range */}
+              <div className="flex items-center gap-2">
+                <div className="relative group flex-1">
+                  <input
+                    type="time"
+                    value={slot.startTime}
+                    onChange={(e) => updateSlot(i, 'startTime', e.target.value)}
+                    className="input pl-10"
+                  />
+                  <FiClock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
+                </div>
+                <span className="text-slate-300 font-bold px-1">/</span>
+                <div className="relative group flex-1">
+                  <input
+                    type="time"
+                    value={slot.endTime}
+                    onChange={(e) => updateSlot(i, 'endTime', e.target.value)}
+                    className="input pl-10"
+                  />
+                  <FiClock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
+                </div>
               </div>
 
-              {/* Duration & delete */}
-              <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Duration */}
+              <div className="flex items-center gap-2">
                 <select
                   value={slot.slotDuration}
                   onChange={(e) => updateSlot(i, 'slotDuration', Number(e.target.value))}
-                  className="select w-28"
+                  className="select w-28 bg-slate-50 border-slate-200"
                 >
                   {[15, 20, 30, 45, 60].map((d) => (
                     <option key={d} value={d}>
@@ -139,14 +142,16 @@ const DoctorAvailability = () => {
                     </option>
                   ))}
                 </select>
-                <button
-                  onClick={() => removeSlot(i)}
-                  className="p-2 rounded-xl hover:bg-red-50 text-slate-300 hover:text-red-400 transition"
-                  title="Remove slot"
-                >
-                  <FiTrash2 />
-                </button>
               </div>
+
+              {/* Delete */}
+              <button
+                onClick={() => removeSlot(i)}
+                className="p-2.5 rounded-xl hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all border border-transparent hover:border-red-100"
+                title="Remove slot"
+              >
+                <FiTrash2 className="text-lg" />
+              </button>
             </div>
           ))}
         </div>

@@ -1,32 +1,62 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+
+const slotSchema = new mongoose.Schema({
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+});
 
 const appointmentSchema = new mongoose.Schema(
   {
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'Patient',
       required: true,
     },
     doctorId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'Doctor',
       required: true,
     },
     appointmentDate: {
+      type: Date,
+      required: true,
+    },
+    slot: {
+      type: slotSchema,
+      required: true,
+    },
+    reason: {
       type: String,
       required: true,
     },
-    timeSlot: {
+    type: {
       type: String,
-      required: true,
+      enum: ['in-person', 'video', 'phone'],
+      default: 'in-person',
     },
     status: {
       type: String,
-      enum: ["booked", "cancelled"],
-      default: "booked",
+      enum: ['pending', 'confirmed', 'completed', 'cancelled'],
+      default: 'pending',
     },
+    fees: {
+      type: Number,
+      required: true,
+    },
+    paymentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Payment',
+    },
+    medicalRecordId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Record',
+    },
+    cancelReason: { type: String, default: '' },
+    cancelledBy: { type: String, enum: ['patient', 'doctor', 'admin', ''], default: '' },
+    cancelledAt: { type: Date },
+    notes: { type: String, default: '' },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Appointment", appointmentSchema);
+module.exports = mongoose.model('Appointment', appointmentSchema);

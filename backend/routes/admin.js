@@ -7,9 +7,9 @@ const ctrl = require('../controllers/adminController');
 router.use(protect, authorize('admin'));
 
 router.get('/users', ctrl.getUsers);
-router.put('/users/:id/status', ctrl.updateUserStatus);
+router.patch('/users/:id/status', ctrl.updateUserStatus);
 router.get('/doctors/pending', ctrl.getPendingDoctors);
-router.put('/doctors/:id/approve', ctrl.approveDoctor);
+router.patch('/doctors/:id/approval', ctrl.approveDoctor);
 router.get('/analytics', ctrl.getAnalytics);
 router.get('/appointments', ctrl.getAllAppointments);
 

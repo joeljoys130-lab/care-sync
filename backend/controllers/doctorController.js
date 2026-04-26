@@ -336,6 +336,66 @@ exports.getDoctorEarnings = async (req, res, next) => {
   }
 };
 
+// ─── Get Available Slots ──────────────────────────────────────────────────────
+exports.getAvailableSlots = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ success: false, message: 'Date is required' });
+    }
+
+    const doctor = await Doctor.findById(id);
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found.' });
+    }
+
+    const targetDate = new Date(date);
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayName = days[targetDate.getUTCDay()];
+
+    const dayAvailability = doctor.availability?.find(a => a.day === dayName && a.isAvailable !== false);
+
+    if (!dayAvailability) {
+      return res.json({ success: true, data: { slots: [] } });
+    }
+
+    let allSlots = generateTimeSlots(dayAvailability.startTime, dayAvailability.endTime, dayAvailability.slotDuration || 30);
+
+    const now = new Date();
+    if (targetDate.toDateString() === now.toDateString()) {
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      allSlots = allSlots.filter(slot => {
+        const [startH, startM] = slot.startTime.split(':').map(Number);
+        return (startH * 60 + startM) > currentMinutes;
+      });
+    }
+
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const appointments = await Appointment.find({
+      doctorId: id,
+      appointmentDate: { $gte: startOfDay, $lte: endOfDay },
+      status: { $in: ['pending', 'confirmed'] }
+    });
+
+    const bookedStarts = appointments.map(a => a.slot?.startTime);
+
+    allSlots = allSlots.map(slot => ({
+      ...slot,
+      isBooked: bookedStarts.includes(slot.startTime)
+    }));
+
+    res.json({ success: true, data: { slots: allSlots } });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ─── Helper: Generate Time Slots ─────────────────────────────────────────────
 function generateTimeSlots(startTime, endTime, duration = 30) {
   const slots = [];

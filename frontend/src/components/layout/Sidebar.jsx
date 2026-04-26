@@ -1,10 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FiHome, FiCalendar, FiUsers, FiUser, FiHeart,
-  FiFileText, FiBell, FiLogOut, FiX, FiDollarSign,
+  FiFileText, FiBell, FiLogOut, FiX,
   FiUserCheck, FiClock, FiShield, FiCreditCard, FiList,
 } from 'react-icons/fi';
-import { MdLocalHospital } from 'react-icons/md';
+import { MdLocalHospital, MdCurrencyRupee } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = {
@@ -28,7 +28,7 @@ const NAV_ITEMS = {
     { label: 'Dashboard',    icon: FiHome,        to: '/doctor/dashboard' },
     { label: 'Appointments', icon: FiCalendar,    to: '/doctor/appointments' },
     { label: 'Availability', icon: FiClock,       to: '/doctor/availability' },
-    { label: 'Earnings',     icon: FiDollarSign,  to: '/doctor/earnings' },
+    { label: 'Earnings',     icon: MdCurrencyRupee, to: '/doctor/earnings' },
     { label: 'My Profile',   icon: FiUser,        to: '/doctor/profile' },
   ],
 };
@@ -53,8 +53,8 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
   return (
     <aside
       className={`
-        fixed lg:static inset-y-0 left-0 z-30
-        flex flex-col w-64 bg-white border-r border-slate-100 shadow-sm
+        fixed lg:sticky top-0 inset-y-0 left-0 z-30
+        flex flex-col w-64 h-screen bg-white border-r border-slate-100 shadow-sm
         transition-transform duration-300
         ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
       `}

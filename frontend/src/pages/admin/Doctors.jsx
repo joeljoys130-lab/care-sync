@@ -81,7 +81,7 @@ const AdminDoctors = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Fees</span>
-                  <span className="font-medium">${doc.fees}</span>
+                  <span className="font-medium">₹{doc.fees}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Registered</span>

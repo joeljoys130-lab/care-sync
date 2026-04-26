@@ -5,7 +5,8 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import { FiUsers, FiCalendar, FiDollarSign, FiUserCheck, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiUsers, FiCalendar, FiUserCheck, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { MdCurrencyRupee } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -67,7 +68,7 @@ const AdminDashboard = () => {
           sub={`${overview?.pendingApprovals} pending`} color="bg-purple-50 text-purple-600" />
         <StatCard icon={FiCalendar} label="Total Appointments" value={overview?.totalAppointments}
           color="bg-green-50 text-green-600" />
-        <StatCard icon={FiDollarSign} label="Total Revenue" value={`₹${(overview?.totalRevenue || 0).toFixed(0)}`}
+        <StatCard icon={MdCurrencyRupee} label="Total Revenue" value={`₹${(overview?.totalRevenue || 0).toFixed(0)}`}
           color="bg-amber-50 text-amber-600" />
       </div>
 

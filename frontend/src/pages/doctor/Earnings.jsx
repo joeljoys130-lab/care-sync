@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { doctorAPI } from '../../api';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { FiDollarSign, FiCalendar, FiTrendingUp } from 'react-icons/fi';
+import { FiCalendar, FiTrendingUp } from 'react-icons/fi';
+import { MdCurrencyRupee } from 'react-icons/md';
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -33,7 +34,7 @@ const DoctorEarnings = () => {
       {/* Summary cards */}
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
         <div className="stat-card">
-          <div className="stat-icon bg-green-50 text-green-600"><FiDollarSign /></div>
+          <div className="stat-icon bg-green-50 text-green-600"><MdCurrencyRupee /></div>
           <div>
             <p className="text-2xl font-bold text-slate-800">₹{(summary?.total || 0).toFixed(2)}</p>
             <p className="text-sm text-slate-500">Total Earned</p>

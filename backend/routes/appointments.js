@@ -2,67 +2,25 @@ const express = require("express");
 const router = express.Router();
 
 const { protect } = require("../middleware/auth");
+const ctrl = require("../controllers/appointmentController");
 const Appointment = require("../models/Appointment");
-const User = require("../models/User");
 
-router.post("/", protect, async (req, res) => {
-  try {
-    const { doctor, appointmentDate, timeSlot } = req.body;
+// Book Appointment
+router.post("/", protect, ctrl.bookAppointment);
 
-    // ✅ Basic validation
-    if (!doctor || !appointmentDate || !timeSlot) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+// Get Single Appointment
+router.get("/:id", protect, ctrl.getAppointmentById);
 
-    // ✅ FIX 1: Prevent past date/time booking
-    const selectedDateTime = new Date(`${appointmentDate} ${timeSlot}`);
-    const now = new Date();
+// Cancel Appointment
+router.delete("/:id", protect, ctrl.cancelAppointment);
 
-    if (isNaN(selectedDateTime)) {
-      return res.status(400).json({ message: "Invalid date or time format" });
-    }
+// Reschedule Appointment
+router.put("/:id/reschedule", protect, ctrl.rescheduleAppointment);
 
-    if (selectedDateTime < now) {
-      return res.status(400).json({
-        message: "Cannot book appointment in the past",
-      });
-    }
+// Update Status
+router.put("/:id/status", protect, ctrl.updateAppointmentStatus);
 
-    // ✅ FIX 2: Prevent duplicate booking
-    const exists = await Appointment.findOne({
-      doctorId: doctor,
-      appointmentDate,
-      timeSlot,
-      status: { $ne: "cancelled" } // ignore cancelled ones
-    });
-
-    if (exists) {
-      return res.status(400).json({ message: "Slot already booked" });
-    }
-
-    // ✅ Create appointment
-    const appointment = new Appointment({
-      patientId: req.user.id,
-      doctorId: doctor,
-      appointmentDate,
-      timeSlot,
-    });
-
-    await appointment.save();
-
-    res.status(201).json({
-      success: true,
-      data: appointment,
-    });
-
-  } catch (err) {
-    console.error(err); // helpful debug
-    res.status(500).json({ message: err.message });
-  }
-});
-
-
-// ✅ GET APPOINTMENTS
+// ✅ GET ALL APPOINTMENTS (fallback for appointmentAPI.getAll)
 router.get("/", protect, async (req, res) => {
   try {
     let appointments;
@@ -78,29 +36,6 @@ router.get("/", protect, async (req, res) => {
     }
 
     res.json({ success: true, data: Array.isArray(appointments) ? appointments : [] });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-
-// ✅ CANCEL APPOINTMENT
-router.delete("/:id", protect, async (req, res) => {
-  try {
-    const appointment = await Appointment.findById(req.params.id);
-
-    if (!appointment) {
-      return res.status(404).json({ message: "Appointment not found" });
-    }
-
-    appointment.status = "cancelled";
-    await appointment.save();
-
-    res.json({
-      success: true,
-      message: "Appointment cancelled",
-    });
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

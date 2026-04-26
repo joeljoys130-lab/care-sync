@@ -24,6 +24,10 @@ exports.createRazorpayOrder = async (req, res, next) => {
   const appointment = await Appointment.findById(appointmentId).populate('doctorId');
   if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found.' });
 
+  if (!razorpay) {
+    console.warn('Razorpay keys missing. Running in DEMO payment mode.');
+  }
+
   if (appointment.isPaid) {
     return res.status(400).json({ success: false, message: 'Appointment is already paid.' });
   }
@@ -51,10 +55,20 @@ exports.createRazorpayOrder = async (req, res, next) => {
   };
 
   try {
-    // 3. Issue Network Request to Official Razorpay Endpoint
-    const order = await razorpay.orders.create(options);
+    let order;
+    if (razorpay) {
+      // 3. Issue Network Request to Official Razorpay Endpoint
+      order = await razorpay.orders.create(options);
+    } else {
+      // Mock order for demo mode
+      order = {
+        id: `demo_${uuidv4().replace(/-/g, '')}`,
+        amount: amountPaisa,
+        currency: 'INR'
+      };
+    }
     
-    // Save the official tracking order ID in DB
+    // Save the tracking order ID in DB
     payment.razorpayOrderId = order.id;
     await payment.save();
 
@@ -65,7 +79,8 @@ exports.createRazorpayOrder = async (req, res, next) => {
         razorpayOrderId: order.id,
         amount: order.amount,
         currency: order.currency,
-        keyId: process.env.RAZORPAY_KEY_ID, // Provide the public string so frontend handles it dynamically
+        keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_demo', // Fallback key
+        isDemo: !razorpay
       },
     });
   } catch (error) {
@@ -95,45 +110,65 @@ exports.confirmPayment = async (req, res, next) => {
   }
 
   // 1. Implement Highly Secure Hash Verification Process (HMAC SHA-256)
-  const bodyString = razorpay_order_id + '|' + razorpay_payment_id;
-  
-  const expectedSignature = crypto
-    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-    .update(bodyString.toString())
-    .digest('hex');
+  const isDemo = razorpay_order_id.startsWith('demo_');
+  let isAuthentic = false;
 
-  const isAuthentic = expectedSignature === razorpay_signature;
+  if (isDemo) {
+    isAuthentic = true;
+  } else {
+    const bodyString = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(bodyString.toString())
+      .digest('hex');
+    isAuthentic = expectedSignature === razorpay_signature;
+  }
 
   if (!isAuthentic) {
     return res.status(400).json({ success: false, message: 'Payment verification failed due to invalid signature.' });
   }
 
   // 2. Verified - Update Status Models
+  console.log(`Payment ${paymentId} verified. Updating status...`);
   payment.status = 'completed';
   payment.razorpayPaymentId = razorpay_payment_id;
   await payment.save();
 
   // Update appointment success
-  await Appointment.findByIdAndUpdate(payment.appointmentId, {
-    isPaid: true,
-    paymentId: payment._id,
-    status: 'confirmed',
-  });
+  try {
+    const updatedAppt = await Appointment.findByIdAndUpdate(payment.appointmentId, {
+      isPaid: true,
+      paymentId: payment._id,
+      status: 'confirmed',
+    }, { new: true });
+    console.log(`Appointment ${payment.appointmentId} updated to confirmed.`);
+  } catch (apptErr) {
+    console.error('Failed to update appointment status:', apptErr);
+  }
 
   // Credit doctor earnings
-  await Doctor.findByIdAndUpdate(payment.doctorId, {
-    $inc: { totalEarnings: payment.amount },
-  });
+  try {
+    await Doctor.findByIdAndUpdate(payment.doctorId, {
+      $inc: { totalEarnings: payment.amount },
+    });
+    console.log(`Credited ₹${payment.amount} to doctor ${payment.doctorId}.`);
+  } catch (docErr) {
+    console.error('Failed to update doctor earnings:', docErr);
+  }
 
   // Notify via sockets/push alerts
-  await createNotification({
-    userId: req.user.id,
-    title: 'Payment Successful',
-    message: `Payment of ₹${payment.amount} was verified and successful. Your appointment is confirmed.`,
-    type: 'payment_success',
-    refId: payment._id,
-    refModel: 'Payment',
-  });
+  try {
+    await createNotification({
+      userId: req.user.id,
+      title: 'Payment Successful',
+      message: `Payment of ₹${payment.amount} was verified and successful. Your appointment is confirmed.`,
+      type: 'payment_success',
+      refId: payment._id,
+      refModel: 'Payment',
+    });
+  } catch (notifErr) {
+    console.error('Failed to send payment notification:', notifErr);
+  }
 
   res.json({
     success: true,

@@ -68,7 +68,7 @@ const AdminAppointments = () => {
                         <p className="text-xs text-slate-400">{a.slot?.startTime} – {a.slot?.endTime}</p>
                       </td>
                       <td className="px-5 py-4 capitalize text-slate-500">{a.type}</td>
-                      <td className="px-5 py-4 font-medium text-slate-700">${a.fees}</td>
+                      <td className="px-5 py-4 font-medium text-slate-700">₹{a.fees}</td>
                       <td className="px-5 py-4">
                         <span className={`badge ${STATUS_STYLES[a.status] || 'badge-gray'}`}>{a.status}</span>
                       </td>

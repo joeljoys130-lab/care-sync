@@ -12,9 +12,9 @@ router.get('/', ctrl.getDoctors);
 //  otherwise Express treats "me", "profile", etc. as an id parameter.
 router.put('/profile', protect, authorize('doctor'), ctrl.updateDoctorProfile);
 router.put('/availability', protect, authorize('doctor'), ctrl.updateAvailability);
-router.get('/me/appointments', protect, authorize('doctor'), ctrl.getDoctorAppointments);
-router.put('/me/appointments/:id', protect, authorize('doctor'), ctrl.updateAppointmentStatus);
-router.get('/me/earnings', protect, authorize('doctor'), ctrl.getDoctorEarnings);
+router.get('/my/appointments', protect, authorize('doctor'), ctrl.getDoctorAppointments);
+router.patch('/my/appointments/:id', protect, authorize('doctor'), ctrl.updateAppointmentStatus);
+router.get('/my/earnings', protect, authorize('doctor'), ctrl.getDoctorEarnings);
 
 // Prescription routes
 router.post('/appointments/:appointmentId/prescription', protect, authorize('doctor'), pCtrl.createPrescription);
@@ -22,8 +22,8 @@ router.get('/appointments/:appointmentId/prescription', protect, pCtrl.getPrescr
 router.put('/appointments/:appointmentId/prescription', protect, authorize('doctor'), pCtrl.updatePrescription);
 router.get('/me/prescriptions', protect, authorize('doctor'), pCtrl.getMyPrescriptions);
 
-// ─── Parameterized Public Routes (must be LAST) ───────────────────────────────
-// router.get('/:doctorId/slots', ctrl.getAvailableSlots);
+// ─── Parameterized Public Routes ───────────────────────────────
+router.get('/:id/slots', ctrl.getAvailableSlots);
 router.get('/:id', ctrl.getDoctorById);
 
 module.exports = router;

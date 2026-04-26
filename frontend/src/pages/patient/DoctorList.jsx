@@ -94,12 +94,12 @@ const DoctorList = () => {
                 className="input" placeholder="e.g. New York" />
             </div>
             <div>
-              <label className="label">Min Fees ($)</label>
+              <label className="label">Min Fees (₹)</label>
               <input type="number" value={filters.minFees} onChange={(e) => handleFilterChange('minFees', e.target.value)}
                 className="input" min="0" placeholder="0" />
             </div>
             <div>
-              <label className="label">Max Fees ($)</label>
+              <label className="label">Max Fees (₹)</label>
               <input type="number" value={filters.maxFees} onChange={(e) => handleFilterChange('maxFees', e.target.value)}
                 className="input" min="0" placeholder="500" />
             </div>

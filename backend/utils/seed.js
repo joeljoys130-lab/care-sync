@@ -14,19 +14,23 @@ const seed = async () => {
   // Clear existing data
   await Promise.all([User.deleteMany(), Doctor.deleteMany(), Patient.deleteMany()]);
 
+  const adminPassword = await bcrypt.hash('admin123', 10);
+  const doctorPassword = await bcrypt.hash('doctor123', 10);
+  const patientPassword = await bcrypt.hash('patient123', 10);
+
   // Admin
   const admin = await User.create({
-    name: 'Admin User', email: 'admin@caresync.com', password: 'admin123',
+    name: 'Admin User', email: 'admin@caresync.com', password: adminPassword,
     role: 'admin', isVerified: true, isActive: true,
   });
 
   // Doctors
   const doctorUsers = await User.create([
-    { name: 'Sarah Johnson', email: 'sarah@caresync.com', password: 'doctor123', role: 'doctor', isVerified: true, isActive: true },
-    { name: 'Michael Chen', email: 'michael@caresync.com', password: 'doctor123', role: 'doctor', isVerified: true, isActive: true },
-    { name: 'Emily Rodriguez', email: 'emily@caresync.com', password: 'doctor123', role: 'doctor', isVerified: true, isActive: true },
-    { name: 'James Wilson', email: 'james@caresync.com', password: 'doctor123', role: 'doctor', isVerified: true, isActive: true },
-    { name: 'Priya Patel', email: 'priya@caresync.com', password: 'doctor123', role: 'doctor', isVerified: true, isActive: true },
+    { name: 'Sarah Johnson', email: 'sarah@caresync.com', password: doctorPassword, role: 'doctor', isVerified: true, isActive: true },
+    { name: 'Michael Chen', email: 'michael@caresync.com', password: doctorPassword, role: 'doctor', isVerified: true, isActive: true },
+    { name: 'Emily Rodriguez', email: 'emily@caresync.com', password: doctorPassword, role: 'doctor', isVerified: true, isActive: true },
+    { name: 'James Wilson', email: 'james@caresync.com', password: doctorPassword, role: 'doctor', isVerified: true, isActive: true },
+    { name: 'Priya Patel', email: 'priya@caresync.com', password: doctorPassword, role: 'doctor', isVerified: true, isActive: true },
   ]);
 
   const doctorProfiles = [
@@ -37,21 +41,50 @@ const seed = async () => {
     { specialization: 'Pediatrics', experience: 10, fees: 120, bio: 'Compassionate pediatrician dedicated to children\'s health and wellness.', city: 'Boston', hospital: 'Children\'s Care Center', rating: 4.9, totalReviews: 302, isApproved: false },
   ];
 
-  const availability = [
-    { day: 'Monday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
-    { day: 'Wednesday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
-    { day: 'Friday', startTime: '09:00', endTime: '13:00', slotDuration: 30, isAvailable: true },
+  const availabilityOptions = [
+    [
+      { day: 'Monday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
+      { day: 'Wednesday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
+      { day: 'Friday', startTime: '09:00', endTime: '13:00', slotDuration: 30, isAvailable: true },
+    ],
+    [
+      { day: 'Tuesday', startTime: '10:00', endTime: '18:00', slotDuration: 45, isAvailable: true },
+      { day: 'Thursday', startTime: '10:00', endTime: '18:00', slotDuration: 45, isAvailable: true },
+      { day: 'Saturday', startTime: '09:00', endTime: '12:00', slotDuration: 45, isAvailable: true },
+    ],
+    [
+      { day: 'Monday', startTime: '08:00', endTime: '12:00', slotDuration: 20, isAvailable: true },
+      { day: 'Tuesday', startTime: '08:00', endTime: '12:00', slotDuration: 20, isAvailable: true },
+      { day: 'Wednesday', startTime: '08:00', endTime: '12:00', slotDuration: 20, isAvailable: true },
+      { day: 'Thursday', startTime: '08:00', endTime: '12:00', slotDuration: 20, isAvailable: true },
+      { day: 'Friday', startTime: '08:00', endTime: '12:00', slotDuration: 20, isAvailable: true },
+    ],
+    [
+      { day: 'Monday', startTime: '14:00', endTime: '20:00', slotDuration: 60, isAvailable: true },
+      { day: 'Wednesday', startTime: '14:00', endTime: '20:00', slotDuration: 60, isAvailable: true },
+    ],
+    [
+      { day: 'Monday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
+      { day: 'Tuesday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
+      { day: 'Wednesday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
+      { day: 'Thursday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
+      { day: 'Friday', startTime: '09:00', endTime: '17:00', slotDuration: 30, isAvailable: true },
+    ],
   ];
 
   for (let i = 0; i < doctorUsers.length; i++) {
-    await Doctor.create({ userId: doctorUsers[i]._id, ...doctorProfiles[i], availability });
+    await Doctor.create({ 
+      userId: doctorUsers[i]._id, 
+      ...doctorProfiles[i], 
+      availability: availabilityOptions[i % availabilityOptions.length] 
+    });
   }
 
   // Patients
   const patientUsers = await User.create([
-    { name: 'Alice Thompson', email: 'alice@example.com', password: 'patient123', role: 'patient', isVerified: true, isActive: true },
-    { name: 'Bob Martin', email: 'bob@example.com', password: 'patient123', role: 'patient', isVerified: true, isActive: true },
-    { name: 'Carol Davis', email: 'carol@example.com', password: 'patient123', role: 'patient', isVerified: true, isActive: true },
+    { name: 'Alice Thompson', email: 'alice@example.com', password: patientPassword, role: 'patient', isVerified: true, isActive: true },
+    { name: 'Bob Martin', email: 'bob@example.com', password: patientPassword, role: 'patient', isVerified: true, isActive: true },
+    { name: 'Carol Davis', email: 'carol@example.com', password: patientPassword, role: 'patient', isVerified: true, isActive: true },
   ]);
 
   for (const pu of patientUsers) {

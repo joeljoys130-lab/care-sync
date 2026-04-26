@@ -1,5 +1,6 @@
 const MedicalRecord = require('../models/MedicalRecord');
 const Appointment = require('../models/Appointment');
+const Doctor = require('../models/Doctor');
 const User = require('../models/User');
 const path = require('path');
 
@@ -8,6 +9,11 @@ exports.createRecord = async (req, res, next) => {
   try {
     if (req.user.role !== 'doctor') {
       return res.status(403).json({ success: false, message: 'Only doctors can create records.' });
+    }
+
+    const doctor = await Doctor.findOne({ userId: req.user.id });
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
     }
 
     const {
@@ -24,7 +30,7 @@ exports.createRecord = async (req, res, next) => {
     // Validate appointment belongs to this doctor
     const appointment = await Appointment.findOne({
       _id: appointmentId,
-      doctorId: req.user.id,
+      doctorId: doctor._id,
     });
 
     if (!appointment) {
@@ -44,7 +50,7 @@ exports.createRecord = async (req, res, next) => {
 
     const record = await MedicalRecord.create({
       patientId,
-      doctorId: req.user.id,
+      doctorId: doctor._id,
       appointmentId,
       diagnosis,
       symptoms: symptoms ? JSON.parse(symptoms) : [],
@@ -136,9 +142,10 @@ exports.getRecordById = async (req, res, next) => {
 // ─── Update Medical Record (SAFE) ─────────────────────────────────────────────
 exports.updateRecord = async (req, res, next) => {
   try {
+    const doctor = await Doctor.findOne({ userId: req.user.id });
     const record = await MedicalRecord.findOne({
       _id: req.params.id,
-      doctorId: req.user.id,
+      doctorId: doctor?._id,
     });
 
     if (!record) {

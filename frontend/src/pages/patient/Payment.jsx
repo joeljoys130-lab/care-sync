@@ -1,12 +1,18 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { paymentAPI } from "../../api";
 import { toast } from "react-toastify";
 import { FiCreditCard } from "react-icons/fi";
 
 const Payment = () => {
   const { appointmentId } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [fee, setFee] = useState(null);
+
+  useEffect(() => {
+    // We could fetch specific appointment details here if needed
+  }, [appointmentId]);
 
   const handlePayment = async () => {
     setLoading(true);
@@ -23,7 +29,31 @@ const Payment = () => {
         currency,
         keyId,
         paymentId,
+        isDemo
       } = orderRes.data.data;
+
+      setFee(amount / 100);
+
+      if (isDemo) {
+        // Automatically confirm in demo mode after a small delay
+        toast.info("Demo Mode: Simulating payment...");
+        setTimeout(async () => {
+          try {
+            await paymentAPI.confirm({
+              paymentId,
+              razorpay_order_id: razorpayOrderId,
+              razorpay_payment_id: "pay_demo_" + Date.now(),
+              razorpay_signature: "demo_sig",
+            });
+            toast.success("Payment successful! Your appointment is confirmed.");
+            navigate('/patient/appointments');
+          } catch (error) {
+            toast.error("Payment confirmation failed.");
+            setLoading(false);
+          }
+        }, 1500);
+        return;
+      }
 
       const options = {
         key: keyId,
@@ -45,11 +75,11 @@ const Payment = () => {
             toast.success(
               "Payment successful! Your appointment is confirmed."
             );
+            navigate('/patient/appointments');
           } catch (error) {
             toast.error("Payment confirmation failed.");
           }
         },
-
         theme: {
           color: "#3399cc",
         },
@@ -57,10 +87,10 @@ const Payment = () => {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
+      setLoading(false);
 
     } catch (error) {
       toast.error("Failed to initiate payment.");
-    } finally {
       setLoading(false);
     }
   };
@@ -97,7 +127,7 @@ const Payment = () => {
         {/* Amount note */}
         <div className="bg-slate-50 rounded-xl p-4 mb-6">
           <p className="text-sm text-slate-500">
-            Amount will be fetched securely from server
+            {fee ? `Total Amount: ₹${fee}` : "Amount will be fetched securely from server"}
           </p>
         </div>
 

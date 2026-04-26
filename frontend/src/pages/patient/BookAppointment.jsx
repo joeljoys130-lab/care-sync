@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import { addDays, format } from 'date-fns';
 import { FiCalendar, FiClock, FiShield } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import 'react-datepicker/dist/react-datepicker.css';
 
 
 const BookAppointment = () => {
@@ -39,6 +40,12 @@ const BookAppointment = () => {
   const userInfo = doc?.userId;
   const slots = slotData?.data?.data?.slots || [];
 
+  const isAvailableDay = (date) => {
+    if (!doc?.availability || doc.availability.length === 0) return false;
+    const dayName = format(date, 'EEEE');
+    return doc.availability.some(slot => slot.day === dayName && slot.isAvailable !== false);
+  };
+
   const handleStartBooking = async () => {
     if (!selectedDate || !selectedSlot || !reason.trim()) {
       return toast.warning('Please fill all required fields.');
@@ -47,7 +54,7 @@ const BookAppointment = () => {
     setPaymentLoading(true);
 
     try {
-      await bookMutation.mutateAsync({
+      const res = await bookMutation.mutateAsync({
         doctorId,
         appointmentDate: format(selectedDate, 'yyyy-MM-dd'),
         slot: selectedSlot,
@@ -55,8 +62,9 @@ const BookAppointment = () => {
         type,
       });
 
-      toast.success('Appointment Confirmed 🎉');
-      navigate('/patient/appointments');
+      const appointmentId = res.data.data.appointment._id;
+      toast.success('Appointment Booked! Redirecting to payment...');
+      navigate(`/patient/payment/${appointmentId}`);
     } catch (error) {
       console.error(error);
     } finally {
@@ -100,15 +108,22 @@ const BookAppointment = () => {
         <div className="grid sm:grid-cols-2 gap-6">
           <div>
             <label className="label">Appointment Date</label>
-            <DatePicker
-              selected={selectedDate}
-              onChange={(d) => { setSelectedDate(d); setSelectedSlot(null); }}
-              minDate={addDays(new Date(), 1)}
-              maxDate={addDays(new Date(), 30)}
-              dateFormat="MMMM d, yyyy"
-              inline
-              className="w-full"
-            />
+              <DatePicker
+                selected={selectedDate}
+                onChange={(d) => { setSelectedDate(d); setSelectedSlot(null); }}
+                minDate={new Date()}
+                maxDate={addDays(new Date(), 30)}
+                filterDate={isAvailableDay}
+                placeholderText="Select a date"
+                dateFormat="MMMM d, yyyy"
+                inline
+                className="w-full"
+              />
+              {(!doc?.availability || doc.availability.length === 0) && (
+                <p className="text-xs text-amber-600 mt-2 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                  ⚠️ This doctor hasn't set their weekly schedule yet.
+                </p>
+              )}
           </div>
 
           <div>
@@ -179,31 +194,29 @@ const BookAppointment = () => {
       </div>
 
       {/* Booking Summary & Trigger Official Razorpay Payment */}
-      {selectedDate && selectedSlot && (
-        <div className="card border-2 border-primary-100 animate-slide-up">
-          <h2 className="section-title">Booking Summary</h2>
-          <div className="space-y-2 text-sm mb-4">
-            <div className="flex justify-between"><span className="text-slate-500">Doctor</span><span className="font-medium">Dr. {userInfo?.name}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Date</span><span className="font-medium">{format(selectedDate, 'MMMM d, yyyy')}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Time</span><span className="font-medium">{selectedSlot.startTime} – {selectedSlot.endTime}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Type</span><span className="font-medium capitalize">{type}</span></div>
-            <div className="flex justify-between pt-2 border-t border-slate-100"><span className="font-semibold">Total</span><span className="text-primary-600 font-bold">₹{doc.fees}</span></div>
-          </div>
-
-          <button onClick={handleStartBooking} disabled={paymentLoading || !reason.trim()} className="btn-primary w-full btn-lg relative overflow-hidden group">
-            <div className="flex items-center justify-center gap-2 relative z-10">
-               {paymentLoading ? (
-                 <span className="animate-pulse">Confirming...</span>
-               ) : (
-                 <>
-                   <FiCalendar /> Confirm Booking
-                 </>
-               )}
-            </div>
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
-          </button>
+      <div className="card border-2 border-primary-100 animate-slide-up mb-6">
+        <h2 className="section-title">Booking Summary</h2>
+        <div className="space-y-2 text-sm mb-4">
+          <div className="flex justify-between"><span className="text-slate-500">Doctor</span><span className="font-medium">Dr. {userInfo?.name}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">Date</span><span className="font-medium">{selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Please select a date'}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">Time</span><span className="font-medium">{selectedSlot ? `${selectedSlot.startTime} – ${selectedSlot.endTime}` : 'Please select a time slot'}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">Type</span><span className="font-medium capitalize">{type}</span></div>
+          <div className="flex justify-between pt-2 border-t border-slate-100"><span className="font-semibold">Total</span><span className="text-primary-600 font-bold">₹{doc.fees}</span></div>
         </div>
-      )}
+
+        <button onClick={handleStartBooking} disabled={paymentLoading || !selectedDate || !selectedSlot || !reason.trim()} className="btn-primary w-full btn-lg relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed">
+          <div className="flex items-center justify-center gap-2 relative z-10">
+             {paymentLoading ? (
+               <span className="animate-pulse">Confirming...</span>
+             ) : (
+               <>
+                 <FiCalendar /> Confirm Booking
+               </>
+             )}
+          </div>
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+        </button>
+      </div>
     </div>
   );
 };

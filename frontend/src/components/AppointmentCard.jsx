@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { format, parseISO } from 'date-fns';
-import { FiCalendar, FiClock, FiUser, FiX } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiUser, FiX, FiFileText } from 'react-icons/fi';
+import MedicalRecordModal from './MedicalRecordModal';
 
 /**
  * AppointmentCard
@@ -35,25 +37,29 @@ const formatDate = (raw) => {
   }
 };
 
-const AppointmentCard = ({ appointment, role = 'patient', onCancel }) => {
+const AppointmentCard = ({ appointment, role = 'patient', onCancel, onConfirm, onComplete }) => {
+  const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
   if (!appointment) return null;
 
   const doctor  = appointment.doctorId;
   const patient = appointment.patientId;
 
   const displayName = role === 'patient'
-    ? `Dr. ${doctor?.name || 'Unknown Doctor'}`
-    : (patient?.name || 'Unknown Patient');
+    ? `Dr. ${doctor?.userId?.name || doctor?.name || 'Unknown Doctor'}`
+    : (patient?.userId?.name || patient?.name || 'Unknown Patient');
 
   const subLabel = role === 'patient'
     ? (doctor?.specialization || 'General Practice')
-    : patient?.email || '';
+    : (patient?.userId?.email || patient?.email || '');
 
   const statusClass = STATUS_STYLES[appointment.status] || STATUS_STYLES.pending;
   const canCancel   = onCancel && !['cancelled', 'completed'].includes(appointment.status);
+  
+  // Doctor can add prescription if appointment is confirmed or completed
+  const canAddRecord = role === 'doctor' && ['confirmed', 'completed'].includes(appointment.status);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 flex flex-col sm:flex-row sm:items-center gap-4 relative">
       {/* Icon */}
       <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
         <FiUser className="text-primary-600 text-xl" />
@@ -78,8 +84,26 @@ const AppointmentCard = ({ appointment, role = 'patient', onCancel }) => {
         </div>
       </div>
 
-      {/* Status + Cancel */}
-      <div className="flex items-center gap-3 flex-shrink-0">
+      {/* Actions */}
+      <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+        {role === 'doctor' && appointment.status === 'pending' && onConfirm && (
+          <button onClick={() => onConfirm(appointment)} className="btn-secondary btn-sm">Confirm</button>
+        )}
+        
+        {role === 'doctor' && appointment.status === 'confirmed' && onComplete && (
+          <button onClick={() => onComplete(appointment)} className="btn-primary btn-sm">Complete</button>
+        )}
+
+        {canAddRecord && (
+          <button 
+            onClick={() => setIsRecordModalOpen(true)} 
+            className="btn-outline btn-sm flex items-center gap-2"
+            title="Manage Medical Record"
+          >
+            <FiFileText /> {appointment.medicalRecordId ? 'View Record' : 'Add Record'}
+          </button>
+        )}
+
         <span className={`text-xs font-semibold px-3 py-1.5 rounded-full border capitalize ${statusClass}`}>
           {appointment.status || 'pending'}
         </span>
@@ -94,6 +118,12 @@ const AppointmentCard = ({ appointment, role = 'patient', onCancel }) => {
           </button>
         )}
       </div>
+
+      <MedicalRecordModal 
+        isOpen={isRecordModalOpen} 
+        onClose={() => setIsRecordModalOpen(false)} 
+        appointment={appointment} 
+      />
     </div>
   );
 };
