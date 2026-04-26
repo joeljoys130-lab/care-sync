@@ -95,7 +95,7 @@ exports.toggleFavorite = async (req, res, next) => {
   const patient = await Patient.findOne({ userId: req.user.id });
   if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  const index = patient.favorites.indexOf(doctorId);
+  const index = patient.favorites.findIndex(id => id.toString() === doctorId.toString());
   let message;
   if (index > -1) {
     patient.favorites.splice(index, 1);
