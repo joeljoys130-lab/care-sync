@@ -29,6 +29,9 @@ const userRoutes = require('./routes/users');
 // Initialize app
 const app = express();
 
+// Trust proxy for express-rate-limit on Render/Vercel
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 connectDB();
 
