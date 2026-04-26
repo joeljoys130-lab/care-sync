@@ -18,9 +18,12 @@ exports.registerUser = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const { otp, otpExpiry } = generateOTP();
+    
+    // Sanitize name to prevent XSS
+    const sanitizedName = name.replace(/<[^>]*>?/gm, '').trim();
 
     const user = await User.create({
-      name,
+      name: sanitizedName,
       email,
       password: hashedPassword,
       role,
@@ -77,7 +80,7 @@ exports.loginUser = async (req, res, next) => {
     }
 
     if (!user.isVerified) {
-      return res.status(401).json({ 
+      return res.status(403).json({ 
         success: false, 
         message: "Please verify your email address before logging in." 
       });
@@ -181,6 +184,11 @@ exports.verifyOtp = async (req, res, next) => {
       const patientExists = await Patient.findOne({ userId: user._id });
       if (!patientExists) {
         await Patient.create({ userId: user._id });
+      }
+    } else if (user.role === 'doctor') {
+      const doctorExists = await require('../models/Doctor').findOne({ userId: user._id });
+      if (!doctorExists) {
+        await require('../models/Doctor').create({ userId: user._id });
       }
     }
 

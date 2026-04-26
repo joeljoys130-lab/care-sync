@@ -121,7 +121,7 @@ const DoctorProfile = () => {
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
         </div>
         <div>
-          <p className="font-semibold text-slate-800 text-lg">Dr. {user?.name}</p>
+          <p className="font-semibold text-slate-800 text-lg">Dr. {user?.name?.replace(/^Dr\.?\s*/i, '')}</p>
           <p className="text-sm text-slate-400">{user?.email}</p>
           <div className="flex gap-2 mt-1">
             <span className="badge-primary text-xs">Doctor</span>

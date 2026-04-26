@@ -38,41 +38,52 @@ const Landing = () => {
       </nav>
 
       {/* ─── Hero ───────────────────────────────────────────── */}
-      <section className="hero-gradient text-white py-24 px-4 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-slate-900 via-primary-900 to-slate-900 text-white py-24 px-4 relative overflow-hidden">
         {/* Decorative circles */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
 
-        <div className="max-w-4xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            Trusted by 50,000+ patients
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 items-center gap-12 relative z-10">
+          <div className="text-left">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-medium mb-6 border border-white/20">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              Trusted by 50,000+ patients
+            </div>
+
+            <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-6 text-balance tracking-tight">
+              Healthcare at Your <span className="text-primary-300">Fingertips</span>
+            </h1>
+            <p className="text-lg text-slate-300 mb-10 max-w-xl">
+              Book appointments with top verified doctors, manage your health records, and consult from anywhere — all in one place.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to="/register" className="btn bg-primary-500 text-white hover:bg-primary-400 btn-lg font-semibold shadow-lg shadow-primary-500/30 transition-all border border-primary-400">
+                Find a Doctor <FiArrowRight />
+              </Link>
+              <Link to="/register?role=doctor" className="btn bg-white/10 backdrop-blur-sm border-2 border-white/20 text-white hover:bg-white/20 btn-lg transition-all">
+                Join as Doctor
+              </Link>
+            </div>
+
+            {/* Trust indicators */}
+            <div className="flex flex-wrap items-center gap-6 mt-12 text-sm text-slate-300">
+              {['No registration fee', 'HIPAA Compliant', 'Cancel anytime'].map((item) => (
+                <div key={item} className="flex items-center gap-1.5 font-medium">
+                  <FiCheckCircle className="text-green-400" />
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
-
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6 text-balance">
-            Healthcare at Your <span className="text-primary-200">Fingertips</span>
-          </h1>
-          <p className="text-lg text-blue-100 max-w-2xl mx-auto mb-10">
-            Book appointments with top verified doctors, manage your health records, and consult from anywhere — all in one place.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register" className="btn bg-white text-primary-700 hover:bg-blue-50 btn-lg font-semibold shadow-lg">
-              Find a Doctor <FiArrowRight />
-            </Link>
-            <Link to="/register?role=doctor" className="btn border-2 border-white/50 text-white hover:bg-white/10 btn-lg">
-              Join as Doctor
-            </Link>
-          </div>
-
-          {/* Trust indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-sm text-blue-100">
-            {['No registration fee', 'HIPAA Compliant', 'Cancel anytime'].map((item) => (
-              <div key={item} className="flex items-center gap-1.5">
-                <FiCheckCircle className="text-green-300" />
-                {item}
-              </div>
-            ))}
+          
+          <div className="hidden md:block relative animate-fade-in">
+             <div className="absolute inset-0 bg-primary-500/20 blur-3xl rounded-full transform scale-90"></div>
+             <img 
+               src="/hero_illustration.png" 
+               alt="Digital Healthcare Interface" 
+               className="relative z-10 w-full h-auto drop-shadow-2xl object-cover rounded-3xl animate-float"
+             />
           </div>
         </div>
       </section>

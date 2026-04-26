@@ -55,7 +55,7 @@ const MedicalRecords = () => {
                     <div>
                       <p className="font-semibold text-slate-800">{record.diagnosis}</p>
                       <p className="text-sm text-primary-600 mt-0.5">
-                        Dr. {record.doctorId?.userId?.name}
+                        Dr. {record.doctorId?.name || record.doctorId?.userId?.name || 'Unknown'}
                       </p>
                       <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-1">
                         <FiCalendar className="flex-shrink-0" />

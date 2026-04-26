@@ -85,20 +85,20 @@ const DoctorAvailability = () => {
           {slots.map((slot, i) => (
             <div
               key={i}
-              className="card grid grid-cols-1 sm:grid-cols-[auto_1fr_auto_auto] items-center gap-y-4 gap-x-6 animate-fade-in"
+              className="card flex flex-col lg:flex-row items-center gap-4 animate-fade-in p-4 sm:p-5"
             >
               {/* Day + Availability */}
-              <div className="flex items-center gap-4 flex-shrink-0">
+              <div className="flex items-center gap-3 w-full lg:w-auto">
                 <input
                   type="checkbox"
                   checked={slot.isAvailable}
                   onChange={(e) => updateSlot(i, 'isAvailable', e.target.checked)}
-                  className="w-5 h-5 accent-primary-600 cursor-pointer"
+                  className="w-5 h-5 accent-primary-600 cursor-pointer flex-shrink-0"
                 />
                 <select
                   value={slot.day}
                   onChange={(e) => updateSlot(i, 'day', e.target.value)}
-                  className="select w-36 font-medium"
+                  className="select w-full sm:w-36 font-medium"
                 >
                   {DAYS.map((d) => (
                     <option key={d}>{d}</option>
@@ -107,30 +107,30 @@ const DoctorAvailability = () => {
               </div>
 
               {/* Time Range */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full lg:w-auto lg:flex-1">
                 <div className="relative group flex-1">
                   <input
                     type="time"
                     value={slot.startTime}
                     onChange={(e) => updateSlot(i, 'startTime', e.target.value)}
-                    className="input pl-10"
+                    className="input pl-10 w-full"
                   />
                   <FiClock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
                 </div>
-                <span className="text-slate-300 font-bold px-1">/</span>
+                <span className="text-slate-300 font-bold px-1">-</span>
                 <div className="relative group flex-1">
                   <input
                     type="time"
                     value={slot.endTime}
                     onChange={(e) => updateSlot(i, 'endTime', e.target.value)}
-                    className="input pl-10"
+                    className="input pl-10 w-full"
                   />
                   <FiClock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
                 </div>
               </div>
 
-              {/* Duration */}
-              <div className="flex items-center gap-2">
+              {/* Duration and Delete */}
+              <div className="flex items-center justify-between lg:justify-end w-full lg:w-auto gap-4">
                 <select
                   value={slot.slotDuration}
                   onChange={(e) => updateSlot(i, 'slotDuration', Number(e.target.value))}
@@ -142,16 +142,14 @@ const DoctorAvailability = () => {
                     </option>
                   ))}
                 </select>
+                <button
+                  onClick={() => removeSlot(i)}
+                  className="p-2.5 rounded-xl hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all border border-transparent hover:border-red-100 flex-shrink-0"
+                  title="Remove slot"
+                >
+                  <FiTrash2 className="text-lg" />
+                </button>
               </div>
-
-              {/* Delete */}
-              <button
-                onClick={() => removeSlot(i)}
-                className="p-2.5 rounded-xl hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all border border-transparent hover:border-red-100"
-                title="Remove slot"
-              >
-                <FiTrash2 className="text-lg" />
-              </button>
             </div>
           ))}
         </div>

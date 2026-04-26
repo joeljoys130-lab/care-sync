@@ -59,7 +59,7 @@ const DoctorDashboard = () => {
   return (
     <div className="page-wrapper">
       <div className="page-header">
-        <h1 className="page-title">Welcome, Dr. {user?.name?.split(' ')[0]}! 👋</h1>
+        <h1 className="page-title">Welcome, Dr. {user?.name?.replace(/^Dr\.?\s*/i, '').split(' ')[0]}! 👋</h1>
         <p className="page-subtitle">{format(new Date(), 'EEEE, MMMM do yyyy')}</p>
       </div>
 

@@ -48,9 +48,15 @@ exports.createRecord = async (req, res, next) => {
         }))
       : [];
 
+    // Get the User IDs directly.
+    // patientId coming from frontend is actually the Patient's ID (or User's ID if frontend already sent User's ID).
+    // Let's ensure patientUserId is correct.
+    const patientDoc = await require('../models/Patient').findById(patientId);
+    const patientUserId = patientDoc ? patientDoc.userId : patientId;
+
     const record = await MedicalRecord.create({
-      patientId,
-      doctorId: doctor._id,
+      patientId: patientUserId,
+      doctorId: req.user.id, // req.user.id is the User ID of the doctor
       appointmentId,
       diagnosis,
       symptoms: symptoms ? JSON.parse(symptoms) : [],
@@ -85,7 +91,8 @@ exports.getPatientRecords = async (req, res, next) => {
 
     // Authorization
     if (req.user.role === 'patient') {
-      if (req.user.id !== patientId) {
+      const patient = await require('../models/Patient').findById(patientId);
+      if (!patient || patient.userId.toString() !== req.user.id) {
         return res.status(403).json({ success: false, message: 'Not authorized.' });
       }
     }
