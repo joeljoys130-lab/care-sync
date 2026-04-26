@@ -51,7 +51,6 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Optional request logger (very useful)
 app.use((req, res, next) => {
   console.log(`➡️ ${req.method} ${req.originalUrl}`);
   next();
@@ -60,13 +59,13 @@ app.use((req, res, next) => {
 // ─── Rate Limiting ───────────────────────────────────────────────
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === 'production' ? 100 : 5000,
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: process.env.NODE_ENV === 'production' ? 20 : 5000,
   message: { success: false, message: 'Too many auth requests, please try again later.' },
 });
 
@@ -74,24 +73,20 @@ app.use('/api/', limiter);
 app.use('/api/auth/', authLimiter);
 
 // ─── CORS ────────────────────────────────────────────────────────
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("CORS not allowed"));
+      callback(new Error('CORS not allowed'));
     }
   },
   credentials: true,
 }));
 
-// FIXED preflight handling
-app.options('*', cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 
 // ─── Static Files ────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
