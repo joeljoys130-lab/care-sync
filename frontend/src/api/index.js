@@ -12,7 +12,7 @@ import axios from 'axios';
 
 /* ── Base instance ──────────────────────────────────────────── */
 const api = axios.create({
-  baseURL: '/api',          // proxied to http://localhost:5000 by vite.config.js
+  baseURL: import.meta.env.VITE_API_URL || '/api',          // proxied to http://localhost:5000 by vite.config.js in dev
   headers: { 'Content-Type': 'application/json' },
 });
 

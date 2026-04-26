@@ -6,7 +6,11 @@
     "dev:backend": "npm --prefix ./backend run dev",
     "dev:frontend": "npm --prefix ./frontend run dev",
     "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "install:all": "npm install && npm --prefix ./backend install && npm --prefix ./frontend install"
+    "install:all": "npm install && npm --prefix ./backend install && npm --prefix ./frontend install",
+    "build:frontend": "npm --prefix ./frontend install && npm --prefix ./frontend run build",
+    "build:backend": "npm --prefix ./backend install",
+    "build": "npm run build:frontend && npm run build:backend",
+    "start": "npm --prefix ./backend start"
   },
   "keywords": [
     "healthcare",

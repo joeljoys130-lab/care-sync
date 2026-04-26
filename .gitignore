@@ -3,3 +3,6 @@ node_modules/
 frontend/dist/
 dist/
 build/
+backend/uploads/
+.DS_Store
+*.log
