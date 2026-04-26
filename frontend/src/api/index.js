@@ -43,10 +43,12 @@ export default api;
    AUTH API
 ═══════════════════════════════════════════════════════════════ */
 export const authAPI = {
-  login:       (data)  => api.post('/auth/login', data),
-  register:    (data)  => api.post('/auth/register', data),
-  sendOtp:     (data)  => api.post('/auth/send-otp', data),
-  verifyOtp:   (data)  => api.post('/auth/verify-otp', data),
+  login:          (data)  => api.post('/auth/login', data),
+  register:       (data)  => api.post('/auth/register', data),
+  sendOtp:        (data)  => api.post('/auth/send-otp', data),
+  verifyOtp:      (data)  => api.post('/auth/verify-otp', data),
+  forgotPassword: (data)  => api.post('/auth/forgot-password', data),
+  resetPassword:  (data)  => api.post('/auth/reset-password', data),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -92,6 +94,7 @@ export const doctorAPI = {
   updateMyAppointment: (id, data) => api.patch(`/doctors/my/appointments/${id}`, data),
   getEarnings:       ()       => api.get('/doctors/my/earnings'),
   updateAvailability: (data)   => api.put('/doctors/availability', data),
+  updateProfile:     (data)   => api.put('/doctors/profile', data),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -134,12 +137,12 @@ export const notificationAPI = {
    REVIEW API  (used by DoctorDetail.jsx + DoctorList.jsx)
 ═══════════════════════════════════════════════════════════════ */
 export const reviewAPI = {
-  getDoctorReviews: (id, params) => api.get(`/doctors/${id}/reviews`, { params })
-    .catch(() => ({ data: { data: { reviews: [] } } })),
-  getForDoctor: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params })
-    .catch(() => ({ data: { data: { reviews: [], averageRating: 0, totalReviews: 0 } } })),
+  getDoctorReviews: (id, params) => api.get(`/reviews/doctor/${id}`, { params }),
+  getForDoctor: (doctorId, params) => api.get(`/reviews/doctor/${doctorId}`, { params }),
   create: (data) => api.post('/reviews', data)
     .catch((err) => Promise.reject(err)),
+  getMyReviews: (params) => api.get('/reviews/me', { params }),
+  deleteReview: (id) => api.delete(`/reviews/${id}`),
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -159,4 +162,6 @@ export const adminAPI = {
   rescheduleAppt:    (id, data)   => api.patch(`/admin/appointments/${id}/reschedule`, data),
   getComplaints:     (params)     => api.get('/admin/complaints', { params }),
   updateComplaint:   (id, data)   => api.patch(`/admin/complaints/${id}/status`, data),
+  getReviews:        (params)     => api.get('/admin/reviews', { params }),
+  deleteReview:      (id)         => api.delete(`/admin/reviews/${id}`),
 };

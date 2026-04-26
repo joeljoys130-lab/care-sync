@@ -62,7 +62,7 @@ const reviewSchema = new mongoose.Schema(
 // ─── After save: update doctor's rating aggregate ─────────────────────────────
 reviewSchema.post('save', async function () {
   const Doctor = require('./Doctor');
-  const stats = await reviewSchema.model('Review').aggregate([
+  const stats = await this.constructor.aggregate([
     { $match: { doctorId: this.doctorId, isVisible: true } },
     {
       $group: {

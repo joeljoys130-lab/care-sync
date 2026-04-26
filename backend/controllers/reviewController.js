@@ -83,6 +83,46 @@ exports.getDoctorReviews = async (req, res, next) => {
   }
 };
 
+// ─── Get My Reviews (Doctor) ─────────────────────────────────────────────────
+exports.getMyReviews = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const doctor = await Doctor.findOne({ userId: req.user.id });
+    if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+
+    const total = await Review.countDocuments({ doctorId: doctor._id });
+    const reviews = await Review.find({ doctorId: doctor._id })
+      .populate({
+        path: 'patientId',
+        populate: { path: 'userId', select: 'name avatar' },
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    // Mask name for anonymous reviews
+    const masked = reviews.map((r) => {
+      const rv = r.toObject();
+      if (rv.isAnonymous) {
+        rv.patientId = { userId: { name: 'Anonymous Patient', avatar: '' } };
+      }
+      return rv;
+    });
+
+    res.json({
+      success: true,
+      data: {
+        reviews: masked,
+        pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ─── Update Review ────────────────────────────────────────────────────────────
 exports.updateReview = async (req, res, next) => {
   try {

@@ -22,3 +22,8 @@ exports.otpValidator = [
 exports.sendOtpValidator = [
   body('email').isEmail().withMessage('Please provide a valid email'),
 ];
+exports.resetPasswordValidator = [
+  body('email').isEmail().withMessage('Please provide a valid email'),
+  body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+];

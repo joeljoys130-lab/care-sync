@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { format, parseISO } from 'date-fns';
-import { FiCalendar, FiClock, FiUser, FiX, FiFileText } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiUser, FiX, FiFileText, FiStar } from 'react-icons/fi';
 import MedicalRecordModal from './MedicalRecordModal';
+import ReviewModal from './ReviewModal';
 
 /**
  * AppointmentCard
@@ -39,6 +40,7 @@ const formatDate = (raw) => {
 
 const AppointmentCard = ({ appointment, role = 'patient', onCancel, onConfirm, onComplete }) => {
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   if (!appointment) return null;
 
   const doctor  = appointment.doctorId;
@@ -104,6 +106,16 @@ const AppointmentCard = ({ appointment, role = 'patient', onCancel, onConfirm, o
           </button>
         )}
 
+        {role === 'patient' && appointment.status === 'completed' && !appointment.isReviewed && (
+          <button 
+            onClick={() => setIsReviewModalOpen(true)} 
+            className="btn-outline btn-sm flex items-center gap-2 text-amber-600 border-amber-200 hover:bg-amber-50"
+            title="Write a Review"
+          >
+            <FiStar /> Review
+          </button>
+        )}
+
         <span className={`text-xs font-semibold px-3 py-1.5 rounded-full border capitalize ${statusClass}`}>
           {appointment.status || 'pending'}
         </span>
@@ -124,6 +136,14 @@ const AppointmentCard = ({ appointment, role = 'patient', onCancel, onConfirm, o
         onClose={() => setIsRecordModalOpen(false)} 
         appointment={appointment} 
       />
+
+      {role === 'patient' && (
+        <ReviewModal 
+          isOpen={isReviewModalOpen} 
+          onClose={() => setIsReviewModalOpen(false)} 
+          appointment={appointment} 
+        />
+      )}
     </div>
   );
 };

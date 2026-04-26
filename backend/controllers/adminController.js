@@ -256,4 +256,68 @@ exports.getAllAppointments = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};  
+};
+
+// ─── Get All Reviews (Admin) ─────────────────────────────────────────────
+exports.getReviews = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 15 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await Review.countDocuments();
+
+    const reviews = await Review.find()
+      .populate({ path: 'patientId', populate: { path: 'userId', select: 'name avatar' } })
+      .populate({ path: 'doctorId', populate: { path: 'userId', select: 'name' } })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    res.json({
+      success: true,
+      data: {
+        reviews,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          pages: Math.ceil(total / Number(limit)),
+        },
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Delete Review (Admin) ─────────────────────────────────────────────
+exports.deleteReview = async (req, res, next) => {
+  try {
+    const review = await Review.findByIdAndDelete(req.params.id);
+    if (!review) return res.status(404).json({ success: false, message: 'Review not found.' });
+    
+    // Re-calculate doctor rating
+    const Doctor = require('../models/Doctor');
+    const stats = await Review.aggregate([
+      { $match: { doctorId: review.doctorId, isVisible: true } },
+      {
+        $group: {
+          _id: '$doctorId',
+          avgRating: { $avg: '$rating' },
+          totalReviews: { $sum: 1 },
+        },
+      },
+    ]);
+    if (stats.length > 0) {
+      await Doctor.findByIdAndUpdate(review.doctorId, {
+        rating: Math.round(stats[0].avgRating * 10) / 10,
+        totalReviews: stats[0].totalReviews,
+      });
+    } else {
+      await Doctor.findByIdAndUpdate(review.doctorId, { rating: 0, totalReviews: 0 });
+    }
+
+    res.json({ success: true, message: 'Review deleted.' });
+  } catch (err) {
+    next(err);
+  }
+};

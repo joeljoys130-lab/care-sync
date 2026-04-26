@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FiHome, FiCalendar, FiUsers, FiUser, FiHeart,
   FiFileText, FiBell, FiLogOut, FiX,
-  FiUserCheck, FiClock, FiShield, FiCreditCard, FiList,
+  FiUserCheck, FiClock, FiShield, FiCreditCard, FiList, FiStar
 } from 'react-icons/fi';
 import { MdLocalHospital, MdCurrencyRupee } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
@@ -23,12 +23,14 @@ const NAV_ITEMS = {
     { label: 'Users',        icon: FiUsers,     to: '/admin/users' },
     { label: 'Doctors',      icon: FiUserCheck, to: '/admin/doctors' },
     { label: 'Appointments', icon: FiCalendar,  to: '/admin/appointments' },
+    { label: 'Reviews',      icon: FiStar,      to: '/admin/reviews' },
   ],
   doctor: [
     { label: 'Dashboard',    icon: FiHome,        to: '/doctor/dashboard' },
     { label: 'Appointments', icon: FiCalendar,    to: '/doctor/appointments' },
     { label: 'Availability', icon: FiClock,       to: '/doctor/availability' },
     { label: 'Earnings',     icon: MdCurrencyRupee, to: '/doctor/earnings' },
+    { label: 'Reviews',      icon: FiStar,        to: '/doctor/reviews' },
     { label: 'My Profile',   icon: FiUser,        to: '/doctor/profile' },
   ],
 };

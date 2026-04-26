@@ -99,7 +99,10 @@ exports.getPatientRecords = async (req, res, next) => {
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const query = { patientId, isSharedWithPatient: true };
+    const patientDoc = await require('../models/Patient').findById(patientId);
+    const patientUserId = patientDoc ? patientDoc.userId : patientId;
+
+    const query = { patientId: patientUserId, isSharedWithPatient: true };
     if (req.user.role === 'doctor') delete query.isSharedWithPatient;
 
     const total = await MedicalRecord.countDocuments(query);

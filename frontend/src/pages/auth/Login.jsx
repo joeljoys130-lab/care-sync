@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { authAPI } from '../../api';
 import { MdLocalHospital } from 'react-icons/md';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useState } from 'react';
@@ -26,7 +27,9 @@ const Login = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const user = await login(data);
+      const res = await authAPI.login({ email: data.email, password: data.password });
+      const { token, user } = res.data;
+      login(user, token);
       navigate(ROLE_HOME[user.role]);
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Please try again.';

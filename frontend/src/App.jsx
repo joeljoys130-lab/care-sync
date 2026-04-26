@@ -7,9 +7,11 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute  from './components/ProtectedRoute';
 
 /* ── Public pages ── */
-import Login    from './pages/Login';
-import Register from './pages/Register';
+import Login    from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import VerifyOTP from './pages/auth/VerifyOTP';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import Landing   from './pages/Landing';
 
 /* ── Patient pages ── */
@@ -30,12 +32,14 @@ import AdminDashboard   from './pages/admin/Dashboard';
 import AdminUsers       from './pages/admin/Users';
 import AdminDoctors     from './pages/admin/Doctors';
 import AdminAppts       from './pages/admin/Appointments';
+import AdminReviews     from './pages/admin/Reviews';
 
 /* ── Doctor pages ── */
 import DoctorDashboard  from './pages/doctor/Dashboard';
 import DoctorAppts      from './pages/doctor/Appointments';
 import Availability     from './pages/doctor/Availability';
 import DoctorEarnings   from './pages/doctor/Earnings';
+import DoctorReviews    from './pages/doctor/Reviews';
 import DoctorProfile    from './pages/doctor/Profile';
 
 
@@ -69,6 +73,8 @@ function App() {
       <Route path="/login"    element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* ── Patient (protected) ───────────────────────── */}
       <Route element={<ProtectedRoute allowedRoles={['patient']} />}>
@@ -94,6 +100,7 @@ function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/doctors" element={<AdminDoctors />} />
           <Route path="/admin/appointments" element={<AdminAppts />} />
+          <Route path="/admin/reviews" element={<AdminReviews />} />
         </Route>
       </Route>
 
@@ -104,6 +111,7 @@ function App() {
           <Route path="/doctor/appointments" element={<DoctorAppts />} />
           <Route path="/doctor/availability" element={<Availability />} />
           <Route path="/doctor/earnings" element={<DoctorEarnings />} />
+          <Route path="/doctor/reviews" element={<DoctorReviews />} />
           <Route path="/doctor/profile" element={<DoctorProfile />} />
         </Route>
       </Route>

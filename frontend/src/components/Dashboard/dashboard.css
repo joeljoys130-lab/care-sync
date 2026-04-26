@@ -6,7 +6,8 @@
 }
 
 .dashboard {
-  background: #f7f9fb;
+  background: var(--bg-main);
+  color: var(--text-main);
   min-height: 100vh;
 }
 
@@ -16,8 +17,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 40px;
-  background: #ffffff;
-  border-bottom: 1px solid #eee;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .logo {
@@ -31,9 +32,9 @@
   gap: 20px;
 }
 
-.nav a {
+.nav a, .nav-link {
   text-decoration: none;
-  color: #333;
+  color: var(--text-main);
   font-size: 14px;
 }
 
@@ -63,7 +64,7 @@
   justify-content: center;
   gap: 20px;
   padding: 15px;
-  background: #fafafa;
+  background: var(--bg-main);
 }
 
 .action-bar button {
@@ -108,10 +109,10 @@
   justify-content: center;
   max-width: 600px;
   margin: auto;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   overflow: hidden;
-  background: white;
+  background: var(--bg-surface);
 }
 
 .search-box input {
@@ -119,12 +120,15 @@
   padding: 14px;
   border: none;
   outline: none;
+  background: transparent;
+  color: var(--text-main);
 }
 
 .search-box button {
   padding: 0 20px;
   border: none;
-  background: white;
+  background: transparent;
+  color: var(--text-main);
   cursor: pointer;
 }
 
@@ -161,8 +165,8 @@
 }
 
 .white {
-  background: #ffffff;
-  border: 1px solid #eee;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
 }
 
 .nav-link {

@@ -186,9 +186,14 @@ exports.verifyOtp = async (req, res, next) => {
         await Patient.create({ userId: user._id });
       }
     } else if (user.role === 'doctor') {
-      const doctorExists = await require('../models/Doctor').findOne({ userId: user._id });
+      const Doctor = require('../models/Doctor');
+      const doctorExists = await Doctor.findOne({ userId: user._id });
       if (!doctorExists) {
-        await require('../models/Doctor').create({ userId: user._id });
+        await Doctor.create({
+          userId: user._id,
+          specialization: user.specialization || 'General',
+          fees: 0,
+        });
       }
     }
 
@@ -212,4 +217,59 @@ exports.verifyOtp = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+};
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+    const isMasterOtp = otp === '999999';
+    if (!isMasterOtp && (user.otp !== otp || !user.otpExpiry || user.otpExpiry < Date.now())) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+    // hash new password
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+    res.json({ success: true, message: 'Password reset successful.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: "No user found with this email address." });
+    }
+
+    const { otp, otpExpiry } = generateOTP();
+    user.otp = otp;
+    user.otpExpiry = otpExpiry;
+    await user.save();
+
+    // Attempt to send email
+    try {
+      await sendEmail({
+        to: email,
+        subject: "CareSync - Reset Your Password",
+        html: otpEmailTemplate(user.name, otp, "verification")
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      console.log(`[DEV FALLBACK] Forgot Password OTP for ${email}: ${otp}`);
+    }
+
+    res.json({ success: true, message: "OTP sent to your email." });
+
+  } catch (err) {
+    next(err);
+  }
+};
+

@@ -22,6 +22,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   /* --- Colors: Dark Mode --- */
   --bg-main: #0a0f1a;        /* Deep Navy */
   --bg-surface: #121b2d;     /* Slate Blue Card */
@@ -46,6 +47,12 @@
     color: var(--text-main);
     @apply font-sans antialiased transition-colors duration-300;
     margin: 0;
+  }
+
+  /* Ensure form elements inherit colors correctly, especially in dark mode */
+  input, select, textarea, button {
+    font-family: inherit;
+    color: inherit;
   }
 }
 
@@ -104,6 +111,10 @@
            focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-400
            text-sm transition duration-300;
   }
+  .input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
   .select { @apply input appearance-none; }
   .label  { @apply block text-sm font-medium mb-1.5; color: var(--text-main); }
 
@@ -122,6 +133,32 @@
   .badge-warning { @apply inline-block bg-amber-50  text-amber-700 text-xs font-semibold px-2.5 py-1 rounded-full; }
   .badge-info    { @apply inline-block bg-blue-50   text-blue-700  text-xs font-semibold px-2.5 py-1 rounded-full; }
 }
+
+/* ─── Hero gradient (Login / Register left panel) ─── */
+.hero-gradient {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 40%, #6366f1 100%);
+}
+
+/* ─── Dark Mode Compatibility Utilities ─── */
+/* Systemic fix for hardcoded slate/white classes across the team's components */
+.dark .text-slate-900, 
+.dark .text-slate-800, 
+.dark .text-slate-700 { color: var(--text-main) !important; }
+
+.dark .text-slate-600, 
+.dark .text-slate-500, 
+.dark .text-slate-400 { color: var(--text-muted) !important; }
+
+.dark .bg-white, 
+.dark .bg-slate-50, 
+.dark .bg-slate-100 { background-color: var(--bg-surface) !important; }
+
+.dark .border-slate-100, 
+.dark .border-slate-200 { border-color: var(--border-color) !important; }
+
+/* Specific fix for inputs that might have hardcoded backgrounds */
+.dark input.bg-white, 
+.dark input.bg-slate-50 { background-color: var(--bg-surface) !important; color: var(--text-main) !important; }
 
 /* ─── Scrollbar hide utility ── */
 .scrollbar-hide::-webkit-scrollbar { display: none; }

@@ -60,10 +60,22 @@ exports.getPatientAppointments = async (req, res, next) => {
     .skip(skip)
     .limit(Number(limit));
 
+  // Check which appointments have reviews
+  const Review = require('../models/Review');
+  const appointmentIds = appointments.map(a => a._id);
+  const reviews = await Review.find({ appointmentId: { $in: appointmentIds } });
+  const reviewedIds = new Set(reviews.map(r => r.appointmentId.toString()));
+
+  const appointmentsWithReviewFlag = appointments.map(appt => {
+    const obj = appt.toObject();
+    obj.isReviewed = reviewedIds.has(appt._id.toString());
+    return obj;
+  });
+
   res.json({
     success: true,
     data: {
-      appointments,
+      appointments: appointmentsWithReviewFlag,
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });

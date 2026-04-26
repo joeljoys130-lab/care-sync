@@ -1,3 +1,4 @@
+// CareSync Server - Initialization
 require('dotenv').config();
 
 const express = require('express');

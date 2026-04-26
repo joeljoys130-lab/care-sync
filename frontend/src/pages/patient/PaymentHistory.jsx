@@ -3,7 +3,7 @@ import { paymentAPI } from "../../api";
 import { FiList, FiCheckCircle, FiXCircle, FiClock } from "react-icons/fi";
 
 const statusStyles = {
-  success: {
+  completed: {
     icon: FiCheckCircle,
     color: "text-green-500",
     bg: "bg-green-50",
@@ -20,6 +20,12 @@ const statusStyles = {
     color: "text-yellow-500",
     bg: "bg-yellow-50",
     label: "Pending",
+  },
+  refunded: {
+    icon: FiClock,
+    color: "text-gray-500",
+    bg: "bg-gray-50",
+    label: "Refunded",
   },
 };
 
