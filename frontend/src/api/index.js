@@ -11,8 +11,9 @@
 import axios from 'axios';
 
 /* ── Base instance ──────────────────────────────────────────── */
-const rawBaseURL = import.meta.env.VITE_API_URL || '/api';
-console.log('CareSync API Initialization - BaseURL:', rawBaseURL);
+// NUCLEAR FIX: Hardcoding the Render URL to bypass Vercel environment variable issues
+const rawBaseURL = 'https://care-sync-4a6s.onrender.com/api';
+console.log('CareSync API Initialization - NUCLEAR BaseURL:', rawBaseURL);
 
 const api = axios.create({
   baseURL: rawBaseURL,
