@@ -42,7 +42,10 @@ const PatientProfile = () => {
       toast.success('Health information updated!');
       qc.invalidateQueries(['patient-full-profile']);
     },
-    onError: () => toast.error('Health update failed.'),
+    onError: (error) => {
+      const msg = error.response?.data?.message || 'Health update failed.';
+      toast.error(msg);
+    },
   });
 
   const avatarMutation = useMutation({

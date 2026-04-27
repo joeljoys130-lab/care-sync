@@ -43,7 +43,8 @@ const patientSchema = new mongoose.Schema({
     condition: String,
     diagnosedDate: Date,
     notes: String
-  }]
+  }],
+  chronicConditions: String
 }, {
   timestamps: true
 });
