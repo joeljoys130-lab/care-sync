@@ -43,6 +43,10 @@ const appointmentSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
     paymentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Payment',
