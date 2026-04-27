@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientAPI } from '../api';
 import { FiHeart, FiStar, FiMapPin, FiDollarSign } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import Avatar from './ui/Avatar';
+import Avatar from './ui/Avatar.jsx';
 
 /**
  * DoctorCard

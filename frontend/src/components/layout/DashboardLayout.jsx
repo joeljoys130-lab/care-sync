@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import { FiMenu, FiBell, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import Avatar from '../ui/Avatar';
+import Avatar from '../ui/Avatar.jsx';
 
 const DashboardLayout = ({ role = 'patient' }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);

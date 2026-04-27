@@ -6,7 +6,7 @@ import {
 } from 'react-icons/fi';
 import { MdLocalHospital, MdCurrencyRupee } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
-import Avatar from '../ui/Avatar';
+import Avatar from '../ui/Avatar.jsx';
 
 const NAV_ITEMS = {
   patient: [

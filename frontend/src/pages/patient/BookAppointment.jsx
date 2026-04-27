@@ -8,7 +8,7 @@ import { addDays, format } from 'date-fns';
 import { FiCalendar, FiClock, FiShield } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import 'react-datepicker/dist/react-datepicker.css';
-import Avatar from '../../components/ui/Avatar';
+import Avatar from '../../components/ui/Avatar.jsx';
 
 
 const BookAppointment = () => {

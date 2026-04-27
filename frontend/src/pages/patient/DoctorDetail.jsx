@@ -5,7 +5,7 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import StarRating from '../../components/ui/StarRating';
 import { FiBriefcase, FiMapPin, FiDollarSign, FiCalendar, FiAward, FiHeart } from 'react-icons/fi';
 import { format } from 'date-fns';
-import Avatar from '../../components/ui/Avatar';
+import Avatar from '../../components/ui/Avatar.jsx';
 
 const DoctorDetail = () => {
   const { id } = useParams();
