@@ -107,7 +107,8 @@ exports.loginUser = async (req, res, next) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        avatar: user.avatar
       }
     });
 
@@ -214,7 +215,8 @@ exports.verifyOtp = async (req, res, next) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        avatar: user.avatar
       }
     });
 

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientAPI } from '../api';
 import { FiHeart, FiStar, FiMapPin, FiDollarSign } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import Avatar from './ui/Avatar';
 
 /**
  * DoctorCard
@@ -44,15 +45,7 @@ const DoctorCard = ({ doctor, isFavorite = false }) => {
       {/* Avatar + Favorite */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center flex-shrink-0">
-            {doctor?.avatar ? (
-              <img src={doctor.avatar} alt={name} className="w-full h-full object-cover rounded-xl" />
-            ) : (
-              <span className="text-primary-700 dark:text-primary-400 font-bold text-lg">
-                {name.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
+          <Avatar src={doctor?.avatar || doctor?.userId?.avatar} name={name} size="w-12 h-12" />
           <div>
             <p className="font-semibold text-sm leading-tight" style={{ color: 'var(--text-main)' }}>Dr. {name}</p>
             <p className="text-xs text-primary-600 dark:text-primary-400 mt-0.5">{specialization}</p>

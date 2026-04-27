@@ -8,6 +8,7 @@ import { addDays, format } from 'date-fns';
 import { FiCalendar, FiClock, FiShield } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import 'react-datepicker/dist/react-datepicker.css';
+import Avatar from '../../components/ui/Avatar';
 
 
 const BookAppointment = () => {
@@ -84,13 +85,7 @@ const BookAppointment = () => {
 
       {/* Doctor summary */}
       <div className="card mb-6 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-primary-50 flex items-center justify-center flex-shrink-0">
-          {userInfo?.avatar ? (
-             <img src={userInfo.avatar} alt="Doctor avatar" className="w-full h-full object-cover rounded-2xl" />
-          ) : (
-            <span className="text-primary-600 font-bold text-xl">{userInfo?.name?.charAt(0)}</span>
-          )}
-        </div>
+        <Avatar src={userInfo?.avatar} name={userInfo?.name} size="w-14 h-14" />
         <div className="flex-1">
           <p className="font-semibold text-slate-800">Dr. {userInfo?.name}</p>
           <p className="text-sm text-slate-500">{doc.specialization}</p>

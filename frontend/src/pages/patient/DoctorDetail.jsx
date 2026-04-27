@@ -5,6 +5,7 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import StarRating from '../../components/ui/StarRating';
 import { FiBriefcase, FiMapPin, FiDollarSign, FiCalendar, FiAward, FiHeart } from 'react-icons/fi';
 import { format } from 'date-fns';
+import Avatar from '../../components/ui/Avatar';
 
 const DoctorDetail = () => {
   const { id } = useParams();
@@ -34,13 +35,7 @@ const DoctorDetail = () => {
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row gap-6 items-start">
           {/* Avatar */}
-          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-primary-50 flex items-center justify-center flex-shrink-0">
-            {userInfo?.avatar ? (
-              <img src={userInfo.avatar} alt={userInfo.name} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-primary-600 font-bold text-4xl">{userInfo?.name?.charAt(0)}</span>
-            )}
-          </div>
+          <Avatar src={userInfo?.avatar} name={userInfo?.name} size="lg" />
 
           <div className="flex-1">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -121,11 +116,7 @@ const DoctorDetail = () => {
                 {reviews.map((r) => (
                   <div key={r._id} className="border-b border-slate-100 last:border-0 pb-4 last:pb-0">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 bg-primary-50 rounded-full flex items-center justify-center">
-                        <span className="text-primary-600 font-semibold text-xs">
-                          {r.patientId?.userId?.name?.charAt(0)}
-                        </span>
-                      </div>
+                      <Avatar src={r.patientId?.userId?.avatar} name={r.patientId?.userId?.name} size="sm" />
                       <div>
                         <p className="text-sm font-semibold text-slate-700">{r.patientId?.userId?.name}</p>
                         <StarRating rating={r.rating} size="sm" />
