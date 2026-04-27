@@ -63,13 +63,13 @@ app.use((req, res, next) => {
 // ─── Rate Limiting ───────────────────────────────────────────────
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 100 : 5000,
+  max: 100,
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 20 : 5000,
+  max: 20,
   message: { success: false, message: 'Too many auth requests, please try again later.' },
 });
 
@@ -97,7 +97,11 @@ app.use(cors({
   credentials: true,
 }));
 
-app.options('*', cors({ origin: allowedOrigins, credentials: true }));
+// FIXED preflight handling
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 // ─── Static Files ────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
