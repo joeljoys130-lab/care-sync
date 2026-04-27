@@ -73,14 +73,15 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many auth requests, please try again later.' },
 });
 
-app.use('/api/', limiter);
-app.use('/api/auth/', authLimiter);
+app.use('/api', limiter);
+app.use('/api/auth', authLimiter);
 
 // ─── CORS ────────────────────────────────────────────────────────
 const allowedOrigins = [
   'http://localhost:5173', 
   'http://localhost:5174', 
   'http://localhost:3000',
+  'https://care-sync-xi.vercel.app',
   process.env.CLIENT_URL,
 ].filter(Boolean);
 

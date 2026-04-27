@@ -56,7 +56,7 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
     <aside
       className={`
         fixed lg:sticky top-0 inset-y-0 left-0 z-30
-        flex flex-col w-64 h-screen bg-white border-r border-slate-100 shadow-sm
+        flex flex-col w-64 h-full bg-white border-r border-slate-100 shadow-sm
         transition-transform duration-300
         ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
       `}

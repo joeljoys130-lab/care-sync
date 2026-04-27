@@ -18,8 +18,9 @@ const ForgotPassword = () => {
       await authAPI.forgotPassword({ email });
       toast.success('OTP sent! Check your email.');
       navigate('/reset-password', { state: { email } });
-    } catch {
-      toast.error('Something went wrong. Please try again.');
+    } catch (error) {
+      const message = error.response?.data?.message || 'Something went wrong. Please try again.';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -40,7 +41,7 @@ const ForgotPassword = () => {
             <span className="text-2xl">🔐</span>
           </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-1">Forgot Password</h2>
-          <p className="text-slate-500 text-sm mb-6">Enter your email and we'll send you an OTP to reset your password.</p>
+          <p className="text-slate-500 text-sm mb-6">Enter your registered email and we'll send a 6-digit OTP to reset your password.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

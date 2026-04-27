@@ -1,17 +1,23 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { FiMenu, FiBell, FiSun, FiMoon } from 'react-icons/fi';
+import { FiMenu, FiBell, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 
 const DashboardLayout = ({ role = 'patient' }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
   return (
-    <div className="flex h-screen overflow-hidden relative z-0">
+    <div className="flex h-[100dvh] overflow-hidden relative z-0">
       {/* ── Abstract Background Orbs ── */}
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-500/5 rounded-full filter blur-[100px] pointer-events-none -z-10"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-accent-500/5 rounded-full filter blur-[120px] pointer-events-none -z-10"></div>
@@ -59,6 +65,15 @@ const DashboardLayout = ({ role = 'patient' }) => {
               aria-label="Notifications"
             >
               <FiBell className="text-xl" />
+            </button>
+
+            {/* Logout (mobile only) */}
+            <button
+              onClick={handleLogout}
+              className="lg:hidden p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition"
+              aria-label="Logout"
+            >
+              <FiLogOut className="text-xl" />
             </button>
 
             {/* User avatar */}

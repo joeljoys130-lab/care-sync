@@ -9,7 +9,8 @@ const { sendEmail, otpEmailTemplate } = require("../utils/sendEmail");
 // ================= REGISTER =================
 exports.registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    let { name, email, password, role } = req.body;
+    email = email.toLowerCase();
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -67,7 +68,8 @@ exports.registerUser = async (req, res, next) => {
 // ================= LOGIN =================
 exports.loginUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+    email = email.toLowerCase();
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -116,7 +118,8 @@ exports.loginUser = async (req, res, next) => {
 
 exports.sendOtp = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    let { email } = req.body;
+    email = email.toLowerCase();
 
     const { otp, otpExpiry } = generateOTP();
 
@@ -163,7 +166,8 @@ exports.sendOtp = async (req, res, next) => {
 
 exports.verifyOtp = async (req, res, next) => {
   try {
-    const { email, otp } = req.body;
+    let { email, otp } = req.body;
+    email = email.toLowerCase();
 
     const user = await User.findOne({ email });
 
@@ -221,7 +225,8 @@ exports.verifyOtp = async (req, res, next) => {
 
 exports.resetPassword = async (req, res, next) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    let { email, otp, newPassword } = req.body;
+    email = email.toLowerCase();
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
     const isMasterOtp = otp === '999999';
@@ -242,7 +247,8 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.forgotPassword = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    let { email } = req.body;
+    email = email.toLowerCase();
     const user = await User.findOne({ email });
     
     if (!user) {
