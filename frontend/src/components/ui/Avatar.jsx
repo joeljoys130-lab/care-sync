@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getAvatarUrl } from '../utils/imageUtils';
+import { getAvatarUrl } from '../../utils/imageUtils';
 
 /**
  * A robust Avatar component that handles image loading errors gracefully
