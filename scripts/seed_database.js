@@ -40,17 +40,17 @@ const seedDatabase = async () => {
     // 3. CREATE DOCTORS
     console.log('🩺 Creating Doctors...');
     const doctorsData = [
-      { name: 'Dr. Sarah Smith', spec: 'Cardiology', fee: 800, city: 'New York', bio: 'Board-certified cardiologist with 15 years experience.' },
-      { name: 'Dr. John Doe', spec: 'Pediatrics', fee: 500, city: 'London', bio: 'Expert in pediatric care and child development.' },
-      { name: 'Dr. Emily Brown', spec: 'Neurology', fee: 1200, city: 'San Francisco', bio: 'Specialist in neurological disorders and brain health.' },
-      { name: 'Dr. Michael Johnson', spec: 'Orthopedics', fee: 700, city: 'Chicago', bio: 'Sports medicine and joint replacement specialist.' },
-      { name: 'Dr. Lisa Wong', spec: 'Dermatology', fee: 600, city: 'Singapore', bio: 'Clinical and cosmetic dermatology expert.' }
+      { name: 'Sarah Smith', spec: 'Cardiology', fee: 800, city: 'New York', bio: 'Board-certified cardiologist with 15 years experience.' },
+      { name: 'John Doe', spec: 'Pediatrics', fee: 500, city: 'London', bio: 'Expert in pediatric care and child development.' },
+      { name: 'Emily Brown', spec: 'Neurology', fee: 1200, city: 'San Francisco', bio: 'Specialist in neurological disorders and brain health.' },
+      { name: 'Michael Johnson', spec: 'Orthopedics', fee: 700, city: 'Chicago', bio: 'Sports medicine and joint replacement specialist.' },
+      { name: 'Lisa Wong', spec: 'Dermatology', fee: 600, city: 'Singapore', bio: 'Clinical and cosmetic dermatology expert.' }
     ];
 
     for (let doc of doctorsData) {
       const user = await User.create({
         name: doc.name,
-        email: `${doc.name.toLowerCase().replace(/^dr\. /i, '').replace(/ /g, '.')}@caresync.com`,
+        email: `${doc.name.toLowerCase().replace(/ /g, '.')}@caresync.com`,
         password: hashedPassword,
         role: 'doctor',
         isVerified: true,
