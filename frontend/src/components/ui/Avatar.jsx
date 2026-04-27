@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getAvatarUrl } from '../../utils/imageUtils';
 
 /**
@@ -9,7 +9,7 @@ const Avatar = ({ src, name, size = 'md', className = '' }) => {
   const [error, setError] = useState(false);
 
   // Reset error state when src changes
-  React.useEffect(() => {
+  useEffect(() => {
     setError(false);
   }, [src]);
 
