@@ -33,6 +33,7 @@ import AdminUsers       from './pages/admin/Users';
 import AdminDoctors     from './pages/admin/Doctors';
 import AdminAppts       from './pages/admin/Appointments';
 import AdminReviews     from './pages/admin/Reviews';
+import AdminPayments    from './pages/admin/Payments';
 
 /* ── Doctor pages ── */
 import DoctorDashboard  from './pages/doctor/Dashboard';
@@ -101,6 +102,7 @@ function App() {
           <Route path="/admin/doctors" element={<AdminDoctors />} />
           <Route path="/admin/appointments" element={<AdminAppts />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
+          <Route path="/admin/payments" element={<AdminPayments />} />
         </Route>
       </Route>
 

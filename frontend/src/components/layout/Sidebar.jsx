@@ -23,6 +23,7 @@ const NAV_ITEMS = {
     { label: 'Users',        icon: FiUsers,     to: '/admin/users' },
     { label: 'Doctors',      icon: FiUserCheck, to: '/admin/doctors' },
     { label: 'Appointments', icon: FiCalendar,  to: '/admin/appointments' },
+    { label: 'Financials',   icon: FiCreditCard, to: '/admin/payments' },
     { label: 'Reviews',      icon: FiStar,      to: '/admin/reviews' },
   ],
   doctor: [
