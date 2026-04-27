@@ -7,6 +7,12 @@ import { getAvatarUrl } from '../../utils/imageUtils';
  */
 const Avatar = ({ src, name, size = 'md', className = '' }) => {
   const [error, setError] = useState(false);
+
+  // Reset error state when src changes
+  React.useEffect(() => {
+    setError(false);
+  }, [src]);
+
   const initial = name ? name.charAt(0).toUpperCase() : '?';
   
   const sizeClasses = {
