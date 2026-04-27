@@ -26,8 +26,10 @@ exports.getDoctors = async (req, res, next) => {
 
     const query = { isApproved: true };
 
+    console.log("🔍 Fetching doctors with query:", JSON.stringify(query));
+    
     // ✅ FIXED (safe regex)
-    if (specialization) {
+    if (specialization && specialization !== "") {
       const safeSpec = escapeRegex(specialization);
       query.specialization = new RegExp(safeSpec, 'i');
     }
@@ -75,6 +77,7 @@ exports.getDoctors = async (req, res, next) => {
 
     const skip = (Number(page) - 1) * Number(limit);
     const total = await Doctor.countDocuments(query);
+    console.log(`📊 Found total: ${total} approved doctors`);
 
     const doctors = await Doctor.find(query)
       .populate('userId', 'name email avatar phone')
