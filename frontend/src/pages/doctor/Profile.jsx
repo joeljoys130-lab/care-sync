@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { userAPI, doctorAPI } from '../../api';
@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { FiSave, FiUser, FiDollarSign, FiAward, FiCamera } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { useRef } from 'react';
+import Avatar from '../../components/ui/Avatar';
 
 const SPECIALIZATIONS = [
   'Cardiology', 'Dermatology', 'General', 'Neurology',
@@ -105,13 +105,7 @@ const DoctorProfile = () => {
       {/* Avatar card */}
       <div className="card mb-6 flex items-center gap-5">
         <div className="relative flex-shrink-0">
-          <div className="w-20 h-20 rounded-2xl overflow-hidden bg-primary-50 flex items-center justify-center">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-primary-600 font-bold text-3xl">{user?.name?.charAt(0)}</span>
-            )}
-          </div>
+          <Avatar src={user?.avatar} name={user?.name} size="lg" />
           <button
             onClick={() => fileRef.current?.click()}
             className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary-600 text-white rounded-xl flex items-center justify-center shadow-md hover:bg-primary-700 transition"

@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fi';
 import { MdLocalHospital, MdCurrencyRupee } from 'react-icons/md';
 import { useAuth } from '../../context/AuthContext';
+import Avatar from '../ui/Avatar';
 
 const NAV_ITEMS = {
   patient: [
@@ -84,15 +85,7 @@ const Sidebar = ({ role = 'patient', open, onClose }) => {
       {/* User Info */}
       <div className="px-4 py-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-100 flex items-center justify-center flex-shrink-0">
-            {user?.avatar ? (
-              <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-primary-700 font-semibold text-sm">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
-              </span>
-            )}
-          </div>
+          <Avatar src={user?.avatar} name={user?.name} size="md" />
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-800 truncate">{user?.name || 'Patient'}</p>
             <p className="text-xs text-slate-400 truncate">{user?.email}</p>

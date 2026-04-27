@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import { FiMenu, FiBell, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import Avatar from '../ui/Avatar';
 
 const DashboardLayout = ({ role = 'patient' }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -78,15 +79,7 @@ const DashboardLayout = ({ role = 'patient' }) => {
 
             {/* User avatar */}
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 border border-slate-200 dark:border-slate-700">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-xl" />
-                ) : (
-                  <span className="text-primary-700 dark:text-primary-400 font-semibold text-sm">
-                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                  </span>
-                )}
-              </div>
+              <Avatar src={user?.avatar} name={user?.name} size="w-9 h-9" />
               <div className="hidden sm:block">
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-none">{user?.name || 'User'}</p>
                 <p className="text-xs text-slate-400 dark:text-slate-500 capitalize mt-0.5">{user?.role || role}</p>

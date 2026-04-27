@@ -6,6 +6,7 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { FiUser, FiMail, FiPhone, FiSave, FiCamera } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useRef, useEffect } from 'react';
+import Avatar from '../../components/ui/Avatar';
 
 const PatientProfile = () => {
   const { user, updateUser } = useAuth();
@@ -89,13 +90,7 @@ const PatientProfile = () => {
       {/* Avatar */}
       <div className="card mb-6 flex items-center gap-6">
         <div className="relative">
-          <div className="w-20 h-20 rounded-2xl overflow-hidden bg-primary-50 flex items-center justify-center">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-primary-600 font-bold text-3xl">{user?.name?.charAt(0)}</span>
-            )}
-          </div>
+          <Avatar src={user?.avatar} name={user?.name} size="lg" />
           <button
             onClick={() => fileRef.current?.click()}
             className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary-600 text-white rounded-xl flex items-center justify-center shadow-md hover:bg-primary-700 transition"
