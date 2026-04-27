@@ -15,7 +15,8 @@ export const getAvatarUrl = (avatarPath) => {
   }
 
   // Fallback to absolute URL if needed (e.g. for production)
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+  // NUCLEAR FIX: Hardcoding the Render URL
+  const backendUrl = 'https://care-sync-4a6s.onrender.com';
   const cleanPath = avatarPath.startsWith('/') ? avatarPath : `/${avatarPath}`;
   
   return `${backendUrl}${cleanPath}`;
