@@ -11,8 +11,11 @@
 import axios from 'axios';
 
 /* ── Base instance ──────────────────────────────────────────── */
+const rawBaseURL = import.meta.env.VITE_API_URL || '/api';
+console.log('CareSync API Initialization - BaseURL:', rawBaseURL);
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',          // proxied to http://localhost:5000 by vite.config.js in dev
+  baseURL: rawBaseURL,
   headers: { 'Content-Type': 'application/json' },
 });
 
