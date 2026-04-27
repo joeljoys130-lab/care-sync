@@ -96,23 +96,29 @@ exports.toggleFavorite = async (req, res, next) => {
   const doctor = await Doctor.findById(doctorId);
   if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
 
-  const patient = await Patient.findOne({ userId: req.user.id });
-  if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
+    const patient = await Patient.findOne({ userId: req.user.id });
+    if (!patient) return res.status(404).json({ success: false, message: 'Patient profile not found.' });
 
-  const index = patient.favorites.findIndex(id => id.toString() === doctorId.toString());
-  let message;
-  if (index > -1) {
-    patient.favorites.splice(index, 1);
-    message = 'Removed from favorites.';
-  } else {
-    patient.favorites.push(doctorId);
-    message = 'Added to favorites.';
-  }
+    // Initialize favorites if it doesn't exist (prevents crash on old accounts)
+    if (!patient.favorites) {
+      patient.favorites = [];
+    }
 
-  await patient.save();
-  res.json({ success: true, message, data: { favorites: patient.favorites } });
-} catch (err) {
-    next(err);
+    const index = patient.favorites.findIndex(id => id && id.toString() === doctorId.toString());
+    let message;
+    if (index > -1) {
+      patient.favorites.splice(index, 1);
+      message = 'Removed from favorites.';
+    } else {
+      patient.favorites.push(doctorId);
+      message = 'Added to favorites.';
+    }
+
+    await patient.save();
+    res.json({ success: true, message, data: { favorites: patient.favorites } });
+  } catch (err) {
+    console.error("❌ Toggle favorite failed:", err);
+    res.status(400).json({ success: false, message: err.message || 'Could not update favorites.' });
   }
 };
 

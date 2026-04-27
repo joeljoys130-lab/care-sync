@@ -33,7 +33,10 @@ const DoctorCard = ({ doctor, isFavorite = false }) => {
       qc.invalidateQueries(['patient-favorites']);
       qc.invalidateQueries(['doctors']);
     },
-    onError: () => toast.error('Could not update favorites'),
+    onError: (error) => {
+      const msg = error.response?.data?.message || 'Could not update favorites';
+      toast.error(msg);
+    },
   });
 
   return (
