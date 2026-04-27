@@ -15,6 +15,6 @@ router.post('/razorpay/order', protect, authorize('patient'), createRazorpayOrde
 router.post('/razorpay/confirm', protect, authorize('patient'), confirmPayment);
 
 // Payment history
-router.get('/history', protect, authorize('patient', 'doctor'), getPaymentHistory);
+router.get('/history', protect, authorize('patient', 'doctor', 'admin'), getPaymentHistory);
 
 module.exports = router;
