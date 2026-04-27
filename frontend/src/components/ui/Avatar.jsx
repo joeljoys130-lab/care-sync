@@ -7,11 +7,27 @@ import { getAvatarUrl } from '../../utils/imageUtils.js';
  */
 const Avatar = ({ src, name, size = 'md', className = '' }) => {
   const [error, setError] = useState(false);
+  const [cacheBuster, setCacheBuster] = useState(Date.now());
+  const [retryCount, setRetryCount] = useState(0);
 
-  // Reset error state when src changes
+  // Reset error state and update cache buster when src changes
   useEffect(() => {
     setError(false);
+    setCacheBuster(Date.now());
+    setRetryCount(0);
   }, [src]);
+
+  // Automatic retry if image fails to load
+  useEffect(() => {
+    if (error && retryCount < 3) {
+      const timer = setTimeout(() => {
+        setError(false);
+        setRetryCount(prev => prev + 1);
+        setCacheBuster(Date.now());
+      }, 3000); // Retry every 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [error, retryCount]);
 
   const initial = name ? name.charAt(0).toUpperCase() : '?';
   
@@ -22,7 +38,9 @@ const Avatar = ({ src, name, size = 'md', className = '' }) => {
     xl: 'w-32 h-32 text-5xl',
   };
 
-  const finalUrl = getAvatarUrl(src);
+  // Add cache buster to URL to force browser to re-fetch
+  const baseUrl = getAvatarUrl(src);
+  const finalUrl = baseUrl ? `${baseUrl}?t=${cacheBuster}` : null;
 
   // If there's no URL or an error occurred, show initials
   if (!finalUrl || error) {
