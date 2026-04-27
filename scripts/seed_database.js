@@ -24,7 +24,7 @@ const seedDatabase = async () => {
       await collection.deleteMany({});
     }
 
-    const hashedPassword = await bcrypt.hash('caresync123', 10);
+    const hashedPassword = await bcrypt.hash('123456', 10);
 
     // 2. CREATE ADMIN
     console.log('👑 Creating Admin...');
@@ -50,7 +50,7 @@ const seedDatabase = async () => {
     for (let doc of doctorsData) {
       const user = await User.create({
         name: doc.name,
-        email: `${doc.name.toLowerCase().replace(/ /g, '.')}@caresync.com`,
+        email: `${doc.name.toLowerCase().replace(/^dr\. /i, '').replace(/ /g, '.')}@caresync.com`,
         password: hashedPassword,
         role: 'doctor',
         isVerified: true,
