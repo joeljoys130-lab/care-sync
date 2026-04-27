@@ -210,10 +210,32 @@ exports.getPaymentHistory = async (req, res, next) => {
     .skip(skip)
     .limit(Number(limit));
 
+  // Calculate totals for the overview stats (global, not just this page)
+  const stats = await Payment.aggregate([
+    { $match: query },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: {
+          $sum: { $cond: [{ $eq: ["$status", "completed"] }, "$amount", 0] }
+        },
+        totalRefunded: {
+          $sum: { $cond: [{ $eq: ["$status", "refunded"] }, "$amount", 0] }
+        },
+        pendingCount: {
+          $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] }
+        }
+      }
+    }
+  ]);
+
+  const overview = stats[0] || { totalRevenue: 0, totalRefunded: 0, pendingCount: 0 };
+
   res.json({
     success: true,
     data: {
       payments,
+      overview,
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
     },
   });

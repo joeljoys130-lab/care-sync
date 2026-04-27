@@ -38,12 +38,14 @@ const AdminPayments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [stats, setStats] = useState({ totalRevenue: 0, pendingCount: 0 });
 
   useEffect(() => {
     const fetchPayments = async () => {
       try {
         const res = await paymentAPI.getHistory();
         setPayments(res.data.data.payments);
+        setStats(res.data.data.overview);
       } catch (error) {
         console.error("Error fetching payments:", error);
       } finally {
@@ -59,8 +61,6 @@ const AdminPayments = () => {
     p.patientId?.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.transactionId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const totalVolume = payments.reduce((acc, p) => p.status === 'completed' ? acc + p.amount : acc, 0);
 
   return (
     <div className="page-wrapper max-w-7xl mx-auto">
@@ -78,7 +78,7 @@ const AdminPayments = () => {
             <FiDollarSign size={28} />
           </div>
           <div>
-            <p className="text-2xl font-black text-slate-800">₹{totalVolume.toLocaleString('en-IN')}</p>
+            <p className="text-2xl font-black text-slate-800">₹{stats.totalRevenue?.toLocaleString('en-IN')}</p>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Revenue</p>
           </div>
         </div>
@@ -96,7 +96,7 @@ const AdminPayments = () => {
             <FiClock size={28} />
           </div>
           <div>
-            <p className="text-2xl font-black text-slate-800">{payments.filter(p => p.status === 'pending').length}</p>
+            <p className="text-2xl font-black text-slate-800">{stats.pendingCount}</p>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending</p>
           </div>
         </div>
