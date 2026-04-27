@@ -197,6 +197,10 @@ exports.getPaymentHistory = async (req, res, next) => {
   const skip = (Number(page) - 1) * Number(limit);
   const total = await Payment.countDocuments(query);
   const payments = await Payment.find(query)
+    .populate({
+      path: 'doctorId',
+      populate: { path: 'userId', select: 'name' }
+    })
     .populate('appointmentId')
     .sort({ createdAt: -1 })
     .skip(skip)
