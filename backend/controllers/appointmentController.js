@@ -119,6 +119,46 @@ exports.cancelAppointment = async (req, res, next) => {
   appointment.cancelledAt = new Date();
   await appointment.save();
 
+  // ─── Automated Refund Logic ────────────────────────────────────────────────
+  if (appointment.isPaid) {
+    const Payment = require('../models/Payment');
+    try {
+      const payment = await Payment.findOne({ appointmentId: appointment._id, status: 'completed' });
+      if (payment) {
+        console.log(`💰 Processing refund for payment ${payment._id}...`);
+        
+        // 1. Update Payment Record
+        payment.status = 'refunded';
+        payment.refundAmount = payment.amount;
+        payment.refundedAt = new Date();
+        payment.refundReason = `Appointment cancelled by ${req.user.role}: ${reason || 'No reason provided'}`;
+        await payment.save();
+
+        // 2. Deduct from Doctor's Earnings
+        await Doctor.findByIdAndUpdate(appointment.doctorId, {
+          $inc: { totalEarnings: -payment.amount }
+        });
+
+        // 3. Notify Patient of Refund
+        const patientUser = await Patient.findById(appointment.patientId).populate('userId', '_id');
+        await createNotification({
+          userId: patientUser.userId._id,
+          title: 'Refund Processed',
+          message: `Your payment of ₹${payment.amount} for the appointment on ${appointment.appointmentDate.toDateString()} has been refunded.`,
+          type: 'payment_success', // Reusing type for green styling
+          refId: payment._id,
+          refModel: 'Payment',
+        });
+        
+        console.log(`✅ Refund successful for appointment ${appointment._id}`);
+      }
+    } catch (refundErr) {
+      console.error('❌ Refund processing failed:', refundErr);
+      // We don't block the cancellation even if refund logging fails, 
+      // but in production you might want to retry.
+    }
+  }
+
   // Notify opposing party
   const patient = await Patient.findById(appointment.patientId).populate('userId', '_id');
   const doctor = await Doctor.findById(appointment.doctorId).populate('userId', '_id');
