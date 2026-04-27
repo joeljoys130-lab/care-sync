@@ -201,6 +201,10 @@ exports.getPaymentHistory = async (req, res, next) => {
       path: 'doctorId',
       populate: { path: 'userId', select: 'name' }
     })
+    .populate({
+      path: 'patientId',
+      populate: { path: 'userId', select: 'name' }
+    })
     .populate('appointmentId')
     .sort({ createdAt: -1 })
     .skip(skip)

@@ -163,10 +163,10 @@ const DoctorEarnings = () => {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-xl flex items-center justify-center font-bold">
-                            {p.patientId?.name?.charAt(0) || <FiUser />}
+                            {p.patientId?.userId?.name?.charAt(0) || <FiUser />}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-slate-800 leading-none">{p.patientId?.name || 'Patient'}</p>
+                            <p className="text-sm font-bold text-slate-800 leading-none">{p.patientId?.userId?.name || 'Patient'}</p>
                             <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">{format(new Date(p.createdAt), "MMM dd, yyyy")}</p>
                           </div>
                         </div>

@@ -56,7 +56,7 @@ const AdminPayments = () => {
 
   const filteredPayments = payments.filter(p => 
     p.doctorId?.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.patientId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.patientId?.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.transactionId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -159,7 +159,7 @@ const AdminPayments = () => {
                           <div className="w-7 h-7 bg-primary-50 text-primary-600 rounded-lg flex items-center justify-center">
                             <FiUser size={14} />
                           </div>
-                          <span className="text-sm font-semibold text-slate-800">{p.patientId?.name || 'Unknown'}</span>
+                          <span className="text-sm font-semibold text-slate-800">{p.patientId?.userId?.name || 'Unknown'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-6">
