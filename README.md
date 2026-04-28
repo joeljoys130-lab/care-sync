@@ -20,7 +20,7 @@ A production-ready **MERN stack** healthcare application with role-based dashboa
 | Charts | Recharts |
 | Forms | React Hook Form + Zod |
 | Email | Nodemailer |
-| Payments | Stripe (mock-ready) |
+
 
 ---
 
