@@ -1,6 +1,13 @@
 # CareSync — Advanced Digital Healthcare & Doctor Appointment System
 
+**Live Link**: https://care-sync-xi.vercel.app/
+
 A production-ready **MERN stack** healthcare application with role-based dashboards for Patients, Doctors, and Admins.
+
+## 📖 Project Overview
+- **What is it about?**: CareSync is a comprehensive digital platform that bridges the gap between patients and healthcare providers.
+- **Problem Statement**: Scheduling medical appointments often involves long wait times, manual record keeping, and miscommunication between patients and clinics.
+- **Goal/Objective**: To streamline the booking process, secure patient medical records, and provide an intuitive dashboard for doctors to manage their practice efficiently.
 
 ## 🚀 Tech Stack
 
@@ -11,7 +18,6 @@ A production-ready **MERN stack** healthcare application with role-based dashboa
 | Database | MongoDB + Mongoose |
 | Auth | JWT (access + refresh) + OTP email verification |
 | Charts | Recharts |
-| Server State | TanStack Query v5 |
 | Forms | React Hook Form + Zod |
 | Email | Nodemailer |
 | Payments | Stripe (mock-ready) |
@@ -70,7 +76,7 @@ npm run dev     # Start on http://localhost:5173
 
 | Role | Email | Password |
 |------|-------|----------|
-| **Admin** | admin@caresync.com | admin123 |
+| **Admin** | caresynckalv@gmail.com | 123456 |
 | **Doctor** | sarah@caresync.com | doctor123 |
 | **Patient** | alice@example.com | patient123 |
 
@@ -110,6 +116,19 @@ npm run dev     # Start on http://localhost:5173
 - MongoDB injection prevention (express-mongo-sanitize)
 - Validation on every endpoint (express-validator)
 - Role-based authorization middleware
+
+
+---
+
+## 👥 Team & Contributors
+
+| Name | Role | Responsibility |
+| :--- | :--- | :--- |
+| **Joel Joy** | **Lead** | Project Architecture, Integration, Deployment, and Security. |
+| **Himal** | **Developer** | Patient Module, Search Logic, and User Experience. |
+| **Kavish** | **Developer** | Doctor Backend, MVC Refactoring, and Schedule Management. |
+| **Jaishal** | **Developer** | Payment Integration, Razorpay Webhooks, and Transaction History. |
+| **Adithya** | **Developer** | Admin Analytics, Recharts Implementation, and Infrastructure. |
 
 ---
 
